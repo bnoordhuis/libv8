@@ -9,7 +9,7 @@ debian/control.in::
 
 debian/watch::
 	sed $(foreach re,API ABI ARCHS,-e 's/__$(re)__/$($(re))/g') \
-		< debian/control.in.in > debian/control.in
+		< debian/watch.in > debian/watch
 
 include /usr/share/cdbs/1/rules/upstream-tarball.mk
 include /usr/share/cdbs/1/rules/utils.mk
