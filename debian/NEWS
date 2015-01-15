@@ -1,0 +1,12 @@
+libv8-3.14 (3.14.5.8-9) unstable; urgency=medium
+
+ The high rate of vulnerabilities and partial lack of upstream support in the
+ form of long term branches make it very difficult to support libv8 with
+ backported security fixes.
+ Additionally, library interdependencies make it impossible to update to
+ newer upstream releases.
+ Therefore, packages built upon libv8 are included in Jessie, but not covered
+ by security support.
+ These packages should not be used in production environments.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 24 Nov 2014 20:25:46 +0100

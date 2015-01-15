@@ -1,9 +1,12 @@
-libv8-3.14 (3.14.5.8-9) UNRELEASED; urgency=medium
+libv8-3.14 (3.14.5.8-9) unstable; urgency=medium
 
-  [ Peter Michael Green ]
-  * Add Raspbian support to configuration logic (Closes: #749288).
+  [ Jérémy Lal ]
+  * Add NEWS about lack of security support
 
- -- Jérémy Lal <kapouer@melix.org>  Tue, 09 Sep 2014 00:12:22 +0200
+  [ Jean Baptiste Favre ]
+  * Add patch for CVE-2014-5256 (Closes: #7603850)
+
+ -- Balint Reczey <balint@balintreczey.hu>  Mon, 24 Nov 2014 20:28:53 +0100
 
 libv8-3.14 (3.14.5.8-8) unstable; urgency=medium
 
