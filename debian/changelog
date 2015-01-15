@@ -1,9 +1,9 @@
-libv8-3.14 (3.14.5.8-10) UNRELEASED; urgency=medium
+libv8-3.28.71 (3.28.71.19-1) UNRELEASED; urgency=medium
 
   [ Peter Michael Green ]
   * Add Raspbian support to configuration logic (Closes: #749288).
 
- -- Jérémy Lal <kapouer@melix.org>  Thu, 15 Jan 2015 01:00:34 +0100
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 15 Jan 2015 01:02:47 +0100
 
 libv8-3.14 (3.14.5.8-9) unstable; urgency=medium
 
