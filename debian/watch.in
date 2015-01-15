@@ -1,4 +1,5 @@
 # Compulsory line, this is a version 3 file
 version=3
-opts=downloadurlmangle=s/\+\/([\d.]*)/+archive\/$1.tar.gz/ \
- https://chromium.googlesource.com/v8/v8.git/+refs .*/v8.git/\+/(__API__[\d.]*)
+opts=downloadurlmangle=s/\+\/([\d.]*)/+archive\/$1.tar.gz/,\
+filenamemangle=s/.*\/v8\.git\/\+\/(__ABI__[\d.]*)/v8-$1.tar.gz/ \
+ https://chromium.googlesource.com/v8/v8.git/+refs .*/v8.git/\+/(__ABI__[\d.]*)
