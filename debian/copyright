@@ -62,6 +62,14 @@ Files: debian/patches/icu_chromium_gyp_files.patch
 Copyright: 2012, The Chromium Authors
 License: BSD-3-clause~Google
 
+Files: third_party/fdlibm/*
+Copyright: 1993 by Sun Microsystems, Inc. All rights reserved.
+License:
+ Developed at SunSoft, a Sun Microsystems, Inc. business.
+ Permission to use, copy, modify, and distribute this
+ software is freely granted, provided that this notice
+ is preserved.
+
 Files: tools/testrunner/server/daemon.py
 Copyright: none (Public Domain)
 License: public-domain
