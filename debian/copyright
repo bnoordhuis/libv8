@@ -12,7 +12,9 @@ Files: src/arm/assembler-arm*
  src/assembler.*
  src/ia32/assembler-ia32*
  src/mips/assembler-mips*
+ src/mips64/assembler-mips64*
  src/x64/assembler-x64.h
+ src/x87/assembler-x87*
 Copyright: 1994-2006,2011, Sun Microsystems Inc.
   2011-2012, the V8 Project Authors
 License: BSD-3-clause~SUN
