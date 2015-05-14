@@ -1,0 +1,16 @@
+Description: compiler-unittests need gmock not available in debian, disable them
+Forwarded: not-needed
+Author: Jérémy Lal <kapouer@melix.org>
+Last-Update: 2015-05-14
+--- a/build/all.gyp
++++ b/build/all.gyp
+@@ -11,8 +11,7 @@
+         '../samples/samples.gyp:*',
+         '../src/d8.gyp:d8',
+         '../test/base-unittests/base-unittests.gyp:*',
+-        '../test/cctest/cctest.gyp:*',
+-        '../test/compiler-unittests/compiler-unittests.gyp:*',
++        '../test/cctest/cctest.gyp:*'
+       ],
+       'conditions': [
+         ['component!="shared_library"', {
