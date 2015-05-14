@@ -58,6 +58,10 @@ Copyright: 2012, The Chromium Authors
   2012, the V8 project authors
 License: BSD-3-clause~Google
 
+Files: debian/patches/icu_chromium_gyp_files.patch
+Copyright: 2012, The Chromium Authors
+License: BSD-3-clause~Google
+
 Files: tools/testrunner/server/daemon.py
 Copyright: none (Public Domain)
 License: public-domain
