@@ -140,9 +140,10 @@ pre-build::
 	cp -f debian/libv8-dev.install debian/libv8-$(API)-dev.install
 	cp -f debian/libv8-dev.examples debian/libv8-$(API)-dev.examples
 	cp -r debian/icu third_party/
-	mkdir testing/gtest
-	ln -s /usr/src/gtest/src testing/gtest/src
-	ln -s /usr/include/gtest testing/gtest/include
+	mkdir -p testing/gtest
+	cp -r /usr/src/gtest/src testing/gtest/
+	mkdir -p testing/gtest/include
+	cp -r /usr/include/gtest testing/gtest/include/
 clean::
 	rm -f debian/libv8-$(API)-dev.install
 	rm -f debian/libv8-$(API)-dev.examples
