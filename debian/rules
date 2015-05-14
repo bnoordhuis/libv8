@@ -139,7 +139,6 @@ DEB_DH_INSTALL_ARGS_libv8-$(ABI) = usr/lib/$(LIBSTEM).$(ABI)
 pre-build::
 	cp -f debian/libv8-dev.install debian/libv8-$(API)-dev.install
 	cp -f debian/libv8-dev.examples debian/libv8-$(API)-dev.examples
-	cp -r debian/icu third_party/
 	mkdir -p testing/gtest
 	cp -r /usr/src/gtest/src testing/gtest/
 	mkdir -p testing/gtest/include
@@ -147,7 +146,6 @@ pre-build::
 clean::
 	rm -f debian/libv8-$(API)-dev.install
 	rm -f debian/libv8-$(API)-dev.examples
-	rm -rf third_party/icu
 	rm -rf testing/gtest
 
 clean::
