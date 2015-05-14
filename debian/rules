@@ -152,6 +152,7 @@ clean::
 clean::
 	rm -rf out
 	find tools/ -name "*.pyc" -exec rm -f '{}' \;
+	rm -f build/*.pyc
 	rm -f test/*/*.pyc
 	rm -f test/*/*.status2
 
