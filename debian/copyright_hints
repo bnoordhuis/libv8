@@ -8,7 +8,8 @@ Files: LICENSE
  LICENSE.v8
  Makefile
  Makefile.android
- SConstruct
+ Makefile.nacl
+ WATCHLISTS
  benchmarks/base.js
  benchmarks/regexp.js
  benchmarks/richards.js
@@ -17,464 +18,33 @@ Files: LICENSE
  benchmarks/spinning-balls/v.js
  benchmarks/splay.js
  build/android.gypi
- build/common.gypi
+ build/detect_v8_host_arch.py
+ build/features.gypi
  build/gyp_v8
+ build/gyp_v8.py
+ build/shim_headers.gypi
  build/standalone.gypi
+ build/toolchain.gypi
  debian/patches/0004_hurd.patch
  debian/patches/0014_cve_2013_6639_6640.patch
  debian/samples.gyp
- include/v8-debug.h
- include/v8-preparser.h
- include/v8-profiler.h
- include/v8-testing.h
- include/v8.h
- include/v8stdint.h
- preparser/SConscript
- preparser/preparser-process.cc
- preparser/preparser.gyp
- samples/SConscript
  samples/count-hosts.js
  samples/lineprocessor.cc
  samples/process.cc
  samples/samples.gyp
  samples/shell.cc
- src/SConscript
- src/accessors.cc
- src/accessors.h
- src/allocation-inl.h
- src/allocation.cc
- src/allocation.h
- src/api.cc
- src/api.h
- src/apinatives.js
- src/apiutils.h
- src/arguments.h
- src/arm/builtins-arm.cc
- src/arm/code-stubs-arm.cc
- src/arm/code-stubs-arm.h
- src/arm/codegen-arm.cc
- src/arm/codegen-arm.h
- src/arm/constants-arm.cc
- src/arm/constants-arm.h
- src/arm/cpu-arm.cc
- src/arm/debug-arm.cc
- src/arm/deoptimizer-arm.cc
- src/arm/disasm-arm.cc
- src/arm/frames-arm.cc
- src/arm/frames-arm.h
- src/arm/full-codegen-arm.cc
- src/arm/ic-arm.cc
- src/arm/lithium-arm.cc
- src/arm/lithium-arm.h
- src/arm/lithium-codegen-arm.cc
- src/arm/lithium-codegen-arm.h
- src/arm/lithium-gap-resolver-arm.cc
- src/arm/lithium-gap-resolver-arm.h
- src/arm/macro-assembler-arm.cc
- src/arm/macro-assembler-arm.h
- src/arm/regexp-macro-assembler-arm.cc
- src/arm/regexp-macro-assembler-arm.h
- src/arm/simulator-arm.cc
- src/arm/simulator-arm.h
- src/arm/stub-cache-arm.cc
- src/array.js
- src/ast.cc
- src/ast.h
- src/atomicops.h
- src/atomicops_internals_arm_gcc.h
- src/atomicops_internals_mips_gcc.h
- src/atomicops_internals_x86_gcc.cc
- src/atomicops_internals_x86_gcc.h
- src/atomicops_internals_x86_macosx.h
- src/atomicops_internals_x86_msvc.h
- src/bignum-dtoa.cc
- src/bignum-dtoa.h
- src/bignum.cc
- src/bignum.h
- src/bootstrapper.cc
- src/bootstrapper.h
- src/builtins.cc
- src/builtins.h
- src/bytecodes-irregexp.h
- src/cached-powers.cc
- src/cached-powers.h
- src/char-predicates.h
- src/checks.cc
- src/checks.h
- src/circular-queue-inl.h
- src/circular-queue.cc
- src/circular-queue.h
- src/code-stubs.cc
- src/code-stubs.h
- src/code.h
- src/codegen.cc
- src/codegen.h
- src/collection.js
- src/compilation-cache.cc
- src/compilation-cache.h
- src/compiler-intrinsics.h
- src/compiler.cc
- src/compiler.h
- src/contexts.cc
- src/contexts.h
- src/conversions-inl.h
- src/conversions.cc
- src/conversions.h
- src/counters.cc
- src/counters.h
- src/cpu-profiler-inl.h
- src/cpu-profiler.cc
- src/cpu-profiler.h
- src/cpu.h
- src/d8-debug.cc
- src/d8-debug.h
- src/d8-posix.cc
- src/d8-readline.cc
- src/d8-windows.cc
- src/d8.cc
+ src/arm64/assembler-arm64.cc
+ src/ast-value-factory.cc
+ src/ast-value-factory.h
+ src/base/atomicops_internals_mips64_gcc.h
  src/d8.gyp
- src/d8.h
- src/d8.js
- src/data-flow.cc
- src/data-flow.h
- src/date.cc
- src/date.h
- src/date.js
- src/dateparser-inl.h
- src/dateparser.cc
- src/dateparser.h
- src/debug-agent.cc
- src/debug-agent.h
- src/debug-debugger.js
- src/debug.cc
- src/debug.h
- src/deoptimizer.cc
- src/deoptimizer.h
- src/disasm.h
- src/disassembler.cc
- src/disassembler.h
- src/diy-fp.cc
- src/diy-fp.h
- src/double.h
- src/dtoa.cc
- src/dtoa.h
- src/elements-kind.cc
- src/elements-kind.h
- src/elements.cc
- src/elements.h
- src/execution.cc
- src/execution.h
- src/extensions/externalize-string-extension.cc
- src/extensions/externalize-string-extension.h
- src/extensions/gc-extension.cc
- src/extensions/gc-extension.h
- src/extensions/statistics-extension.cc
- src/extensions/statistics-extension.h
- src/factory.cc
- src/factory.h
- src/fast-dtoa.cc
- src/fast-dtoa.h
- src/fixed-dtoa.cc
- src/fixed-dtoa.h
- src/flag-definitions.h
- src/flags.cc
- src/flags.h
- src/frames-inl.h
- src/frames.cc
- src/frames.h
- src/full-codegen.cc
- src/full-codegen.h
- src/func-name-inferrer.cc
- src/func-name-inferrer.h
- src/gdb-jit.cc
- src/gdb-jit.h
- src/global-handles.cc
- src/global-handles.h
- src/globals.h
- src/handles-inl.h
- src/handles.cc
- src/handles.h
- src/hashmap.h
- src/heap-inl.h
- src/heap-profiler.cc
- src/heap-profiler.h
- src/heap.cc
- src/heap.h
- src/hydrogen-instructions.cc
- src/hydrogen-instructions.h
- src/hydrogen.h
- src/ia32/builtins-ia32.cc
- src/ia32/code-stubs-ia32.cc
- src/ia32/code-stubs-ia32.h
- src/ia32/codegen-ia32.cc
- src/ia32/codegen-ia32.h
- src/ia32/cpu-ia32.cc
- src/ia32/debug-ia32.cc
- src/ia32/deoptimizer-ia32.cc
- src/ia32/disasm-ia32.cc
- src/ia32/frames-ia32.cc
- src/ia32/frames-ia32.h
- src/ia32/full-codegen-ia32.cc
- src/ia32/ic-ia32.cc
- src/ia32/lithium-codegen-ia32.cc
- src/ia32/lithium-codegen-ia32.h
- src/ia32/lithium-gap-resolver-ia32.cc
- src/ia32/lithium-gap-resolver-ia32.h
- src/ia32/lithium-ia32.cc
- src/ia32/lithium-ia32.h
- src/ia32/macro-assembler-ia32.cc
- src/ia32/macro-assembler-ia32.h
- src/ia32/regexp-macro-assembler-ia32.cc
- src/ia32/regexp-macro-assembler-ia32.h
- src/ia32/simulator-ia32.cc
- src/ia32/simulator-ia32.h
- src/ia32/stub-cache-ia32.cc
- src/ic-inl.h
- src/ic.cc
- src/ic.h
- src/incremental-marking-inl.h
- src/incremental-marking.cc
- src/incremental-marking.h
- src/inspector.cc
- src/inspector.h
- src/interface.cc
- src/interface.h
- src/interpreter-irregexp.cc
- src/interpreter-irregexp.h
- src/isolate-inl.h
- src/isolate.cc
- src/isolate.h
- src/json-parser.h
- src/json.js
- src/jsregexp.cc
- src/jsregexp.h
- src/lazy-instance.h
- src/list-inl.h
- src/list.h
- src/lithium-allocator-inl.h
- src/lithium-allocator.cc
- src/lithium-allocator.h
- src/lithium.cc
- src/lithium.h
- src/liveedit-debugger.js
- src/liveedit.cc
- src/liveedit.h
- src/liveobjectlist-inl.h
- src/liveobjectlist.cc
- src/liveobjectlist.h
- src/log-inl.h
- src/log-utils.cc
- src/log-utils.h
- src/log.cc
- src/log.h
- src/macro-assembler.h
  src/macros.py
- src/mark-compact-inl.h
- src/mark-compact.cc
- src/mark-compact.h
- src/math.js
- src/messages.cc
- src/messages.h
- src/messages.js
- src/mips/builtins-mips.cc
- src/mips/code-stubs-mips.cc
- src/mips/code-stubs-mips.h
- src/mips/codegen-mips.cc
- src/mips/codegen-mips.h
- src/mips/constants-mips.cc
- src/mips/constants-mips.h
- src/mips/cpu-mips.cc
- src/mips/debug-mips.cc
- src/mips/deoptimizer-mips.cc
- src/mips/disasm-mips.cc
- src/mips/frames-mips.cc
- src/mips/frames-mips.h
- src/mips/full-codegen-mips.cc
- src/mips/ic-mips.cc
- src/mips/lithium-codegen-mips.cc
- src/mips/lithium-codegen-mips.h
- src/mips/lithium-gap-resolver-mips.cc
- src/mips/lithium-gap-resolver-mips.h
- src/mips/lithium-mips.cc
- src/mips/lithium-mips.h
- src/mips/macro-assembler-mips.cc
- src/mips/macro-assembler-mips.h
- src/mips/regexp-macro-assembler-mips.cc
- src/mips/regexp-macro-assembler-mips.h
- src/mips/simulator-mips.cc
- src/mips/simulator-mips.h
- src/mips/stub-cache-mips.cc
- src/mirror-debugger.js
- src/misc-intrinsics.h
- src/mksnapshot.cc
- src/natives.h
- src/objects-debug.cc
- src/objects-inl.h
- src/objects-printer.cc
- src/objects-visiting-inl.h
- src/objects-visiting.cc
- src/objects-visiting.h
- src/objects.cc
- src/objects.h
- src/once.cc
- src/once.h
- src/optimizing-compiler-thread.cc
- src/optimizing-compiler-thread.h
- src/parser.cc
- src/parser.h
- src/platform-cygwin.cc
- src/platform-freebsd.cc
- src/platform-gnu.cc
- src/platform-linux.cc
- src/platform-macos.cc
- src/platform-nullos.cc
- src/platform-openbsd.cc
- src/platform-posix.cc
- src/platform-posix.h
- src/platform-solaris.cc
- src/platform-tls-mac.h
- src/platform-tls-win32.h
- src/platform-tls.h
- src/platform-win32.cc
- src/platform.h
- src/preparse-data-format.h
- src/preparse-data.cc
- src/preparse-data.h
- src/preparser-api.cc
- src/preparser.cc
- src/preparser.h
- src/prettyprinter.cc
- src/prettyprinter.h
- src/profile-generator-inl.h
- src/profile-generator.cc
- src/profile-generator.h
- src/property-details.h
- src/property.cc
- src/property.h
- src/proxy.js
- src/regexp-macro-assembler-irregexp-inl.h
- src/regexp-macro-assembler-irregexp.cc
- src/regexp-macro-assembler-irregexp.h
- src/regexp-macro-assembler-tracer.cc
- src/regexp-macro-assembler-tracer.h
- src/regexp-macro-assembler.cc
- src/regexp-macro-assembler.h
- src/regexp-stack.cc
- src/regexp-stack.h
- src/regexp.js
- src/rewriter.cc
- src/rewriter.h
- src/runtime-profiler.cc
- src/runtime-profiler.h
- src/runtime.h
- src/runtime.js
- src/safepoint-table.cc
- src/safepoint-table.h
- src/scanner-character-streams.cc
- src/scanner-character-streams.h
- src/scopeinfo.cc
- src/scopeinfo.h
- src/scopes.cc
- src/scopes.h
- src/serialize.cc
- src/serialize.h
- src/simulator.h
- src/small-pointer-list.h
- src/smart-pointers.h
- src/snapshot-common.cc
- src/snapshot-empty.cc
- src/snapshot.h
- src/spaces-inl.h
- src/spaces.cc
- src/spaces.h
- src/splay-tree-inl.h
- src/splay-tree.h
- src/store-buffer-inl.h
- src/store-buffer.cc
- src/store-buffer.h
- src/string-search.cc
- src/string-search.h
- src/string-stream.cc
- src/string-stream.h
- src/string.js
- src/strtod.cc
- src/strtod.h
- src/stub-cache.cc
- src/stub-cache.h
- src/token.cc
- src/token.h
- src/transitions-inl.h
- src/transitions.cc
- src/transitions.h
- src/type-info.cc
- src/type-info.h
- src/unbound-queue-inl.h
- src/unbound-queue.h
- src/unicode-inl.h
- src/unicode.cc
- src/unicode.h
- src/uri.js
- src/utils-inl.h
- src/utils.cc
- src/utils.h
- src/v8-counters.cc
- src/v8-counters.h
- src/v8.cc
- src/v8.h
- src/v8checks.h
- src/v8conversions.cc
- src/v8conversions.h
- src/v8dll-main.cc
- src/v8globals.h
- src/v8memory.h
- src/v8natives.js
- src/v8preparserdll-main.cc
- src/v8threads.cc
- src/v8threads.h
- src/v8utils.cc
- src/v8utils.h
- src/variables.cc
- src/variables.h
+ src/perf-jit.cc
+ src/perf-jit.h
+ src/third_party/vtune/v8vtune.gyp
  src/version.cc
- src/version.h
- src/vm-state-inl.h
- src/vm-state.h
- src/win32-headers.h
- src/win32-math.cc
- src/win32-math.h
- src/x64/assembler-x64-inl.h
- src/x64/assembler-x64.cc
- src/x64/builtins-x64.cc
- src/x64/code-stubs-x64.cc
- src/x64/code-stubs-x64.h
- src/x64/codegen-x64.cc
- src/x64/codegen-x64.h
- src/x64/cpu-x64.cc
- src/x64/debug-x64.cc
- src/x64/deoptimizer-x64.cc
- src/x64/disasm-x64.cc
- src/x64/frames-x64.cc
- src/x64/frames-x64.h
- src/x64/full-codegen-x64.cc
- src/x64/ic-x64.cc
- src/x64/lithium-codegen-x64.cc
- src/x64/lithium-codegen-x64.h
- src/x64/lithium-gap-resolver-x64.cc
- src/x64/lithium-gap-resolver-x64.h
- src/x64/lithium-x64.cc
- src/x64/lithium-x64.h
- src/x64/macro-assembler-x64.cc
- src/x64/macro-assembler-x64.h
- src/x64/regexp-macro-assembler-x64.cc
- src/x64/regexp-macro-assembler-x64.h
- src/x64/simulator-x64.cc
- src/x64/simulator-x64.h
- src/x64/stub-cache-x64.cc
- src/zone-inl.h
- src/zone.cc
- src/zone.h
+ test/benchmarks/benchmarks.status
  test/benchmarks/testcfg.py
- test/cctest/SConscript
  test/cctest/cctest.cc
  test/cctest/cctest.gyp
  test/cctest/cctest.h
@@ -486,57 +56,171 @@ Files: LICENSE
  test/cctest/gay-shortest.cc
  test/cctest/gay-shortest.h
  test/cctest/log-eq-of-logging-and-traversal.js
+ test/cctest/print-extension.cc
+ test/cctest/print-extension.h
+ test/cctest/profiler-extension.cc
+ test/cctest/profiler-extension.h
  test/cctest/test-accessors.cc
  test/cctest/test-alloc.cc
  test/cctest/test-api.cc
  test/cctest/test-assembler-arm.cc
+ test/cctest/test-assembler-arm64.cc
  test/cctest/test-assembler-ia32.cc
  test/cctest/test-assembler-mips.cc
+ test/cctest/test-assembler-mips64.cc
  test/cctest/test-assembler-x64.cc
+ test/cctest/test-assembler-x87.cc
  test/cctest/test-ast.cc
+ test/cctest/test-atomicops.cc
  test/cctest/test-bignum-dtoa.cc
  test/cctest/test-bignum.cc
+ test/cctest/test-circular-queue.cc
+ test/cctest/test-code-stubs-arm.cc
+ test/cctest/test-code-stubs-arm64.cc
+ test/cctest/test-code-stubs-ia32.cc
+ test/cctest/test-code-stubs-mips.cc
+ test/cctest/test-code-stubs-mips64.cc
+ test/cctest/test-code-stubs-x64.cc
+ test/cctest/test-code-stubs-x87.cc
+ test/cctest/test-code-stubs.cc
+ test/cctest/test-code-stubs.h
  test/cctest/test-compiler.cc
+ test/cctest/test-conversions.cc
+ test/cctest/test-cpu-profiler.cc
  test/cctest/test-dataflow.cc
  test/cctest/test-date.cc
  test/cctest/test-debug.cc
+ test/cctest/test-declarative-accessors.cc
  test/cctest/test-decls.cc
  test/cctest/test-deoptimization.cc
  test/cctest/test-dictionary.cc
  test/cctest/test-disasm-arm.cc
+ test/cctest/test-disasm-arm64.cc
  test/cctest/test-disasm-ia32.cc
  test/cctest/test-disasm-mips.cc
+ test/cctest/test-disasm-mips64.cc
  test/cctest/test-disasm-x64.cc
+ test/cctest/test-disasm-x87.cc
+ test/cctest/test-diy-fp.cc
+ test/cctest/test-double.cc
  test/cctest/test-dtoa.cc
+ test/cctest/test-fast-dtoa.cc
  test/cctest/test-fixed-dtoa.cc
  test/cctest/test-flags.cc
  test/cctest/test-func-name-inference.cc
+ test/cctest/test-fuzz-arm64.cc
+ test/cctest/test-gc-tracer.cc
+ test/cctest/test-global-handles.cc
+ test/cctest/test-global-object.cc
  test/cctest/test-hashing.cc
  test/cctest/test-hashmap.cc
+ test/cctest/test-heap-profiler.cc
+ test/cctest/test-heap.cc
+ test/cctest/test-javascript-arm64.cc
+ test/cctest/test-js-arm64-variables.cc
+ test/cctest/test-libplatform-task-queue.cc
+ test/cctest/test-libplatform-worker-thread.cc
+ test/cctest/test-libplatform.h
  test/cctest/test-list.cc
  test/cctest/test-liveedit.cc
  test/cctest/test-lockers.cc
  test/cctest/test-log-stack-tracer.cc
+ test/cctest/test-log.cc
+ test/cctest/test-macro-assembler-arm.cc
+ test/cctest/test-macro-assembler-ia32.cc
+ test/cctest/test-macro-assembler-mips.cc
+ test/cctest/test-macro-assembler-mips64.cc
  test/cctest/test-macro-assembler-x64.cc
+ test/cctest/test-macro-assembler-x87.cc
  test/cctest/test-mark-compact.cc
+ test/cctest/test-mementos.cc
+ test/cctest/test-microtask-delivery.cc
+ test/cctest/test-object-observe.cc
+ test/cctest/test-ordered-hash-table.cc
  test/cctest/test-parsing.cc
- test/cctest/test-random.cc
+ test/cctest/test-platform-linux.cc
+ test/cctest/test-platform-win32.cc
+ test/cctest/test-platform.cc
+ test/cctest/test-profile-generator.cc
+ test/cctest/test-random-number-generator.cc
  test/cctest/test-regexp.cc
  test/cctest/test-reloc-info.cc
+ test/cctest/test-representation.cc
+ test/cctest/test-semaphore.cc
  test/cctest/test-serialize.cc
  test/cctest/test-spaces.cc
+ test/cctest/test-strings.cc
+ test/cctest/test-strtod.cc
  test/cctest/test-thread-termination.cc
  test/cctest/test-threads.cc
+ test/cctest/test-unbound-queue.cc
+ test/cctest/test-unique.cc
+ test/cctest/test-utils-arm64.cc
+ test/cctest/test-utils-arm64.h
  test/cctest/test-utils.cc
  test/cctest/test-version.cc
  test/cctest/test-weakmaps.cc
+ test/cctest/test-weaksets.cc
+ test/cctest/test-weaktypedarrays.cc
  test/cctest/testcfg.py
- test/es5conform/es5conform.status
- test/es5conform/harness-adapt.js
- test/es5conform/testcfg.py
+ test/cctest/trace-extension.cc
+ test/cctest/trace-extension.h
+ test/intl/assert.js
+ test/intl/break-iterator/default-locale.js
+ test/intl/break-iterator/en-break.js
+ test/intl/break-iterator/property-override.js
+ test/intl/break-iterator/resolved-options-is-method.js
+ test/intl/break-iterator/wellformed-unsupported-locale.js
+ test/intl/break-iterator/zh-break.js
+ test/intl/collator/de-sort.js
+ test/intl/collator/default-locale.js
+ test/intl/collator/en-sort.js
+ test/intl/collator/normalization.js
+ test/intl/collator/property-override.js
+ test/intl/collator/resolved-options-is-method.js
+ test/intl/collator/sr-sort.js
+ test/intl/collator/wellformed-unsupported-locale.js
+ test/intl/date-format/default-locale.js
+ test/intl/date-format/format-is-bound.js
+ test/intl/date-format/format-test.js
+ test/intl/date-format/parse-MMMdy.js
+ test/intl/date-format/parse-invalid-input.js
+ test/intl/date-format/parse-mdy.js
+ test/intl/date-format/parse-mdyhms.js
+ test/intl/date-format/property-override.js
+ test/intl/date-format/resolved-options-is-method.js
+ test/intl/date-format/resolved-options.js
+ test/intl/date-format/timezone-name.js
+ test/intl/date-format/timezone.js
+ test/intl/date-format/wellformed-unsupported-locale.js
+ test/intl/general/empty-handle.js
+ test/intl/general/mapped-locale.js
+ test/intl/general/supported-locales-of.js
+ test/intl/intl.status
+ test/intl/number-format/check-digit-ranges.js
+ test/intl/number-format/default-locale.js
+ test/intl/number-format/format-is-bound.js
+ test/intl/number-format/parse-currency.js
+ test/intl/number-format/parse-decimal.js
+ test/intl/number-format/parse-invalid-input.js
+ test/intl/number-format/parse-percent.js
+ test/intl/number-format/property-override.js
+ test/intl/number-format/resolved-options-is-method.js
+ test/intl/number-format/wellformed-unsupported-locale.js
+ test/intl/overrides/caching.js
+ test/intl/overrides/date.js
+ test/intl/overrides/number.js
+ test/intl/overrides/security.js
+ test/intl/overrides/string.js
+ test/intl/overrides/webkit-tests.js
+ test/intl/testcfg.py
+ test/intl/utils.js
+ test/message/instanceof.js
+ test/message/isvar.js
  test/message/message.status
  test/message/overwritten-builtins.js
  test/message/overwritten-builtins.out
+ test/message/paren_in_arg_string.js
  test/message/regress/regress-1527.js
  test/message/regress/regress-1527.out
  test/message/regress/regress-73.js
@@ -547,6 +231,7 @@ Files: LICENSE
  test/message/replacement-marker-as-argument.out
  test/message/simple-throw.js
  test/message/simple-throw.out
+ test/message/single-function-literal.js
  test/message/testcfg.py
  test/message/try-catch-finally-no-message.js
  test/message/try-catch-finally-no-message.out
@@ -568,11 +253,14 @@ Files: LICENSE
  test/message/try-finally-throw-in-try.out
  test/mjsunit/accessor-map-sharing.js
  test/mjsunit/accessors-on-global-object.js
+ test/mjsunit/allocation-folding.js
+ test/mjsunit/allocation-site-info.js
  test/mjsunit/api-call-after-bypassed-exception.js
  test/mjsunit/apply-arguments-gc-safepoint.js
  test/mjsunit/apply.js
  test/mjsunit/argument-assigned.js
  test/mjsunit/argument-named-arguments.js
+ test/mjsunit/arguments-apply-deopt.js
  test/mjsunit/arguments-apply.js
  test/mjsunit/arguments-call-apply.js
  test/mjsunit/arguments-enum.js
@@ -586,10 +274,12 @@ Files: LICENSE
  test/mjsunit/array-bounds-check-removal.js
  test/mjsunit/array-concat.js
  test/mjsunit/array-construct-transition.js
+ test/mjsunit/array-constructor-feedback.js
  test/mjsunit/array-constructor.js
  test/mjsunit/array-elements-from-array-prototype-chain.js
  test/mjsunit/array-elements-from-array-prototype.js
  test/mjsunit/array-elements-from-object-prototype.js
+ test/mjsunit/array-feedback.js
  test/mjsunit/array-functions-prototype-misc.js
  test/mjsunit/array-functions-prototype.js
  test/mjsunit/array-indexing.js
@@ -597,8 +287,12 @@ Files: LICENSE
  test/mjsunit/array-join.js
  test/mjsunit/array-length-number-conversion.js
  test/mjsunit/array-length.js
+ test/mjsunit/array-literal-feedback.js
  test/mjsunit/array-literal-transitions.js
+ test/mjsunit/array-natives-elements.js
+ test/mjsunit/array-non-smi-length.js
  test/mjsunit/array-pop.js
+ test/mjsunit/array-push-non-smi-value.js
  test/mjsunit/array-push.js
  test/mjsunit/array-reduce.js
  test/mjsunit/array-shift.js
@@ -616,17 +310,19 @@ Files: LICENSE
  test/mjsunit/binary-operation-overwrite.js
  test/mjsunit/bit-not.js
  test/mjsunit/bitops-info.js
+ test/mjsunit/bitwise-operations-bools.js
  test/mjsunit/bitwise-operations-undefined.js
  test/mjsunit/body-not-visible.js
+ test/mjsunit/bool-concat.js
  test/mjsunit/boolean.js
  test/mjsunit/break.js
- test/mjsunit/bugs/618.js
  test/mjsunit/bugs/bug-1344252.js
  test/mjsunit/bugs/bug-222.js
  test/mjsunit/bugs/bug-2337.js
+ test/mjsunit/bugs/bug-2615.js
  test/mjsunit/bugs/bug-617.js
- test/mjsunit/bugs/bug-618.js
  test/mjsunit/bugs/bug-941049.js
+ test/mjsunit/bugs/bug-proto.js
  test/mjsunit/bugs/harmony/debug-blockscopes.js
  test/mjsunit/builtins.js
  test/mjsunit/call-non-function-call.js
@@ -640,8 +336,12 @@ Files: LICENSE
  test/mjsunit/codegen-coverage.js
  test/mjsunit/compare-character.js
  test/mjsunit/compare-known-objects-slow.js
+ test/mjsunit/compare-known-objects.js
  test/mjsunit/compare-nan.js
+ test/mjsunit/compare-nil.js
+ test/mjsunit/compare-objects.js
  test/mjsunit/comparison-ops-and-undefined.js
+ test/mjsunit/compiler/alloc-number-debug.js
  test/mjsunit/compiler/alloc-number.js
  test/mjsunit/compiler/alloc-object-huge.js
  test/mjsunit/compiler/alloc-object.js
@@ -651,29 +351,54 @@ Files: LICENSE
  test/mjsunit/compiler/assignment.js
  test/mjsunit/compiler/binary-ops.js
  test/mjsunit/compiler/call-keyed.js
+ test/mjsunit/compiler/compare-map-elim.js
+ test/mjsunit/compiler/compare-map-elim2.js
+ test/mjsunit/compiler/compare-objeq-elim.js
  test/mjsunit/compiler/compare.js
  test/mjsunit/compiler/complex-for-in.js
+ test/mjsunit/compiler/concurrent-invalidate-transition-map.js
+ test/mjsunit/compiler/concurrent-proto-change.js
  test/mjsunit/compiler/control-flow-0.js
  test/mjsunit/compiler/control-flow-1.js
  test/mjsunit/compiler/control-flow-2.js
  test/mjsunit/compiler/count-deopt.js
  test/mjsunit/compiler/countoperation.js
+ test/mjsunit/compiler/dead-code.js
+ test/mjsunit/compiler/dead-code2.js
+ test/mjsunit/compiler/dead-code3.js
+ test/mjsunit/compiler/dead-code4.js
+ test/mjsunit/compiler/dead-code5.js
+ test/mjsunit/compiler/dead-code6.js
+ test/mjsunit/compiler/dead-loops-neg.js
+ test/mjsunit/compiler/dead-loops.js
+ test/mjsunit/compiler/dead-string-add-warm.js
+ test/mjsunit/compiler/dead-string-add.js
+ test/mjsunit/compiler/dead-string-char-code-at.js
+ test/mjsunit/compiler/dead-string-char-code-at2.js
+ test/mjsunit/compiler/dead-string-char-from-code.js
  test/mjsunit/compiler/delete.js
  test/mjsunit/compiler/deopt-args.js
  test/mjsunit/compiler/deopt-inlined-smi.js
+ test/mjsunit/compiler/division-by-constant.js
+ test/mjsunit/compiler/escape-analysis-arguments.js
+ test/mjsunit/compiler/escape-analysis-representation.js
+ test/mjsunit/compiler/escape-analysis.js
  test/mjsunit/compiler/eval-introduced-closure.js
  test/mjsunit/compiler/expression-trees.js
  test/mjsunit/compiler/for-stmt.js
  test/mjsunit/compiler/function-call.js
  test/mjsunit/compiler/global-accessors.js
  test/mjsunit/compiler/globals.js
+ test/mjsunit/compiler/increment-typefeedback.js
  test/mjsunit/compiler/inline-accessors.js
  test/mjsunit/compiler/inline-arguments.js
  test/mjsunit/compiler/inline-arity-mismatch.js
+ test/mjsunit/compiler/inline-closures.js
  test/mjsunit/compiler/inline-compare.js
  test/mjsunit/compiler/inline-conditional.js
  test/mjsunit/compiler/inline-construct.js
  test/mjsunit/compiler/inline-context-slots.js
+ test/mjsunit/compiler/inline-function-apply.js
  test/mjsunit/compiler/inline-global-access.js
  test/mjsunit/compiler/inline-literals.js
  test/mjsunit/compiler/inline-param.js
@@ -684,29 +409,54 @@ Files: LICENSE
  test/mjsunit/compiler/literals-assignment.js
  test/mjsunit/compiler/literals-optimized.js
  test/mjsunit/compiler/literals.js
+ test/mjsunit/compiler/load-elimination-global.js
+ test/mjsunit/compiler/load-elimination-osr.js
+ test/mjsunit/compiler/load-elimination-params.js
+ test/mjsunit/compiler/load-elimination.js
  test/mjsunit/compiler/logical-and.js
  test/mjsunit/compiler/logical-or.js
  test/mjsunit/compiler/loopcount.js
  test/mjsunit/compiler/loops.js
+ test/mjsunit/compiler/manual-concurrent-recompile.js
  test/mjsunit/compiler/math-floor-global.js
  test/mjsunit/compiler/math-floor-local.js
+ test/mjsunit/compiler/minus-zero.js
+ test/mjsunit/compiler/multiply-add.js
+ test/mjsunit/compiler/multiply-sub.js
  test/mjsunit/compiler/null-compare.js
  test/mjsunit/compiler/objectliterals.js
  test/mjsunit/compiler/optimize-bitnot.js
  test/mjsunit/compiler/optimized-closures.js
  test/mjsunit/compiler/optimized-for-in.js
  test/mjsunit/compiler/optimized-function-calls.js
+ test/mjsunit/compiler/osr-alignment.js
+ test/mjsunit/compiler/osr-assert.js
+ test/mjsunit/compiler/osr-big.js
+ test/mjsunit/compiler/osr-nested.js
+ test/mjsunit/compiler/osr-one.js
+ test/mjsunit/compiler/osr-regress-max-locals.js
+ test/mjsunit/compiler/osr-sar.js
+ test/mjsunit/compiler/osr-simple.js
+ test/mjsunit/compiler/osr-two.js
+ test/mjsunit/compiler/osr-uint32.js
+ test/mjsunit/compiler/osr-warm.js
+ test/mjsunit/compiler/osr-with-args.js
+ test/mjsunit/compiler/phi-representations.js
  test/mjsunit/compiler/pic.js
  test/mjsunit/compiler/property-calls.js
  test/mjsunit/compiler/property-refs.js
  test/mjsunit/compiler/property-simple.js
+ test/mjsunit/compiler/property-static.js
  test/mjsunit/compiler/property-stores.js
+ test/mjsunit/compiler/proto-chain-constant.js
+ test/mjsunit/compiler/proto-chain-load.js
  test/mjsunit/compiler/recursive-deopt.js
  test/mjsunit/compiler/regress-0.js
  test/mjsunit/compiler/regress-1.js
  test/mjsunit/compiler/regress-106351.js
  test/mjsunit/compiler/regress-1085.js
  test/mjsunit/compiler/regress-1394.js
+ test/mjsunit/compiler/regress-177883.js
  test/mjsunit/compiler/regress-2.js
  test/mjsunit/compiler/regress-3.js
  test/mjsunit/compiler/regress-3136962.js
@@ -735,15 +485,16 @@ Files: LICENSE
  test/mjsunit/compiler/regress-lbranch-double.js
  test/mjsunit/compiler/regress-loadfield.js
  test/mjsunit/compiler/regress-loop-deopt.js
- test/mjsunit/compiler/regress-max-locals-for-osr.js
  test/mjsunit/compiler/regress-max.js
  test/mjsunit/compiler/regress-or.js
  test/mjsunit/compiler/regress-rep-change.js
  test/mjsunit/compiler/regress-serialized-slots.js
+ test/mjsunit/compiler/regress-shared-deopt.js
  test/mjsunit/compiler/regress-stacktrace-methods.js
  test/mjsunit/compiler/regress-stacktrace.js
  test/mjsunit/compiler/regress-toint32.js
  test/mjsunit/compiler/regress-valueof.js
+ test/mjsunit/compiler/rotate.js
  test/mjsunit/compiler/safepoint.js
  test/mjsunit/compiler/short-circuit.js
  test/mjsunit/compiler/simple-bailouts.js
@@ -751,25 +502,34 @@ Files: LICENSE
  test/mjsunit/compiler/simple-deopt.js
  test/mjsunit/compiler/simple-global-access.js
  test/mjsunit/compiler/simple-inlining.js
- test/mjsunit/compiler/simple-osr.js
+ test/mjsunit/compiler/smi-stores-opt.js
+ test/mjsunit/compiler/store-elimination.js
  test/mjsunit/compiler/strict-recompile.js
  test/mjsunit/compiler/switch-bailout.js
  test/mjsunit/compiler/this-property-refs.js
  test/mjsunit/compiler/thisfunction.js
+ test/mjsunit/compiler/to-fast-properties.js
+ test/mjsunit/compiler/type-feedback-after-throw.js
  test/mjsunit/compiler/uint32.js
  test/mjsunit/compiler/unary-add.js
  test/mjsunit/compiler/variables.js
+ test/mjsunit/concurrent-initial-prototype-change.js
  test/mjsunit/const-declaration.js
  test/mjsunit/const-eval-init.js
  test/mjsunit/const-redecl.js
  test/mjsunit/const.js
+ test/mjsunit/constant-compare-nil-value.js
+ test/mjsunit/constant-folding-2.js
  test/mjsunit/constant-folding.js
+ test/mjsunit/context-calls-maintained.js
  test/mjsunit/context-variable-assignments.js
+ test/mjsunit/contextual-calls.js
  test/mjsunit/copy-on-write-assert.js
  test/mjsunit/count-based-osr.js
  test/mjsunit/cyclic-array-to-string.js
  test/mjsunit/cyrillic.js
  test/mjsunit/d8-os.js
+ test/mjsunit/d8-performance-now.js
  test/mjsunit/date-parse.js
  test/mjsunit/date.js
  test/mjsunit/debug-backtrace-text.js
@@ -788,6 +548,8 @@ Files: LICENSE
  test/mjsunit/debug-enable-disable-breakpoints.js
  test/mjsunit/debug-evaluate-arguments.js
  test/mjsunit/debug-evaluate-bool-constructor.js
+ test/mjsunit/debug-evaluate-closure.js
+ test/mjsunit/debug-evaluate-const.js
  test/mjsunit/debug-evaluate-locals-optimized-double.js
  test/mjsunit/debug-evaluate-locals-optimized.js
  test/mjsunit/debug-evaluate-locals.js
@@ -803,10 +565,13 @@ Files: LICENSE
  test/mjsunit/debug-liveedit-1.js
  test/mjsunit/debug-liveedit-2.js
  test/mjsunit/debug-liveedit-3.js
+ test/mjsunit/debug-liveedit-4.js
  test/mjsunit/debug-liveedit-breakpoints.js
  test/mjsunit/debug-liveedit-check-stack.js
+ test/mjsunit/debug-liveedit-compile-error.js
  test/mjsunit/debug-liveedit-diff.js
  test/mjsunit/debug-liveedit-double-call.js
+ test/mjsunit/debug-liveedit-literals.js
  test/mjsunit/debug-liveedit-newsource.js
  test/mjsunit/debug-liveedit-patch-positions-replace.js
  test/mjsunit/debug-liveedit-patch-positions.js
@@ -826,12 +591,14 @@ Files: LICENSE
  test/mjsunit/debug-script.js
  test/mjsunit/debug-scripts-request.js
  test/mjsunit/debug-set-script-source.js
+ test/mjsunit/debug-set-variable-value.js
  test/mjsunit/debug-setbreakpoint.js
  test/mjsunit/debug-setexceptionbreak.js
  test/mjsunit/debug-sourceinfo.js
  test/mjsunit/debug-sourceslice.js
  test/mjsunit/debug-step-2.js
  test/mjsunit/debug-step-3.js
+ test/mjsunit/debug-step-4-in-frame.js
  test/mjsunit/debug-step-stub-callfunction.js
  test/mjsunit/debug-step.js
  test/mjsunit/debug-stepin-accessor.js
@@ -840,6 +607,7 @@ Files: LICENSE
  test/mjsunit/debug-stepin-call-function-stub.js
  test/mjsunit/debug-stepin-constructor.js
  test/mjsunit/debug-stepin-function-call.js
+ test/mjsunit/debug-stepin-positions.js
  test/mjsunit/debug-stepnext-do-while.js
  test/mjsunit/debug-stepout-recursive-function.js
  test/mjsunit/debug-stepout-scope-part1.js
@@ -852,10 +620,12 @@ Files: LICENSE
  test/mjsunit/debug-stepout-scope-part8.js
  test/mjsunit/debug-stepout-to-builtin.js
  test/mjsunit/debug-suspend.js
+ test/mjsunit/debug-toggle-mirror-cache.js
  test/mjsunit/debug-version.js
  test/mjsunit/declare-locally.js
  test/mjsunit/deep-recursion.js
  test/mjsunit/define-property-gc.js
+ test/mjsunit/dehoisted-array-index.js
  test/mjsunit/delay-syntax-error.js
  test/mjsunit/delete-global-properties.js
  test/mjsunit/delete-in-eval.js
@@ -864,29 +634,66 @@ Files: LICENSE
  test/mjsunit/delete-vars-from-eval.js
  test/mjsunit/delete.js
  test/mjsunit/deopt-minus-zero.js
+ test/mjsunit/deopt-with-fp-regs.js
  test/mjsunit/div-mod.js
+ test/mjsunit/div-mul-minus-one.js
  test/mjsunit/do-not-strip-fc.js
  test/mjsunit/dont-enum-array-holes.js
  test/mjsunit/dont-reinit-global-var.js
  test/mjsunit/double-equals.js
+ test/mjsunit/double-truncation.js
  test/mjsunit/dtoa.js
  test/mjsunit/elements-kind-depends.js
  test/mjsunit/elements-kind.js
+ test/mjsunit/elements-length-no-holey.js
+ test/mjsunit/elements-transition-and-store.js
  test/mjsunit/elements-transition-hoisting.js
  test/mjsunit/elements-transition.js
+ test/mjsunit/elide-double-hole-check-1.js
+ test/mjsunit/elide-double-hole-check-2.js
+ test/mjsunit/elide-double-hole-check-3.js
+ test/mjsunit/elide-double-hole-check-4.js
+ test/mjsunit/elide-double-hole-check-5.js
+ test/mjsunit/elide-double-hole-check-6.js
+ test/mjsunit/elide-double-hole-check-7.js
+ test/mjsunit/elide-double-hole-check-8.js
+ test/mjsunit/elide-double-hole-check-9.js
  test/mjsunit/enumeration-order.js
+ test/mjsunit/error-accessors.js
  test/mjsunit/error-constructors.js
+ test/mjsunit/error-tostring-omit.js
  test/mjsunit/error-tostring.js
+ test/mjsunit/es6/array-iterator.js
+ test/mjsunit/es6/collections.js
+ test/mjsunit/es6/iteration-semantics.js
+ test/mjsunit/es6/iteration-syntax.js
+ test/mjsunit/es6/math-hyperbolic.js
+ test/mjsunit/es6/math-hypot.js
+ test/mjsunit/es6/math-log2-log10.js
+ test/mjsunit/es6/math-sign.js
+ test/mjsunit/es6/math-trunc.js
+ test/mjsunit/es6/microtask-delivery.js
+ test/mjsunit/es6/promises.js
+ test/mjsunit/es6/regress/regress-2034.js
+ test/mjsunit/es6/regress/regress-2156.js
+ test/mjsunit/es6/regress/regress-2186.js
+ test/mjsunit/es6/regress/regress-2829.js
+ test/mjsunit/es6/regress/regress-cr372788.js
+ test/mjsunit/es6/regress/regress-crbug-248025.js
+ test/mjsunit/es6/symbols.js
+ test/mjsunit/es7/object-observe.js
  test/mjsunit/escape.js
  test/mjsunit/eval-enclosing-function-name.js
  test/mjsunit/eval-stack-trace.js
  test/mjsunit/eval-typeof-non-existing.js
  test/mjsunit/eval.js
+ test/mjsunit/external-array-no-sse2.js
  test/mjsunit/external-array.js
  test/mjsunit/extra-arguments.js
  test/mjsunit/extra-commas.js
  test/mjsunit/fast-array-length.js
  test/mjsunit/fast-element-smi-check.js
+ test/mjsunit/fast-literal.js
  test/mjsunit/fast-non-keyed.js
  test/mjsunit/fast-prototype.js
  test/mjsunit/for-in-delete.js
@@ -896,6 +703,7 @@ Files: LICENSE
  test/mjsunit/for.js
  test/mjsunit/fun-as-prototype.js
  test/mjsunit/fun-name.js
+ test/mjsunit/function-arguments-duplicate.js
  test/mjsunit/function-arguments-null.js
  test/mjsunit/function-bind.js
  test/mjsunit/function-call.js
@@ -908,14 +716,12 @@ Files: LICENSE
  test/mjsunit/function-without-prototype.js
  test/mjsunit/function.js
  test/mjsunit/fuzz-accessors.js
- test/mjsunit/fuzz-natives-part1.js
- test/mjsunit/fuzz-natives-part2.js
- test/mjsunit/fuzz-natives-part3.js
- test/mjsunit/fuzz-natives-part4.js
+ test/mjsunit/generated-transition-stub.js
  test/mjsunit/get-own-property-descriptor.js
  test/mjsunit/get-prototype-of.js
  test/mjsunit/getter-in-prototype.js
  test/mjsunit/getter-in-value-prototype.js
+ test/mjsunit/getters-on-elements.js
  test/mjsunit/global-accessors.js
  test/mjsunit/global-const-var-conflicts.js
  test/mjsunit/global-deleted-property-ic.js
@@ -926,7 +732,8 @@ Files: LICENSE
  test/mjsunit/global-load-from-nested-eval.js
  test/mjsunit/global-vars-eval.js
  test/mjsunit/global-vars-with.js
- test/mjsunit/greedy.js
+ test/mjsunit/harmony/array-find.js
+ test/mjsunit/harmony/array-findindex.js
  test/mjsunit/harmony/block-conflicts.js
  test/mjsunit/harmony/block-const-assign.js
  test/mjsunit/harmony/block-early-errors.js
@@ -937,20 +744,45 @@ Files: LICENSE
  test/mjsunit/harmony/block-let-declaration.js
  test/mjsunit/harmony/block-let-semantics.js
  test/mjsunit/harmony/block-scoping.js
- test/mjsunit/harmony/collections.js
+ test/mjsunit/harmony/dataview-accessors.js
  test/mjsunit/harmony/debug-blockscopes.js
  test/mjsunit/harmony/debug-evaluate-blockscopes.js
  test/mjsunit/harmony/debug-function-scopes.js
+ test/mjsunit/harmony/empty-for.js
+ test/mjsunit/harmony/generators-iteration.js
+ test/mjsunit/harmony/generators-objects.js
+ test/mjsunit/harmony/generators-parsing.js
+ test/mjsunit/harmony/generators-runtime.js
  test/mjsunit/harmony/module-linking.js
  test/mjsunit/harmony/module-parsing.js
  test/mjsunit/harmony/module-recompile.js
  test/mjsunit/harmony/module-resolution.js
+ test/mjsunit/harmony/numeric-literals-off.js
+ test/mjsunit/harmony/numeric-literals.js
+ test/mjsunit/harmony/private.js
  test/mjsunit/harmony/proxies-example-membrane.js
  test/mjsunit/harmony/proxies-for.js
  test/mjsunit/harmony/proxies-function.js
  test/mjsunit/harmony/proxies-hash.js
+ test/mjsunit/harmony/proxies-json.js
+ test/mjsunit/harmony/proxies-symbols.js
+ test/mjsunit/harmony/proxies-with.js
  test/mjsunit/harmony/proxies.js
- test/mjsunit/harmony/typeof.js
+ test/mjsunit/harmony/regress/regress-173361.js
+ test/mjsunit/harmony/regress/regress-2219.js
+ test/mjsunit/harmony/regress/regress-2225.js
+ test/mjsunit/harmony/regress/regress-2243.js
+ test/mjsunit/harmony/regress/regress-2322.js
+ test/mjsunit/harmony/regress/regress-2681.js
+ test/mjsunit/harmony/regress/regress-2691.js
+ test/mjsunit/harmony/regress/regress-crbug-347528.js
+ test/mjsunit/harmony/regress/regress-observe-empty-double-array.js
+ test/mjsunit/harmony/set-prototype-of.js
+ test/mjsunit/harmony/string-contains.js
+ test/mjsunit/harmony/string-endswith.js
+ test/mjsunit/harmony/string-repeat.js
+ test/mjsunit/harmony/string-startswith.js
+ test/mjsunit/harmony/typedarrays.js
  test/mjsunit/has-own-property.js
  test/mjsunit/hex-parsing.js
  test/mjsunit/html-comments.js
@@ -964,7 +796,11 @@ Files: LICENSE
  test/mjsunit/integer-to-string.js
  test/mjsunit/invalid-lhs.js
  test/mjsunit/invalid-source-element.js
+ test/mjsunit/json-parser-recursive.js
+ test/mjsunit/json-stringify-recursive.js
  test/mjsunit/json.js
+ test/mjsunit/json2.js
+ test/mjsunit/keyed-array-call.js
  test/mjsunit/keyed-call-generic.js
  test/mjsunit/keyed-call-ic.js
  test/mjsunit/keyed-ic.js
@@ -973,19 +809,30 @@ Files: LICENSE
  test/mjsunit/large-object-allocation.js
  test/mjsunit/large-object-literal.js
  test/mjsunit/lazy-load.js
+ test/mjsunit/lea-add.js
  test/mjsunit/leakcheck.js
  test/mjsunit/length.js
- test/mjsunit/limit-locals.js
+ test/mjsunit/lithium/DivI.js
+ test/mjsunit/lithium/MathExp.js
+ test/mjsunit/lithium/MulI.js
+ test/mjsunit/lithium/SeqStringSetChar.js
+ test/mjsunit/lithium/StoreKeyed.js
+ test/mjsunit/lithium/StoreKeyedExternal.js
+ test/mjsunit/load-callback-from-value-classic.js
+ test/mjsunit/load_poly_effect.js
  test/mjsunit/local-load-from-eval.js
  test/mjsunit/logical.js
  test/mjsunit/math-abs.js
+ test/mjsunit/math-exp-precision.js
  test/mjsunit/math-floor-negative.js
  test/mjsunit/math-floor-of-div-minus-zero.js
+ test/mjsunit/math-floor-of-div-nosudiv.js
  test/mjsunit/math-floor-of-div.js
  test/mjsunit/math-floor-part1.js
  test/mjsunit/math-floor-part2.js
  test/mjsunit/math-floor-part3.js
  test/mjsunit/math-floor-part4.js
+ test/mjsunit/math-imul.js
  test/mjsunit/math-min-max.js
  test/mjsunit/math-pow.js
  test/mjsunit/math-round.js
@@ -1019,9 +866,12 @@ Files: LICENSE
  test/mjsunit/mul-exhaustive-part9.js
  test/mjsunit/multiline.js
  test/mjsunit/multiple-return.js
+ test/mjsunit/nans.js
  test/mjsunit/negate-zero.js
  test/mjsunit/negate.js
+ test/mjsunit/never-optimize.js
  test/mjsunit/new-function.js
+ test/mjsunit/new-string-add.js
  test/mjsunit/new.js
  test/mjsunit/newline-in-string.js
  test/mjsunit/no-branch-elimination.js
@@ -1033,6 +883,8 @@ Files: LICENSE
  test/mjsunit/number-is.js
  test/mjsunit/number-limits.js
  test/mjsunit/number-string-index-call.js
+ test/mjsunit/number-tostring-add.js
+ test/mjsunit/number-tostring-func.js
  test/mjsunit/number-tostring-small.js
  test/mjsunit/number-tostring.js
  test/mjsunit/numops-fuzz-part1.js
@@ -1053,18 +905,25 @@ Files: LICENSE
  test/mjsunit/object-prevent-extensions.js
  test/mjsunit/object-seal.js
  test/mjsunit/object-toprimitive.js
+ test/mjsunit/omit-constant-mapcheck.js
+ test/mjsunit/opt-elements-kind.js
  test/mjsunit/optimized-typeof.js
+ test/mjsunit/osr-elements-kind.js
+ test/mjsunit/outobject-double-for-in.js
  test/mjsunit/override-read-only-property.js
  test/mjsunit/packed-elements.js
+ test/mjsunit/parallel-optimize-disabled.js
  test/mjsunit/parse-int-float.js
  test/mjsunit/pixel-array-rounding.js
  test/mjsunit/polymorph-arrays.js
  test/mjsunit/property-load-across-eval.js
  test/mjsunit/property-object-key.js
+ test/mjsunit/proto-accessor.js
  test/mjsunit/proto.js
  test/mjsunit/prototype.js
  test/mjsunit/readonly.js
  test/mjsunit/receiver-in-with-calls.js
+ test/mjsunit/recursive-store-opt.js
  test/mjsunit/regexp-UC16.js
  test/mjsunit/regexp-cache-replace.js
  test/mjsunit/regexp-call-as-function.js
@@ -1076,14 +935,32 @@ Files: LICENSE
  test/mjsunit/regexp-indexof.js
  test/mjsunit/regexp-lookahead.js
  test/mjsunit/regexp-loop-capture.js
- test/mjsunit/regexp-multiline-stack-trace.js
  test/mjsunit/regexp-multiline.js
  test/mjsunit/regexp-results-cache.js
  test/mjsunit/regexp-standalones.js
  test/mjsunit/regexp-static.js
  test/mjsunit/regexp-string-methods.js
  test/mjsunit/regexp.js
+ test/mjsunit/regress/binop-in-effect-context-deopt.js
  test/mjsunit/regress/bitops-register-alias.js
+ test/mjsunit/regress/call-function-in-effect-context-deopt.js
+ test/mjsunit/regress/clear-keyed-call.js
+ test/mjsunit/regress/compare-map-elim1.js
+ test/mjsunit/regress/comparison-in-effect-context-deopt.js
+ test/mjsunit/regress/consolidated-holey-load.js
+ test/mjsunit/regress/debug-prepare-step-in.js
+ test/mjsunit/regress/external-and-normal-array-polymorphism.js
+ test/mjsunit/regress/internalized-string-not-equal.js
+ test/mjsunit/regress/json-stringifier-emptyhandle.js
+ test/mjsunit/regress/negative_lookup.js
+ test/mjsunit/regress/number-named-call-deopt.js
+ test/mjsunit/regress/poly_count_operation.js
+ test/mjsunit/regress/post-increment-close-context.js
+ test/mjsunit/regress/readonly1.js
+ test/mjsunit/regress/readonly2.js
+ test/mjsunit/regress/readonly3.js
+ test/mjsunit/regress/readonly4.js
+ test/mjsunit/regress/readonly5.js
  test/mjsunit/regress/regress-100409.js
  test/mjsunit/regress/regress-100702.js
  test/mjsunit/regress/regress-1015.js
@@ -1094,6 +971,7 @@ Files: LICENSE
  test/mjsunit/regress/regress-103259.js
  test/mjsunit/regress/regress-1036894.js
  test/mjsunit/regress/regress-1039610.js
+ test/mjsunit/regress/regress-105.js
  test/mjsunit/regress/regress-1050043.js
  test/mjsunit/regress/regress-1060.js
  test/mjsunit/regress/regress-1062422.js
@@ -1231,6 +1109,7 @@ Files: LICENSE
  test/mjsunit/regress/regress-1447.js
  test/mjsunit/regress/regress-145201.js
  test/mjsunit/regress/regress-1472.js
+ test/mjsunit/regress/regress-147497.js
  test/mjsunit/regress/regress-1476.js
  test/mjsunit/regress/regress-148378.js
  test/mjsunit/regress/regress-149.js
@@ -1259,13 +1138,17 @@ Files: LICENSE
  test/mjsunit/regress/regress-1625.js
  test/mjsunit/regress/regress-1639-2.js
  test/mjsunit/regress/regress-1639.js
+ test/mjsunit/regress/regress-164442.js
  test/mjsunit/regress/regress-1647.js
  test/mjsunit/regress/regress-1650.js
+ test/mjsunit/regress/regress-165637.js
+ test/mjsunit/regress/regress-166379.js
+ test/mjsunit/regress/regress-166553.js
  test/mjsunit/regress/regress-1692.js
  test/mjsunit/regress/regress-1708.js
  test/mjsunit/regress/regress-171.js
  test/mjsunit/regress/regress-1711.js
- test/mjsunit/regress/regress-1713.js
+ test/mjsunit/regress/regress-171641.js
  test/mjsunit/regress/regress-1748.js
  test/mjsunit/regress/regress-1757.js
  test/mjsunit/regress/regress-176.js
@@ -1287,31 +1170,29 @@ Files: LICENSE
  test/mjsunit/regress/regress-1980.js
  test/mjsunit/regress/regress-20070207.js
  test/mjsunit/regress/regress-201.js
+ test/mjsunit/regress/regress-201590.js
  test/mjsunit/regress/regress-2027.js
  test/mjsunit/regress/regress-2030.js
  test/mjsunit/regress/regress-2032.js
- test/mjsunit/regress/regress-2034.js
  test/mjsunit/regress/regress-2045.js
  test/mjsunit/regress/regress-2054.js
  test/mjsunit/regress/regress-2055.js
  test/mjsunit/regress/regress-2056.js
  test/mjsunit/regress/regress-2058.js
  test/mjsunit/regress/regress-2071.js
+ test/mjsunit/regress/regress-2073.js
  test/mjsunit/regress/regress-2110.js
  test/mjsunit/regress/regress-2119.js
+ test/mjsunit/regress/regress-2132.js
  test/mjsunit/regress/regress-2153.js
- test/mjsunit/regress/regress-2156.js
  test/mjsunit/regress/regress-2163.js
  test/mjsunit/regress/regress-2170.js
  test/mjsunit/regress/regress-2172.js
  test/mjsunit/regress/regress-2185-2.js
  test/mjsunit/regress/regress-2185.js
- test/mjsunit/regress/regress-2186.js
  test/mjsunit/regress/regress-219.js
  test/mjsunit/regress/regress-2193.js
  test/mjsunit/regress/regress-220.js
- test/mjsunit/regress/regress-2219.js
- test/mjsunit/regress/regress-2225.js
  test/mjsunit/regress/regress-2226.js
  test/mjsunit/regress/regress-2234.js
  test/mjsunit/regress/regress-2249.js
@@ -1319,7 +1200,9 @@ Files: LICENSE
  test/mjsunit/regress/regress-225.js
  test/mjsunit/regress/regress-2250.js
  test/mjsunit/regress/regress-2261.js
+ test/mjsunit/regress/regress-2263.js
  test/mjsunit/regress/regress-227.js
+ test/mjsunit/regress/regress-2273.js
  test/mjsunit/regress/regress-2284.js
  test/mjsunit/regress/regress-2285.js
  test/mjsunit/regress/regress-2286.js
@@ -1330,50 +1213,146 @@ Files: LICENSE
  test/mjsunit/regress/regress-231.js
  test/mjsunit/regress/regress-2315.js
  test/mjsunit/regress/regress-2318.js
- test/mjsunit/regress/regress-2322.js
  test/mjsunit/regress/regress-2326.js
  test/mjsunit/regress/regress-233.js
- test/mjsunit/regress/regress-2336.js
  test/mjsunit/regress/regress-2339.js
+ test/mjsunit/regress/regress-234101.js
  test/mjsunit/regress/regress-2346.js
+ test/mjsunit/regress/regress-235311.js
  test/mjsunit/regress/regress-2373.js
  test/mjsunit/regress/regress-2374.js
+ test/mjsunit/regress/regress-237617.js
+ test/mjsunit/regress/regress-2398.js
+ test/mjsunit/regress/regress-2410.js
+ test/mjsunit/regress/regress-241344.js
+ test/mjsunit/regress/regress-2416.js
+ test/mjsunit/regress/regress-2419.js
+ test/mjsunit/regress/regress-2433.js
+ test/mjsunit/regress/regress-2437.js
+ test/mjsunit/regress/regress-2438.js
  test/mjsunit/regress/regress-244.js
+ test/mjsunit/regress/regress-2441.js
+ test/mjsunit/regress/regress-2443.js
+ test/mjsunit/regress/regress-2444.js
+ test/mjsunit/regress/regress-2451.js
  test/mjsunit/regress/regress-246.js
+ test/mjsunit/regress/regress-2470.js
+ test/mjsunit/regress/regress-247688.js
  test/mjsunit/regress/regress-2489.js
+ test/mjsunit/regress/regress-2499.js
+ test/mjsunit/regress/regress-252797.js
  test/mjsunit/regress/regress-253.js
+ test/mjsunit/regress/regress-2537.js
+ test/mjsunit/regress/regress-2539.js
  test/mjsunit/regress/regress-254.js
+ test/mjsunit/regress/regress-2564.js
+ test/mjsunit/regress/regress-2565.js
+ test/mjsunit/regress/regress-2566.js
+ test/mjsunit/regress/regress-2568.js
+ test/mjsunit/regress/regress-2570.js
  test/mjsunit/regress/regress-259.js
+ test/mjsunit/regress/regress-2593.js
+ test/mjsunit/regress/regress-2594.js
+ test/mjsunit/regress/regress-2595.js
+ test/mjsunit/regress/regress-2596.js
  test/mjsunit/regress/regress-260.js
+ test/mjsunit/regress/regress-2606.js
+ test/mjsunit/regress/regress-2612.js
+ test/mjsunit/regress/regress-2618.js
+ test/mjsunit/regress/regress-2624.js
  test/mjsunit/regress/regress-263.js
+ test/mjsunit/regress/regress-264203.js
+ test/mjsunit/regress/regress-2646.js
  test/mjsunit/regress/regress-265.js
+ test/mjsunit/regress/regress-2653.js
  test/mjsunit/regress/regress-267.js
+ test/mjsunit/regress/regress-2671-1.js
+ test/mjsunit/regress/regress-2671.js
+ test/mjsunit/regress/regress-2686.js
  test/mjsunit/regress/regress-269.js
+ test/mjsunit/regress/regress-2690.js
+ test/mjsunit/regress/regress-270142.js
+ test/mjsunit/regress/regress-2711.js
+ test/mjsunit/regress/regress-2717.js
+ test/mjsunit/regress/regress-2758.js
  test/mjsunit/regress/regress-279.js
+ test/mjsunit/regress/regress-2790.js
+ test/mjsunit/regress/regress-280531.js
+ test/mjsunit/regress/regress-2813.js
+ test/mjsunit/regress/regress-2836.js
  test/mjsunit/regress/regress-284.js
+ test/mjsunit/regress/regress-2843.js
+ test/mjsunit/regress/regress-2855.js
  test/mjsunit/regress/regress-286.js
+ test/mjsunit/regress/regress-2931.js
  test/mjsunit/regress/regress-294.js
+ test/mjsunit/regress/regress-2980.js
+ test/mjsunit/regress/regress-298269.js
+ test/mjsunit/regress/regress-2984.js
+ test/mjsunit/regress/regress-2987.js
+ test/mjsunit/regress/regress-2988.js
+ test/mjsunit/regress/regress-299979.js
  test/mjsunit/regress/regress-3006390.js
+ test/mjsunit/regress/regress-3010.js
+ test/mjsunit/regress/regress-3025.js
+ test/mjsunit/regress/regress-3026.js
+ test/mjsunit/regress/regress-3027.js
+ test/mjsunit/regress/regress-3029.js
+ test/mjsunit/regress/regress-3032.js
+ test/mjsunit/regress/regress-3039.js
  test/mjsunit/regress/regress-312.js
  test/mjsunit/regress/regress-317.js
  test/mjsunit/regress/regress-318.js
+ test/mjsunit/regress/regress-3183.js
+ test/mjsunit/regress/regress-318420.js
  test/mjsunit/regress/regress-3185905.js
+ test/mjsunit/regress/regress-319120.js
+ test/mjsunit/regress/regress-319722-ArrayBuffer.js
+ test/mjsunit/regress/regress-319722-TypedArrays.js
  test/mjsunit/regress/regress-3199913.js
+ test/mjsunit/regress/regress-320532.js
  test/mjsunit/regress/regress-3218530.js
  test/mjsunit/regress/regress-3218915.js
+ test/mjsunit/regress/regress-3220.js
  test/mjsunit/regress/regress-3230771.js
+ test/mjsunit/regress/regress-323845.js
+ test/mjsunit/regress/regress-324028.js
  test/mjsunit/regress/regress-3247124.js
  test/mjsunit/regress/regress-3252443.js
+ test/mjsunit/regress/regress-325676.js
  test/mjsunit/regress/regress-326.js
+ test/mjsunit/regress/regress-330046.js
+ test/mjsunit/regress/regress-331416.js
+ test/mjsunit/regress/regress-331444.js
+ test/mjsunit/regress/regress-333594.js
  test/mjsunit/regress/regress-334.js
+ test/mjsunit/regress/regress-334708.js
+ test/mjsunit/regress/regress-336820.js
+ test/mjsunit/regress/regress-340125.js
  test/mjsunit/regress/regress-3408144.js
  test/mjsunit/regress/regress-341.js
  test/mjsunit/regress/regress-345.js
+ test/mjsunit/regress/regress-346343.js
+ test/mjsunit/regress/regress-347262.js
+ test/mjsunit/regress/regress-348512.js
  test/mjsunit/regress/regress-349.js
  test/mjsunit/regress/regress-35.js
+ test/mjsunit/regress/regress-350863.js
  test/mjsunit/regress/regress-351.js
+ test/mjsunit/regress/regress-351263.js
+ test/mjsunit/regress/regress-351315.js
+ test/mjsunit/regress/regress-351319.js
+ test/mjsunit/regress/regress-352059.js
+ test/mjsunit/regress/regress-352982.js
+ test/mjsunit/regress/regress-353551.js
+ test/mjsunit/regress/regress-354357.js
+ test/mjsunit/regress/regress-354433.js
+ test/mjsunit/regress/regress-355523.js
+ test/mjsunit/regress/regress-356589.js
+ test/mjsunit/regress/regress-359525.js
  test/mjsunit/regress/regress-386.js
  test/mjsunit/regress/regress-392.js
+ test/mjsunit/regress/regress-392114.js
  test/mjsunit/regress/regress-394.js
  test/mjsunit/regress/regress-396.js
  test/mjsunit/regress/regress-397.js
@@ -1399,12 +1378,15 @@ Files: LICENSE
  test/mjsunit/regress/regress-545.js
  test/mjsunit/regress/regress-57.js
  test/mjsunit/regress/regress-580.js
+ test/mjsunit/regress/regress-581.js
  test/mjsunit/regress/regress-58740.js
  test/mjsunit/regress/regress-588599.js
  test/mjsunit/regress/regress-6-9-regexp.js
  test/mjsunit/regress/regress-603.js
  test/mjsunit/regress/regress-612.js
+ test/mjsunit/regress/regress-618.js
  test/mjsunit/regress/regress-619.js
+ test/mjsunit/regress/regress-634-debug.js
  test/mjsunit/regress/regress-634.js
  test/mjsunit/regress/regress-636.js
  test/mjsunit/regress/regress-641.js
@@ -1490,6 +1472,7 @@ Files: LICENSE
  test/mjsunit/regress/regress-96523.js
  test/mjsunit/regress/regress-969.js
  test/mjsunit/regress/regress-97116.js
+ test/mjsunit/regress/regress-97116b.js
  test/mjsunit/regress/regress-974.js
  test/mjsunit/regress/regress-982.js
  test/mjsunit/regress/regress-98773.js
@@ -1500,16 +1483,30 @@ Files: LICENSE
  test/mjsunit/regress/regress-995.js
  test/mjsunit/regress/regress-996542.js
  test/mjsunit/regress/regress-998565.js
+ test/mjsunit/regress/regress-add-minus-zero.js
  test/mjsunit/regress/regress-arguments-gc.js
+ test/mjsunit/regress/regress-array-pop-deopt.js
+ test/mjsunit/regress/regress-array-pop-nonconfigurable.js
  test/mjsunit/regress/regress-bind-receiver.js
+ test/mjsunit/regress/regress-binop-nosse2.js
+ test/mjsunit/regress/regress-binop.js
  test/mjsunit/regress/regress-builtin-array-op.js
+ test/mjsunit/regress/regress-calls-with-migrating-prototypes.js
+ test/mjsunit/regress/regress-clobbered-fp-regs.js
  test/mjsunit/regress/regress-cnlt-elements.js
  test/mjsunit/regress/regress-cnlt-enum-indices.js
  test/mjsunit/regress/regress-cntl-descriptors-enum.js
+ test/mjsunit/regress/regress-compare-constant-doubles.js
  test/mjsunit/regress/regress-conditional-position.js
+ test/mjsunit/regress/regress-context-osr.js
  test/mjsunit/regress/regress-convert-enum.js
  test/mjsunit/regress/regress-convert-enum2.js
+ test/mjsunit/regress/regress-convert-function-to-double.js
+ test/mjsunit/regress/regress-convert-hole.js
+ test/mjsunit/regress/regress-convert-hole2.js
  test/mjsunit/regress/regress-convert-transition.js
+ test/mjsunit/regress/regress-copy-hole-to-field.js
+ test/mjsunit/regress/regress-cr-344285.js
  test/mjsunit/regress/regress-crbug-100859.js
  test/mjsunit/regress/regress-crbug-107996.js
  test/mjsunit/regress/regress-crbug-119926.js
@@ -1534,53 +1531,147 @@ Files: LICENSE
  test/mjsunit/regress/regress-crbug-157019.js
  test/mjsunit/regress/regress-crbug-157520.js
  test/mjsunit/regress/regress-crbug-158185.js
+ test/mjsunit/regress/regress-crbug-160010.js
+ test/mjsunit/regress/regress-crbug-162085.js
+ test/mjsunit/regress/regress-crbug-163530.js
+ test/mjsunit/regress/regress-crbug-168545.js
+ test/mjsunit/regress/regress-crbug-170856.js
+ test/mjsunit/regress/regress-crbug-171715.js
+ test/mjsunit/regress/regress-crbug-172345.js
+ test/mjsunit/regress/regress-crbug-173907.js
+ test/mjsunit/regress/regress-crbug-173907b.js
+ test/mjsunit/regress/regress-crbug-173974.js
+ test/mjsunit/regress/regress-crbug-178790.js
+ test/mjsunit/regress/regress-crbug-181422.js
  test/mjsunit/regress/regress-crbug-18639.js
+ test/mjsunit/regress/regress-crbug-196583.js
+ test/mjsunit/regress/regress-crbug-217858.js
+ test/mjsunit/regress/regress-crbug-222893.js
+ test/mjsunit/regress/regress-crbug-229923.js
+ test/mjsunit/regress/regress-crbug-233737.js
+ test/mjsunit/regress/regress-crbug-240032.js
+ test/mjsunit/regress/regress-crbug-242502.js
+ test/mjsunit/regress/regress-crbug-242870.js
+ test/mjsunit/regress/regress-crbug-242924.js
+ test/mjsunit/regress/regress-crbug-243868.js
+ test/mjsunit/regress/regress-crbug-244461.js
+ test/mjsunit/regress/regress-crbug-245424.js
+ test/mjsunit/regress/regress-crbug-245480.js
+ test/mjsunit/regress/regress-crbug-258519.js
+ test/mjsunit/regress/regress-crbug-259300.js
+ test/mjsunit/regress/regress-crbug-260345.js
+ test/mjsunit/regress/regress-crbug-263276.js
+ test/mjsunit/regress/regress-crbug-272564.js
+ test/mjsunit/regress/regress-crbug-274438.js
+ test/mjsunit/regress/regress-crbug-280333.js
+ test/mjsunit/regress/regress-crbug-285355.js
+ test/mjsunit/regress/regress-crbug-305309.js
+ test/mjsunit/regress/regress-crbug-306220.js
+ test/mjsunit/regress/regress-crbug-306851.js
+ test/mjsunit/regress/regress-crbug-309623.js
+ test/mjsunit/regress/regress-crbug-315252.js
  test/mjsunit/regress/regress-crbug-3184.js
+ test/mjsunit/regress/regress-crbug-318671.js
  test/mjsunit/regress/regress-crbug-319835.js
  test/mjsunit/regress/regress-crbug-319860.js
+ test/mjsunit/regress/regress-crbug-320922.js
+ test/mjsunit/regress/regress-crbug-323942.js
+ test/mjsunit/regress/regress-crbug-325225.js
+ test/mjsunit/regress/regress-crbug-329709.js
+ test/mjsunit/regress/regress-crbug-336148.js
+ test/mjsunit/regress/regress-crbug-340064.js
+ test/mjsunit/regress/regress-crbug-350864.js
  test/mjsunit/regress/regress-crbug-37853.js
  test/mjsunit/regress/regress-crbug-3867.js
  test/mjsunit/regress/regress-crbug-39160.js
  test/mjsunit/regress/regress-crbug-40931.js
  test/mjsunit/regress/regress-crbug-72736.js
- test/mjsunit/regress/regress-crbug-84186.js
  test/mjsunit/regress/regress-crbug-87478.js
  test/mjsunit/regress/regress-create-exception.js
  test/mjsunit/regress/regress-debug-code-recompilation.js
+ test/mjsunit/regress/regress-debug-deopt-while-recompile.js
  test/mjsunit/regress/regress-deep-proto.js
+ test/mjsunit/regress/regress-delete-empty-double.js
  test/mjsunit/regress/regress-deopt-gc.js
+ test/mjsunit/regress/regress-deopt-gcb.js
+ test/mjsunit/regress/regress-deopt-store-effect.js
+ test/mjsunit/regress/regress-embedded-cons-string.js
+ test/mjsunit/regress/regress-et-clobbers-doubles.js
  test/mjsunit/regress/regress-fast-literal-transition.js
+ test/mjsunit/regress/regress-frame-details-null-receiver.js
+ test/mjsunit/regress/regress-freeze.js
+ test/mjsunit/regress/regress-function-length-strict.js
  test/mjsunit/regress/regress-fundecl.js
+ test/mjsunit/regress/regress-grow-store-smi-check.js
+ test/mjsunit/regress/regress-hoist-load-named-field.js
  test/mjsunit/regress/regress-inlining-function-literal-context.js
+ test/mjsunit/regress/regress-int32-truncation.js
+ test/mjsunit/regress/regress-is-contextual.js
  test/mjsunit/regress/regress-iteration-order.js
+ test/mjsunit/regress/regress-json-stringify-gc.js
+ test/mjsunit/regress/regress-keyed-access-string-length.js
+ test/mjsunit/regress/regress-latin-1.js
  test/mjsunit/regress/regress-lazy-deopt-reloc.js
  test/mjsunit/regress/regress-load-elements.js
+ test/mjsunit/regress/regress-map-invalidation-1.js
+ test/mjsunit/regress/regress-map-invalidation-2.js
+ test/mjsunit/regress/regress-merge-descriptors.js
+ test/mjsunit/regress/regress-mul-canoverflow.js
+ test/mjsunit/regress/regress-mul-canoverflowb.js
+ test/mjsunit/regress/regress-omit-checks.js
+ test/mjsunit/regress/regress-opt-after-debug-deopt.js
+ test/mjsunit/regress/regress-param-local-type.js
+ test/mjsunit/regress/regress-parse-object-literal.js
+ test/mjsunit/regress/regress-parse-use-strict.js
+ test/mjsunit/regress/regress-phi-truncation.js
+ test/mjsunit/regress/regress-polymorphic-load.js
+ test/mjsunit/regress/regress-polymorphic-store.js
+ test/mjsunit/regress/regress-prepare-break-while-recompile.js
  test/mjsunit/regress/regress-push-args-twice.js
  test/mjsunit/regress/regress-r3391.js
  test/mjsunit/regress/regress-r4998.js
  test/mjsunit/regress/regress-regexp-codeflush.js
+ test/mjsunit/regress/regress-regexp-construct-result.js
+ test/mjsunit/regress/regress-regexp-nocase.js
+ test/mjsunit/regress/regress-seqstrsetchar-ex1.js
+ test/mjsunit/regress/regress-seqstrsetchar-ex2.js
+ test/mjsunit/regress/regress-seqstrsetchar-ex3.js
+ test/mjsunit/regress/regress-smi-math-floor-round.js
  test/mjsunit/regress/regress-smi-only-concat.js
  test/mjsunit/regress/regress-sqrt.js
+ test/mjsunit/regress/regress-store-uncacheable.js
  test/mjsunit/regress/regress-swapelements.js
  test/mjsunit/regress/regress-transcendental.js
  test/mjsunit/regress/regress-undefined-store-keyed-fast-element.js
+ test/mjsunit/regress/regress-x87.js
+ test/mjsunit/regress/setter.js
+ test/mjsunit/regress/setvalueof-deopt.js
  test/mjsunit/regress/short-circuit.js
  test/mjsunit/regress/splice-missing-wb.js
+ test/mjsunit/regress/string-set-char-deopt.js
+ test/mjsunit/regress/string-split-monkey-patching.js
  test/mjsunit/samevalue.js
  test/mjsunit/scanner.js
  test/mjsunit/scope-calls-eval.js
  test/mjsunit/search-string-multiple.js
  test/mjsunit/setter-on-constructor-prototype.js
+ test/mjsunit/setters-on-elements.js
+ test/mjsunit/shift-for-integer-div.js
  test/mjsunit/shifts.js
  test/mjsunit/short-circuit-boolean.js
  test/mjsunit/simple-constructor.js
  test/mjsunit/sin-cos.js
+ test/mjsunit/smi-mul-const.js
+ test/mjsunit/smi-mul.js
  test/mjsunit/smi-negative-zero.js
  test/mjsunit/smi-ops-inlined.js
  test/mjsunit/smi-ops.js
+ test/mjsunit/smi-representation.js
  test/mjsunit/sparse-array-reverse.js
  test/mjsunit/sparse-array.js
  test/mjsunit/stack-traces-2.js
+ test/mjsunit/stack-traces-custom-lazy.js
+ test/mjsunit/stack-traces-overflow.js
  test/mjsunit/stack-traces.js
  test/mjsunit/store-dictionary.js
  test/mjsunit/str-to-num.js
@@ -1605,6 +1696,7 @@ Files: LICENSE
  test/mjsunit/string-lastindexof.js
  test/mjsunit/string-localecompare.js
  test/mjsunit/string-match.js
+ test/mjsunit/string-natives.js
  test/mjsunit/string-replace-gc.js
  test/mjsunit/string-replace-one-char.js
  test/mjsunit/string-replace-with-empty.js
@@ -1616,6 +1708,7 @@ Files: LICENSE
  test/mjsunit/string-split.js
  test/mjsunit/substr.js
  test/mjsunit/sum-0-plus-undefined-is-NaN.js
+ test/mjsunit/switch-opt.js
  test/mjsunit/switch.js
  test/mjsunit/testcfg.py
  test/mjsunit/this-in-callbacks.js
@@ -1632,11 +1725,14 @@ Files: LICENSE
  test/mjsunit/tools/csvparser.js
  test/mjsunit/tools/profile.js
  test/mjsunit/tools/profile_view.js
+ test/mjsunit/tools/profviz.js
  test/mjsunit/tools/splaytree.js
  test/mjsunit/tools/tickprocessor.js
  test/mjsunit/top-level-assignments.js
  test/mjsunit/touint32.js
+ test/mjsunit/track-fields.js
  test/mjsunit/transcendentals.js
+ test/mjsunit/transition-elements-kind.js
  test/mjsunit/try-catch-extension-object.js
  test/mjsunit/try-catch-scopes.js
  test/mjsunit/try-finally-continue.js
@@ -1644,6 +1740,7 @@ Files: LICENSE
  test/mjsunit/try.js
  test/mjsunit/typed-array-slice.js
  test/mjsunit/typeof.js
+ test/mjsunit/unary-minus-deopt.js
  test/mjsunit/unbox-double-arrays.js
  test/mjsunit/undeletable-functions.js
  test/mjsunit/unicode-case-overoptimization.js
@@ -1654,8 +1751,11 @@ Files: LICENSE
  test/mjsunit/uri.js
  test/mjsunit/value-callic-prototype-change.js
  test/mjsunit/value-of.js
+ test/mjsunit/value-wrapper-accessor.js
  test/mjsunit/value-wrapper.js
  test/mjsunit/var.js
+ test/mjsunit/verify-assert-false.js
+ test/mjsunit/verify-check-false.js
  test/mjsunit/with-function-expression.js
  test/mjsunit/with-leave.js
  test/mjsunit/with-parameter-access.js
@@ -1689,53 +1789,84 @@ Files: LICENSE
  test/preparser/strict-with.js
  test/preparser/symbols-only.js
  test/preparser/testcfg.py
- test/sputnik/sputnik.status
- test/sputnik/testcfg.py
+ test/promises-aplus/lib/adapter.js
+ test/promises-aplus/lib/assert.js
+ test/promises-aplus/lib/global.js
+ test/promises-aplus/lib/mocha.js
+ test/promises-aplus/lib/require.js
+ test/promises-aplus/lib/run-tests.js
+ test/promises-aplus/promises-aplus.status
+ test/promises-aplus/testcfg.py
  test/test262/harness-adapt.js
  test/test262/test262.status
  test/test262/testcfg.py
+ test/webkit/testcfg.py
+ test/webkit/webkit.status
  tools/android-ll-prof.sh
  tools/android-run.py
  tools/android-sync.sh
  tools/bash-completion.sh
  tools/check-static-initializers.sh
  tools/codemap.js
- tools/common-includes.sh
+ tools/concatenate-files.py
  tools/consarray.js
+ tools/cross_build_gcc.sh
  tools/csvparser.js
  tools/disasm.py
+ tools/draw_instruction_graph.sh
  tools/fuzz-harness.sh
  tools/gc-nvp-trace-processor.py
  tools/gcmole/Makefile
+ tools/gcmole/bootstrap.sh
  tools/gcmole/gccause.lua
  tools/gcmole/gcmole.cc
  tools/gcmole/gcmole.lua
  tools/gdb-v8-support.py
  tools/gen-postmortem-metadata.py
+ tools/generate_shim_headers/generate_shim_headers.py
  tools/grokdump.py
  tools/gyp/v8.gyp
  tools/jsmin.py
+ tools/lexer-shell.cc
+ tools/lexer-shell.gyp
  tools/ll_prof.py
  tools/logreader.js
- tools/merge-to-branch.sh
+ tools/nacl-run.py
  tools/oom_dump/SConstruct
  tools/oom_dump/oom_dump.cc
+ tools/parser-shell.cc
  tools/process-heap-prof.py
  tools/profile.js
  tools/profile_view.js
- tools/push-to-trunk.sh
+ tools/profviz/composer.js
+ tools/profviz/profviz.css
+ tools/profviz/profviz.html
+ tools/profviz/profviz.js
+ tools/profviz/stdio.js
+ tools/profviz/worker.js
+ tools/push-to-trunk/auto_push.py
+ tools/push-to-trunk/common_includes.py
+ tools/push-to-trunk/git_recipes.py
+ tools/push-to-trunk/merge_to_branch.py
+ tools/push-to-trunk/push_to_trunk.py
+ tools/push-to-trunk/script_test.py
+ tools/push-to-trunk/test_scripts.py
+ tools/run-deopt-fuzzer.py
+ tools/run-llprof.sh
  tools/run-tests.py
  tools/run-valgrind.py
+ tools/shell-utils.h
+ tools/sodium/sodium.js
  tools/splaytree.js
  tools/stats-viewer.py
- tools/status-file-converter.py
+ tools/test-push-to-trunk.sh
  tools/test-server.py
- tools/test-wrapper-gypbuild.py
  tools/testrunner/__init__.py
  tools/testrunner/local/__init__.py
  tools/testrunner/local/commands.py
  tools/testrunner/local/execution.py
- tools/testrunner/local/old_statusfile.py
+ tools/testrunner/local/junit_output.py
+ tools/testrunner/local/perfdata.py
  tools/testrunner/local/progress.py
  tools/testrunner/local/statusfile.py
  tools/testrunner/local/testsuite.py
@@ -1745,7 +1876,6 @@ Files: LICENSE
  tools/testrunner/network/distro.py
  tools/testrunner/network/endpoint.py
  tools/testrunner/network/network_execution.py
- tools/testrunner/network/perfdata.py
  tools/testrunner/objects/__init__.py
  tools/testrunner/objects/context.py
  tools/testrunner/objects/output.py
@@ -1763,14 +1893,1467 @@ Files: LICENSE
  tools/testrunner/server/work_handler.py
  tools/tickprocessor-driver.js
  tools/tickprocessor.js
- tools/utils.py
+ tools/v8-info.sh
+ tools/v8-rolls.sh
+ tools/v8heapconst.py
+ tools/v8heapconst.py.tmpl
 Copyright: 2006-2008, the V8 project authors.
   2006-2009, the V8 project authors.
   2006-2011, the V8 project authors.
-  2006-2012, the V8 project authors.
   2007-2008, the V8 project authors.
   2007-2010, the V8 project authors.
   2007-2011, the V8 project authors.
+  2008, the V8 project authors.
+  2009, the V8 project authors.
+  2010, the V8 project authors.
+  2011, the V8 project authors.
+  2012, the V8 project authors.
+  2013, the V8 project authors.
+  2014, the V8 project authors.
+License: BSD-3-clause
+ FIXME
+
+Files: build/all.gyp
+ build/get_landmines.py
+ build/landmine_utils.py
+ build/landmines.py
+ include/libplatform/libplatform.h
+ include/v8-debug.h
+ include/v8-platform.h
+ include/v8-profiler.h
+ include/v8-testing.h
+ include/v8-util.h
+ include/v8.h
+ include/v8config.h
+ include/v8stdint.h
+ src/accessors.cc
+ src/accessors.h
+ src/allocation-site-scopes.cc
+ src/allocation-site-scopes.h
+ src/allocation-tracker.cc
+ src/allocation-tracker.h
+ src/allocation.cc
+ src/allocation.h
+ src/api.cc
+ src/api.h
+ src/apinatives.js
+ src/arguments.cc
+ src/arguments.h
+ src/arm/builtins-arm.cc
+ src/arm/code-stubs-arm.cc
+ src/arm/code-stubs-arm.h
+ src/arm/codegen-arm.cc
+ src/arm/codegen-arm.h
+ src/arm/constants-arm.cc
+ src/arm/constants-arm.h
+ src/arm/cpu-arm.cc
+ src/arm/debug-arm.cc
+ src/arm/deoptimizer-arm.cc
+ src/arm/disasm-arm.cc
+ src/arm/frames-arm.cc
+ src/arm/frames-arm.h
+ src/arm/full-codegen-arm.cc
+ src/arm/ic-arm.cc
+ src/arm/lithium-arm.cc
+ src/arm/lithium-arm.h
+ src/arm/lithium-codegen-arm.cc
+ src/arm/lithium-codegen-arm.h
+ src/arm/lithium-gap-resolver-arm.cc
+ src/arm/lithium-gap-resolver-arm.h
+ src/arm/macro-assembler-arm.cc
+ src/arm/macro-assembler-arm.h
+ src/arm/regexp-macro-assembler-arm.cc
+ src/arm/regexp-macro-assembler-arm.h
+ src/arm/simulator-arm.cc
+ src/arm/simulator-arm.h
+ src/arm/stub-cache-arm.cc
+ src/arm64/assembler-arm64-inl.h
+ src/arm64/assembler-arm64.h
+ src/arm64/builtins-arm64.cc
+ src/arm64/code-stubs-arm64.cc
+ src/arm64/code-stubs-arm64.h
+ src/arm64/codegen-arm64.cc
+ src/arm64/codegen-arm64.h
+ src/arm64/constants-arm64.h
+ src/arm64/cpu-arm64.cc
+ src/arm64/debug-arm64.cc
+ src/arm64/decoder-arm64-inl.h
+ src/arm64/decoder-arm64.cc
+ src/arm64/decoder-arm64.h
+ src/arm64/delayed-masm-arm64-inl.h
+ src/arm64/delayed-masm-arm64.cc
+ src/arm64/delayed-masm-arm64.h
+ src/arm64/deoptimizer-arm64.cc
+ src/arm64/disasm-arm64.cc
+ src/arm64/disasm-arm64.h
+ src/arm64/frames-arm64.cc
+ src/arm64/frames-arm64.h
+ src/arm64/full-codegen-arm64.cc
+ src/arm64/ic-arm64.cc
+ src/arm64/instructions-arm64.cc
+ src/arm64/instructions-arm64.h
+ src/arm64/instrument-arm64.cc
+ src/arm64/instrument-arm64.h
+ src/arm64/lithium-arm64.cc
+ src/arm64/lithium-arm64.h
+ src/arm64/lithium-codegen-arm64.cc
+ src/arm64/lithium-codegen-arm64.h
+ src/arm64/lithium-gap-resolver-arm64.cc
+ src/arm64/lithium-gap-resolver-arm64.h
+ src/arm64/macro-assembler-arm64-inl.h
+ src/arm64/macro-assembler-arm64.cc
+ src/arm64/macro-assembler-arm64.h
+ src/arm64/regexp-macro-assembler-arm64.cc
+ src/arm64/regexp-macro-assembler-arm64.h
+ src/arm64/simulator-arm64.cc
+ src/arm64/simulator-arm64.h
+ src/arm64/stub-cache-arm64.cc
+ src/arm64/utils-arm64.cc
+ src/arm64/utils-arm64.h
+ src/array-iterator.js
+ src/array.js
+ src/arraybuffer.js
+ src/assert-scope.cc
+ src/assert-scope.h
+ src/ast.cc
+ src/ast.h
+ src/base/atomicops.h
+ src/base/atomicops_internals_arm64_gcc.h
+ src/base/atomicops_internals_arm_gcc.h
+ src/base/atomicops_internals_atomicword_compat.h
+ src/base/atomicops_internals_mac.h
+ src/base/atomicops_internals_mips_gcc.h
+ src/base/atomicops_internals_tsan.h
+ src/base/atomicops_internals_x86_gcc.cc
+ src/base/atomicops_internals_x86_gcc.h
+ src/base/atomicops_internals_x86_msvc.h
+ src/base/build_config.h
+ src/base/cpu.cc
+ src/base/cpu.h
+ src/base/lazy-instance.h
+ src/base/logging.cc
+ src/base/logging.h
+ src/base/macros.h
+ src/base/once.cc
+ src/base/once.h
+ src/base/platform/condition-variable.cc
+ src/base/platform/condition-variable.h
+ src/base/platform/elapsed-timer.h
+ src/base/platform/mutex.cc
+ src/base/platform/mutex.h
+ src/base/platform/platform-cygwin.cc
+ src/base/platform/platform-freebsd.cc
+ src/base/platform/platform-linux.cc
+ src/base/platform/platform-macos.cc
+ src/base/platform/platform-openbsd.cc
+ src/base/platform/platform-posix.cc
+ src/base/platform/platform-qnx.cc
+ src/base/platform/platform-solaris.cc
+ src/base/platform/platform-win32.cc
+ src/base/platform/platform.h
+ src/base/platform/semaphore.cc
+ src/base/platform/semaphore.h
+ src/base/platform/time.cc
+ src/base/platform/time.h
+ src/base/qnx-math.h
+ src/base/utils/random-number-generator.cc
+ src/base/utils/random-number-generator.h
+ src/base/win32-headers.h
+ src/base/win32-math.cc
+ src/base/win32-math.h
+ src/bignum-dtoa.cc
+ src/bignum-dtoa.h
+ src/bignum.cc
+ src/bignum.h
+ src/bootstrapper.cc
+ src/bootstrapper.h
+ src/builtins.cc
+ src/builtins.h
+ src/bytecodes-irregexp.h
+ src/cached-powers.cc
+ src/cached-powers.h
+ src/checks.cc
+ src/checks.h
+ src/circular-queue-inl.h
+ src/circular-queue.h
+ src/code-stubs-hydrogen.cc
+ src/code-stubs.cc
+ src/code-stubs.h
+ src/code.h
+ src/codegen.cc
+ src/codegen.h
+ src/collection-iterator.js
+ src/collection.js
+ src/compilation-cache.cc
+ src/compilation-cache.h
+ src/compiler-intrinsics.h
+ src/compiler.cc
+ src/compiler.h
+ src/compiler/arm/code-generator-arm.cc
+ src/compiler/arm/instruction-codes-arm.h
+ src/compiler/arm/instruction-selector-arm.cc
+ src/compiler/arm/linkage-arm.cc
+ src/compiler/arm64/code-generator-arm64.cc
+ src/compiler/arm64/instruction-codes-arm64.h
+ src/compiler/arm64/instruction-selector-arm64.cc
+ src/compiler/arm64/linkage-arm64.cc
+ src/compiler/ast-graph-builder.cc
+ src/compiler/ast-graph-builder.h
+ src/compiler/code-generator-impl.h
+ src/compiler/code-generator.cc
+ src/compiler/code-generator.h
+ src/compiler/common-node-cache.h
+ src/compiler/common-operator.h
+ src/compiler/control-builders.cc
+ src/compiler/control-builders.h
+ src/compiler/frame.h
+ src/compiler/gap-resolver.cc
+ src/compiler/gap-resolver.h
+ src/compiler/generic-algorithm-inl.h
+ src/compiler/generic-algorithm.h
+ src/compiler/generic-graph.h
+ src/compiler/generic-node-inl.h
+ src/compiler/generic-node.h
+ src/compiler/graph-builder.cc
+ src/compiler/graph-builder.h
+ src/compiler/graph-inl.h
+ src/compiler/graph-reducer.cc
+ src/compiler/graph-reducer.h
+ src/compiler/graph-replay.cc
+ src/compiler/graph-replay.h
+ src/compiler/graph-visualizer.cc
+ src/compiler/graph-visualizer.h
+ src/compiler/graph.cc
+ src/compiler/graph.h
+ src/compiler/ia32/code-generator-ia32.cc
+ src/compiler/ia32/instruction-codes-ia32.h
+ src/compiler/ia32/instruction-selector-ia32.cc
+ src/compiler/ia32/linkage-ia32.cc
+ src/compiler/instruction-codes.h
+ src/compiler/instruction-selector-impl.h
+ src/compiler/instruction-selector.cc
+ src/compiler/instruction-selector.h
+ src/compiler/instruction.cc
+ src/compiler/instruction.h
+ src/compiler/js-context-specialization.cc
+ src/compiler/js-context-specialization.h
+ src/compiler/js-generic-lowering.cc
+ src/compiler/js-generic-lowering.h
+ src/compiler/js-graph.cc
+ src/compiler/js-graph.h
+ src/compiler/js-operator.h
+ src/compiler/js-typed-lowering.cc
+ src/compiler/js-typed-lowering.h
+ src/compiler/linkage-impl.h
+ src/compiler/linkage.cc
+ src/compiler/linkage.h
+ src/compiler/lowering-builder.cc
+ src/compiler/lowering-builder.h
+ src/compiler/machine-node-factory.h
+ src/compiler/machine-operator-reducer.cc
+ src/compiler/machine-operator-reducer.h
+ src/compiler/machine-operator.h
+ src/compiler/machine-type.h
+ src/compiler/node-aux-data-inl.h
+ src/compiler/node-aux-data.h
+ src/compiler/node-cache.cc
+ src/compiler/node-cache.h
+ src/compiler/node-matchers.h
+ src/compiler/node-properties-inl.h
+ src/compiler/node-properties.h
+ src/compiler/node.cc
+ src/compiler/node.h
+ src/compiler/opcodes.h
+ src/compiler/operator-properties-inl.h
+ src/compiler/operator-properties.h
+ src/compiler/operator.h
+ src/compiler/phi-reducer.h
+ src/compiler/pipeline.cc
+ src/compiler/pipeline.h
+ src/compiler/raw-machine-assembler.cc
+ src/compiler/raw-machine-assembler.h
+ src/compiler/register-allocator.cc
+ src/compiler/register-allocator.h
+ src/compiler/representation-change.h
+ src/compiler/schedule.cc
+ src/compiler/schedule.h
+ src/compiler/scheduler.cc
+ src/compiler/scheduler.h
+ src/compiler/simplified-lowering.cc
+ src/compiler/simplified-lowering.h
+ src/compiler/simplified-node-factory.h
+ src/compiler/simplified-operator.h
+ src/compiler/source-position.cc
+ src/compiler/source-position.h
+ src/compiler/structured-machine-assembler.cc
+ src/compiler/structured-machine-assembler.h
+ src/compiler/typer.cc
+ src/compiler/typer.h
+ src/compiler/verifier.cc
+ src/compiler/verifier.h
+ src/compiler/x64/code-generator-x64.cc
+ src/compiler/x64/instruction-codes-x64.h
+ src/compiler/x64/instruction-selector-x64.cc
+ src/compiler/x64/linkage-x64.cc
+ src/contexts.cc
+ src/contexts.h
+ src/conversions-inl.h
+ src/conversions.cc
+ src/conversions.h
+ src/counters.cc
+ src/counters.h
+ src/cpu-profiler-inl.h
+ src/cpu-profiler.cc
+ src/cpu-profiler.h
+ src/d8-debug.cc
+ src/d8-debug.h
+ src/d8-posix.cc
+ src/d8-readline.cc
+ src/d8-windows.cc
+ src/d8.cc
+ src/d8.h
+ src/d8.js
+ src/data-flow.cc
+ src/data-flow.h
+ src/date.cc
+ src/date.h
+ src/date.js
+ src/dateparser-inl.h
+ src/dateparser.cc
+ src/dateparser.h
+ src/debug-debugger.js
+ src/debug.cc
+ src/debug.h
+ src/deoptimizer.cc
+ src/deoptimizer.h
+ src/disasm.h
+ src/disassembler.cc
+ src/disassembler.h
+ src/diy-fp.cc
+ src/diy-fp.h
+ src/double.h
+ src/dtoa.cc
+ src/dtoa.h
+ src/effects.h
+ src/elements-kind.cc
+ src/elements-kind.h
+ src/elements.cc
+ src/elements.h
+ src/execution.cc
+ src/execution.h
+ src/extensions/externalize-string-extension.cc
+ src/extensions/externalize-string-extension.h
+ src/extensions/free-buffer-extension.cc
+ src/extensions/free-buffer-extension.h
+ src/extensions/gc-extension.cc
+ src/extensions/gc-extension.h
+ src/extensions/statistics-extension.cc
+ src/extensions/statistics-extension.h
+ src/extensions/trigger-failure-extension.cc
+ src/extensions/trigger-failure-extension.h
+ src/factory.cc
+ src/factory.h
+ src/fast-dtoa.cc
+ src/fast-dtoa.h
+ src/feedback-slots.h
+ src/field-index-inl.h
+ src/field-index.cc
+ src/field-index.h
+ src/fixed-dtoa.cc
+ src/fixed-dtoa.h
+ src/flag-definitions.h
+ src/flags.cc
+ src/flags.h
+ src/frames-inl.h
+ src/frames.cc
+ src/frames.h
+ src/full-codegen.cc
+ src/full-codegen.h
+ src/func-name-inferrer.cc
+ src/func-name-inferrer.h
+ src/gdb-jit.cc
+ src/gdb-jit.h
+ src/generator.js
+ src/global-handles.cc
+ src/global-handles.h
+ src/globals.h
+ src/handles-inl.h
+ src/handles.cc
+ src/handles.h
+ src/harmony-array.js
+ src/harmony-string.js
+ src/hashmap.h
+ src/heap-profiler.cc
+ src/heap-profiler.h
+ src/heap-snapshot-generator-inl.h
+ src/heap-snapshot-generator.cc
+ src/heap-snapshot-generator.h
+ src/heap/gc-tracer.cc
+ src/heap/gc-tracer.h
+ src/heap/heap-inl.h
+ src/heap/heap.cc
+ src/heap/heap.h
+ src/heap/incremental-marking-inl.h
+ src/heap/incremental-marking.cc
+ src/heap/incremental-marking.h
+ src/heap/mark-compact-inl.h
+ src/heap/mark-compact.cc
+ src/heap/mark-compact.h
+ src/heap/objects-visiting-inl.h
+ src/heap/objects-visiting.cc
+ src/heap/objects-visiting.h
+ src/heap/spaces-inl.h
+ src/heap/spaces.cc
+ src/heap/spaces.h
+ src/heap/store-buffer-inl.h
+ src/heap/store-buffer.cc
+ src/heap/store-buffer.h
+ src/heap/sweeper-thread.cc
+ src/heap/sweeper-thread.h
+ src/hydrogen-alias-analysis.h
+ src/hydrogen-bce.cc
+ src/hydrogen-bce.h
+ src/hydrogen-bch.cc
+ src/hydrogen-bch.h
+ src/hydrogen-canonicalize.cc
+ src/hydrogen-canonicalize.h
+ src/hydrogen-check-elimination.cc
+ src/hydrogen-check-elimination.h
+ src/hydrogen-dce.cc
+ src/hydrogen-dce.h
+ src/hydrogen-dehoist.cc
+ src/hydrogen-dehoist.h
+ src/hydrogen-environment-liveness.cc
+ src/hydrogen-environment-liveness.h
+ src/hydrogen-escape-analysis.cc
+ src/hydrogen-escape-analysis.h
+ src/hydrogen-flow-engine.h
+ src/hydrogen-gvn.cc
+ src/hydrogen-gvn.h
+ src/hydrogen-infer-representation.cc
+ src/hydrogen-infer-representation.h
+ src/hydrogen-infer-types.cc
+ src/hydrogen-infer-types.h
+ src/hydrogen-instructions.cc
+ src/hydrogen-instructions.h
+ src/hydrogen-load-elimination.cc
+ src/hydrogen-load-elimination.h
+ src/hydrogen-mark-deoptimize.cc
+ src/hydrogen-mark-deoptimize.h
+ src/hydrogen-mark-unreachable.cc
+ src/hydrogen-mark-unreachable.h
+ src/hydrogen-osr.cc
+ src/hydrogen-osr.h
+ src/hydrogen-range-analysis.cc
+ src/hydrogen-range-analysis.h
+ src/hydrogen-redundant-phi.cc
+ src/hydrogen-redundant-phi.h
+ src/hydrogen-removable-simulates.cc
+ src/hydrogen-removable-simulates.h
+ src/hydrogen-representation-changes.cc
+ src/hydrogen-representation-changes.h
+ src/hydrogen-sce.cc
+ src/hydrogen-sce.h
+ src/hydrogen-store-elimination.cc
+ src/hydrogen-store-elimination.h
+ src/hydrogen-types.cc
+ src/hydrogen-types.h
+ src/hydrogen-uint32-analysis.cc
+ src/hydrogen-uint32-analysis.h
+ src/hydrogen.cc
+ src/hydrogen.h
+ src/i18n.cc
+ src/i18n.h
+ src/i18n.js
+ src/ia32/builtins-ia32.cc
+ src/ia32/code-stubs-ia32.cc
+ src/ia32/code-stubs-ia32.h
+ src/ia32/codegen-ia32.cc
+ src/ia32/codegen-ia32.h
+ src/ia32/cpu-ia32.cc
+ src/ia32/debug-ia32.cc
+ src/ia32/deoptimizer-ia32.cc
+ src/ia32/disasm-ia32.cc
+ src/ia32/frames-ia32.cc
+ src/ia32/frames-ia32.h
+ src/ia32/full-codegen-ia32.cc
+ src/ia32/ic-ia32.cc
+ src/ia32/lithium-codegen-ia32.cc
+ src/ia32/lithium-codegen-ia32.h
+ src/ia32/lithium-gap-resolver-ia32.cc
+ src/ia32/lithium-gap-resolver-ia32.h
+ src/ia32/lithium-ia32.cc
+ src/ia32/lithium-ia32.h
+ src/ia32/macro-assembler-ia32.cc
+ src/ia32/macro-assembler-ia32.h
+ src/ia32/regexp-macro-assembler-ia32.cc
+ src/ia32/regexp-macro-assembler-ia32.h
+ src/ia32/simulator-ia32.cc
+ src/ia32/simulator-ia32.h
+ src/ia32/stub-cache-ia32.cc
+ src/ic-inl.h
+ src/ic.cc
+ src/ic.h
+ src/icu_util.cc
+ src/icu_util.h
+ src/interface.cc
+ src/interface.h
+ src/interpreter-irregexp.cc
+ src/interpreter-irregexp.h
+ src/isolate-inl.h
+ src/isolate.cc
+ src/isolate.h
+ src/json-parser.h
+ src/json-stringifier.h
+ src/json.js
+ src/jsregexp-inl.h
+ src/jsregexp.cc
+ src/jsregexp.h
+ src/libplatform/default-platform.cc
+ src/libplatform/default-platform.h
+ src/libplatform/task-queue.cc
+ src/libplatform/task-queue.h
+ src/libplatform/worker-thread.cc
+ src/libplatform/worker-thread.h
+ src/list-inl.h
+ src/list.h
+ src/lithium-allocator-inl.h
+ src/lithium-allocator.cc
+ src/lithium-allocator.h
+ src/lithium-codegen.cc
+ src/lithium-codegen.h
+ src/lithium-inl.h
+ src/lithium.cc
+ src/lithium.h
+ src/liveedit-debugger.js
+ src/liveedit.cc
+ src/liveedit.h
+ src/log-inl.h
+ src/log-utils.cc
+ src/log-utils.h
+ src/log.cc
+ src/log.h
+ src/lookup-inl.h
+ src/lookup.cc
+ src/lookup.h
+ src/macro-assembler.h
+ src/math.js
+ src/messages.cc
+ src/messages.h
+ src/messages.js
+ src/mips/builtins-mips.cc
+ src/mips/code-stubs-mips.cc
+ src/mips/code-stubs-mips.h
+ src/mips/codegen-mips.cc
+ src/mips/codegen-mips.h
+ src/mips/constants-mips.cc
+ src/mips/constants-mips.h
+ src/mips/cpu-mips.cc
+ src/mips/debug-mips.cc
+ src/mips/deoptimizer-mips.cc
+ src/mips/disasm-mips.cc
+ src/mips/frames-mips.cc
+ src/mips/frames-mips.h
+ src/mips/full-codegen-mips.cc
+ src/mips/ic-mips.cc
+ src/mips/lithium-codegen-mips.h
+ src/mips/lithium-gap-resolver-mips.cc
+ src/mips/lithium-gap-resolver-mips.h
+ src/mips/lithium-mips.cc
+ src/mips/lithium-mips.h
+ src/mips/macro-assembler-mips.cc
+ src/mips/macro-assembler-mips.h
+ src/mips/regexp-macro-assembler-mips.cc
+ src/mips/regexp-macro-assembler-mips.h
+ src/mips/simulator-mips.cc
+ src/mips/simulator-mips.h
+ src/mips/stub-cache-mips.cc
+ src/mips64/builtins-mips64.cc
+ src/mips64/code-stubs-mips64.cc
+ src/mips64/code-stubs-mips64.h
+ src/mips64/codegen-mips64.cc
+ src/mips64/codegen-mips64.h
+ src/mips64/constants-mips64.cc
+ src/mips64/constants-mips64.h
+ src/mips64/cpu-mips64.cc
+ src/mips64/debug-mips64.cc
+ src/mips64/deoptimizer-mips64.cc
+ src/mips64/disasm-mips64.cc
+ src/mips64/frames-mips64.cc
+ src/mips64/frames-mips64.h
+ src/mips64/full-codegen-mips64.cc
+ src/mips64/ic-mips64.cc
+ src/mips64/lithium-codegen-mips64.cc
+ src/mips64/lithium-codegen-mips64.h
+ src/mips64/lithium-gap-resolver-mips64.cc
+ src/mips64/lithium-gap-resolver-mips64.h
+ src/mips64/lithium-mips64.cc
+ src/mips64/lithium-mips64.h
+ src/mips64/macro-assembler-mips64.cc
+ src/mips64/macro-assembler-mips64.h
+ src/mips64/regexp-macro-assembler-mips64.cc
+ src/mips64/regexp-macro-assembler-mips64.h
+ src/mips64/simulator-mips64.cc
+ src/mips64/simulator-mips64.h
+ src/mips64/stub-cache-mips64.cc
+ src/mirror-debugger.js
+ src/misc-intrinsics.h
+ src/mksnapshot.cc
+ src/msan.h
+ src/natives-external.cc
+ src/natives.h
+ src/object-observe.js
+ src/objects-debug.cc
+ src/objects-inl.h
+ src/objects-printer.cc
+ src/objects.cc
+ src/objects.h
+ src/optimizing-compiler-thread.cc
+ src/optimizing-compiler-thread.h
+ src/ostreams.cc
+ src/ostreams.h
+ src/parser.cc
+ src/parser.h
+ src/preparse-data-format.h
+ src/preparse-data.cc
+ src/preparse-data.h
+ src/preparser.cc
+ src/preparser.h
+ src/prettyprinter.cc
+ src/prettyprinter.h
+ src/profile-generator-inl.h
+ src/profile-generator.cc
+ src/profile-generator.h
+ src/promise.js
+ src/property-details-inl.h
+ src/property-details.h
+ src/property.cc
+ src/property.h
+ src/prototype.h
+ src/proxy.js
+ src/regexp-macro-assembler-irregexp-inl.h
+ src/regexp-macro-assembler-irregexp.cc
+ src/regexp-macro-assembler-irregexp.h
+ src/regexp-macro-assembler-tracer.cc
+ src/regexp-macro-assembler-tracer.h
+ src/regexp-macro-assembler.cc
+ src/regexp-macro-assembler.h
+ src/regexp-stack.cc
+ src/regexp-stack.h
+ src/regexp.js
+ src/rewriter.cc
+ src/rewriter.h
+ src/runtime-profiler.cc
+ src/runtime-profiler.h
+ src/runtime.cc
+ src/runtime.h
+ src/runtime.js
+ src/safepoint-table.cc
+ src/safepoint-table.h
+ src/sampler.cc
+ src/sampler.h
+ src/scanner-character-streams.cc
+ src/scanner-character-streams.h
+ src/scopeinfo.cc
+ src/scopeinfo.h
+ src/scopes.cc
+ src/scopes.h
+ src/serialize.cc
+ src/serialize.h
+ src/simulator.h
+ src/small-pointer-list.h
+ src/smart-pointers.h
+ src/snapshot-common.cc
+ src/snapshot-empty.cc
+ src/snapshot-external.cc
+ src/snapshot-source-sink.cc
+ src/snapshot-source-sink.h
+ src/snapshot.h
+ src/splay-tree-inl.h
+ src/splay-tree.h
+ src/string-iterator.js
+ src/string-search.cc
+ src/string-search.h
+ src/string-stream.cc
+ src/string-stream.h
+ src/string.js
+ src/strtod.cc
+ src/strtod.h
+ src/stub-cache.cc
+ src/stub-cache.h
+ src/symbol.js
+ src/token.cc
+ src/token.h
+ src/transitions-inl.h
+ src/transitions.cc
+ src/transitions.h
+ src/type-info.cc
+ src/type-info.h
+ src/typedarray.js
+ src/types-inl.h
+ src/types.cc
+ src/types.h
+ src/typing.cc
+ src/typing.h
+ src/unbound-queue-inl.h
+ src/unbound-queue.h
+ src/unicode-inl.h
+ src/unicode.cc
+ src/unicode.h
+ src/unique.h
+ src/uri.h
+ src/uri.js
+ src/utils-inl.h
+ src/utils.cc
+ src/utils.h
+ src/v8.cc
+ src/v8.h
+ src/v8dll-main.cc
+ src/v8memory.h
+ src/v8natives.js
+ src/v8threads.cc
+ src/v8threads.h
+ src/variables.cc
+ src/variables.h
+ src/vector.h
+ src/version.h
+ src/vm-state-inl.h
+ src/vm-state.h
+ src/weak_collection.js
+ src/x64/assembler-x64-inl.h
+ src/x64/assembler-x64.cc
+ src/x64/builtins-x64.cc
+ src/x64/code-stubs-x64.cc
+ src/x64/code-stubs-x64.h
+ src/x64/codegen-x64.cc
+ src/x64/codegen-x64.h
+ src/x64/cpu-x64.cc
+ src/x64/debug-x64.cc
+ src/x64/deoptimizer-x64.cc
+ src/x64/disasm-x64.cc
+ src/x64/frames-x64.cc
+ src/x64/frames-x64.h
+ src/x64/full-codegen-x64.cc
+ src/x64/ic-x64.cc
+ src/x64/lithium-codegen-x64.cc
+ src/x64/lithium-codegen-x64.h
+ src/x64/lithium-gap-resolver-x64.cc
+ src/x64/lithium-gap-resolver-x64.h
+ src/x64/lithium-x64.cc
+ src/x64/lithium-x64.h
+ src/x64/macro-assembler-x64.cc
+ src/x64/macro-assembler-x64.h
+ src/x64/regexp-macro-assembler-x64.cc
+ src/x64/regexp-macro-assembler-x64.h
+ src/x64/simulator-x64.cc
+ src/x64/simulator-x64.h
+ src/x64/stub-cache-x64.cc
+ src/x87/builtins-x87.cc
+ src/x87/code-stubs-x87.cc
+ src/x87/code-stubs-x87.h
+ src/x87/codegen-x87.cc
+ src/x87/codegen-x87.h
+ src/x87/cpu-x87.cc
+ src/x87/debug-x87.cc
+ src/x87/deoptimizer-x87.cc
+ src/x87/disasm-x87.cc
+ src/x87/frames-x87.cc
+ src/x87/frames-x87.h
+ src/x87/full-codegen-x87.cc
+ src/x87/ic-x87.cc
+ src/x87/lithium-codegen-x87.cc
+ src/x87/lithium-codegen-x87.h
+ src/x87/lithium-gap-resolver-x87.cc
+ src/x87/lithium-gap-resolver-x87.h
+ src/x87/lithium-x87.cc
+ src/x87/lithium-x87.h
+ src/x87/macro-assembler-x87.cc
+ src/x87/macro-assembler-x87.h
+ src/x87/regexp-macro-assembler-x87.cc
+ src/x87/regexp-macro-assembler-x87.h
+ src/x87/simulator-x87.cc
+ src/x87/simulator-x87.h
+ src/x87/stub-cache-x87.cc
+ src/zone-allocator.h
+ src/zone-containers.h
+ src/zone-inl.h
+ src/zone.cc
+ src/zone.h
+ test/base-unittests/base-unittests.gyp
+ test/base-unittests/base-unittests.status
+ test/base-unittests/cpu-unittest.cc
+ test/base-unittests/platform/condition-variable-unittest.cc
+ test/base-unittests/platform/mutex-unittest.cc
+ test/base-unittests/platform/platform-unittest.cc
+ test/base-unittests/platform/time-unittest.cc
+ test/base-unittests/testcfg.py
+ test/base-unittests/utils/random-number-generator-unittest.cc
+ test/cctest/compiler/call-tester.h
+ test/cctest/compiler/codegen-tester.cc
+ test/cctest/compiler/codegen-tester.h
+ test/cctest/compiler/function-tester.h
+ test/cctest/compiler/graph-builder-tester.cc
+ test/cctest/compiler/graph-builder-tester.h
+ test/cctest/compiler/graph-tester.h
+ test/cctest/compiler/instruction-selector-tester.h
+ test/cctest/compiler/simplified-graph-builder.cc
+ test/cctest/compiler/simplified-graph-builder.h
+ test/cctest/compiler/test-branch-combine.cc
+ test/cctest/compiler/test-changes-lowering.cc
+ test/cctest/compiler/test-codegen-deopt.cc
+ test/cctest/compiler/test-gap-resolver.cc
+ test/cctest/compiler/test-graph-reducer.cc
+ test/cctest/compiler/test-instruction-selector-arm.cc
+ test/cctest/compiler/test-instruction-selector-ia32.cc
+ test/cctest/compiler/test-instruction-selector.cc
+ test/cctest/compiler/test-instruction.cc
+ test/cctest/compiler/test-js-constant-cache.cc
+ test/cctest/compiler/test-js-context-specialization.cc
+ test/cctest/compiler/test-js-typed-lowering.cc
+ test/cctest/compiler/test-linkage.cc
+ test/cctest/compiler/test-machine-operator-reducer.cc
+ test/cctest/compiler/test-node-algorithm.cc
+ test/cctest/compiler/test-node-cache.cc
+ test/cctest/compiler/test-node.cc
+ test/cctest/compiler/test-operator.cc
+ test/cctest/compiler/test-phi-reducer.cc
+ test/cctest/compiler/test-pipeline.cc
+ test/cctest/compiler/test-representation-change.cc
+ test/cctest/compiler/test-run-deopt.cc
+ test/cctest/compiler/test-run-intrinsics.cc
+ test/cctest/compiler/test-run-jsbranches.cc
+ test/cctest/compiler/test-run-jscalls.cc
+ test/cctest/compiler/test-run-jsexceptions.cc
+ test/cctest/compiler/test-run-jsops.cc
+ test/cctest/compiler/test-run-machops.cc
+ test/cctest/compiler/test-run-variables.cc
+ test/cctest/compiler/test-schedule.cc
+ test/cctest/compiler/test-scheduler.cc
+ test/cctest/compiler/test-simplified-lowering.cc
+ test/cctest/compiler/test-structured-ifbuilder-fuzzer.cc
+ test/cctest/compiler/test-structured-machine-assembler.cc
+ test/cctest/compiler/value-helper.h
+ test/cctest/test-checks.cc
+ test/cctest/test-constantpool.cc
+ test/cctest/test-hydrogen-types.cc
+ test/cctest/test-libplatform-default-platform.cc
+ test/cctest/test-ostreams.cc
+ test/cctest/test-symbols.cc
+ test/cctest/test-types.cc
+ test/cctest/test-unscopables-hidden-prototype.cc
+ test/compiler-unittests/arm/instruction-selector-arm-unittest.cc
+ test/compiler-unittests/compiler-unittests.cc
+ test/compiler-unittests/compiler-unittests.gyp
+ test/compiler-unittests/compiler-unittests.h
+ test/compiler-unittests/compiler-unittests.status
+ test/compiler-unittests/instruction-selector-unittest.cc
+ test/compiler-unittests/instruction-selector-unittest.h
+ test/compiler-unittests/testcfg.py
+ test/fuzz-natives/base.js
+ test/fuzz-natives/fuzz-natives.status
+ test/fuzz-natives/testcfg.py
+ test/mjsunit/array-push-unshift-read-only-length.js
+ test/mjsunit/array-push10.js
+ test/mjsunit/array-push11.js
+ test/mjsunit/array-push2.js
+ test/mjsunit/array-push3.js
+ test/mjsunit/array-push4.js
+ test/mjsunit/array-push5.js
+ test/mjsunit/array-push6.js
+ test/mjsunit/array-push7.js
+ test/mjsunit/array-push8.js
+ test/mjsunit/array-push9.js
+ test/mjsunit/array-shift2.js
+ test/mjsunit/array-shift3.js
+ test/mjsunit/bounds-checks-elimination.js
+ test/mjsunit/constant-fold-control-instructions.js
+ test/mjsunit/cross-realm-filtering.js
+ test/mjsunit/debug-break-native.js
+ test/mjsunit/debug-compile-optimized.js
+ test/mjsunit/debug-is-active.js
+ test/mjsunit/deserialize-reference.js
+ test/mjsunit/dictionary-properties.js
+ test/mjsunit/double-intrinsics.js
+ test/mjsunit/es6/collection-iterator.js
+ test/mjsunit/es6/debug-promises/async-task-event.js
+ test/mjsunit/es6/debug-promises/events.js
+ test/mjsunit/es6/debug-promises/reentry.js
+ test/mjsunit/es6/debug-promises/reject-after-resolve.js
+ test/mjsunit/es6/debug-promises/reject-caught-all.js
+ test/mjsunit/es6/debug-promises/reject-caught-late.js
+ test/mjsunit/es6/debug-promises/reject-caught-uncaught.js
+ test/mjsunit/es6/debug-promises/reject-in-constructor.js
+ test/mjsunit/es6/debug-promises/reject-uncaught-all.js
+ test/mjsunit/es6/debug-promises/reject-uncaught-late.js
+ test/mjsunit/es6/debug-promises/reject-uncaught-uncaught.js
+ test/mjsunit/es6/debug-promises/reject-with-invalid-reject.js
+ test/mjsunit/es6/debug-promises/reject-with-throw-in-reject.js
+ test/mjsunit/es6/debug-promises/reject-with-undefined-reject.js
+ test/mjsunit/es6/debug-promises/throw-caught-all.js
+ test/mjsunit/es6/debug-promises/throw-caught-late.js
+ test/mjsunit/es6/debug-promises/throw-caught-uncaught.js
+ test/mjsunit/es6/debug-promises/throw-in-constructor.js
+ test/mjsunit/es6/debug-promises/throw-uncaught-all.js
+ test/mjsunit/es6/debug-promises/throw-uncaught-uncaught.js
+ test/mjsunit/es6/debug-promises/throw-with-throw-in-reject.js
+ test/mjsunit/es6/debug-promises/throw-with-undefined-reject.js
+ test/mjsunit/es6/debug-promises/try-reject-in-constructor.js
+ test/mjsunit/es6/debug-promises/try-throw-reject-in-constructor.js
+ test/mjsunit/es6/debug-stepin-collections-foreach.js
+ test/mjsunit/es6/math-cbrt.js
+ test/mjsunit/es6/math-clz32.js
+ test/mjsunit/es6/math-expm1.js
+ test/mjsunit/es6/math-fround.js
+ test/mjsunit/es6/math-log1p.js
+ test/mjsunit/es6/mirror-collections.js
+ test/mjsunit/es6/mirror-promises.js
+ test/mjsunit/es6/mirror-symbols.js
+ test/mjsunit/es6/regress/regress-crbug-346141.js
+ test/mjsunit/es6/string-html.js
+ test/mjsunit/es6/string-iterator.js
+ test/mjsunit/es6/typed-array-iterator.js
+ test/mjsunit/es6/unscopables.js
+ test/mjsunit/es7/object-observe-debug-event.js
+ test/mjsunit/es7/object-observe-runtime.js
+ test/mjsunit/field-type-tracking.js
+ test/mjsunit/function-length-accessor.js
+ test/mjsunit/harmony/array-fill.js
+ test/mjsunit/harmony/arrow-functions.js
+ test/mjsunit/harmony/generators-debug-liveedit.js
+ test/mjsunit/harmony/generators-debug-scopes.js
+ test/mjsunit/harmony/generators-poisoned-properties.js
+ test/mjsunit/harmony/generators-relocation.js
+ test/mjsunit/harmony/proxies-with-unscopables.js
+ test/mjsunit/harmony/regress/regress-3280.js
+ test/mjsunit/harmony/regress/regress-3426.js
+ test/mjsunit/harmony/regress/regress-343928.js
+ test/mjsunit/harmony/regress/regress-lookup-transition.js
+ test/mjsunit/harmony/string-codepointat.js
+ test/mjsunit/harmony/string-fromcodepoint.js
+ test/mjsunit/keyed-load-dictionary-stub.js
+ test/mjsunit/migrations.js
+ test/mjsunit/neuter-twice.js
+ test/mjsunit/readonly-accessor.js
+ test/mjsunit/regress-3225.js
+ test/mjsunit/regress-3456.js
+ test/mjsunit/regress-keyed-store-non-strict-arguments.js
+ test/mjsunit/regress-sync-optimized-lists.js
+ test/mjsunit/regress/polymorphic-accessor-test-context.js
+ test/mjsunit/regress/regress-3116.js
+ test/mjsunit/regress/regress-3135.js
+ test/mjsunit/regress/regress-3138.js
+ test/mjsunit/regress/regress-3158.js
+ test/mjsunit/regress/regress-3159.js
+ test/mjsunit/regress/regress-3176.js
+ test/mjsunit/regress/regress-3204.js
+ test/mjsunit/regress/regress-3255.js
+ test/mjsunit/regress/regress-3281.js
+ test/mjsunit/regress/regress-3294.js
+ test/mjsunit/regress/regress-3307.js
+ test/mjsunit/regress/regress-3315.js
+ test/mjsunit/regress/regress-3334.js
+ test/mjsunit/regress/regress-3359.js
+ test/mjsunit/regress/regress-3380.js
+ test/mjsunit/regress/regress-3392.js
+ test/mjsunit/regress/regress-3404.js
+ test/mjsunit/regress/regress-343609.js
+ test/mjsunit/regress/regress-3462.js
+ test/mjsunit/regress/regress-346587.js
+ test/mjsunit/regress/regress-347530.js
+ test/mjsunit/regress/regress-347542.js
+ test/mjsunit/regress/regress-347543.js
+ test/mjsunit/regress/regress-3476.js
+ test/mjsunit/regress/regress-347904.js
+ test/mjsunit/regress/regress-347906.js
+ test/mjsunit/regress/regress-347909.js
+ test/mjsunit/regress/regress-347912.js
+ test/mjsunit/regress/regress-347914.js
+ test/mjsunit/regress/regress-348280.js
+ test/mjsunit/regress/regress-349870.js
+ test/mjsunit/regress/regress-349885.js
+ test/mjsunit/regress/regress-350865.js
+ test/mjsunit/regress/regress-350884.js
+ test/mjsunit/regress/regress-350887.js
+ test/mjsunit/regress/regress-351261.js
+ test/mjsunit/regress/regress-351624.js
+ test/mjsunit/regress/regress-353004.js
+ test/mjsunit/regress/regress-353058.js
+ test/mjsunit/regress/regress-355485.js
+ test/mjsunit/regress/regress-355486.js
+ test/mjsunit/regress/regress-356053.js
+ test/mjsunit/regress/regress-357054.js
+ test/mjsunit/regress/regress-357103.js
+ test/mjsunit/regress/regress-357105.js
+ test/mjsunit/regress/regress-357108.js
+ test/mjsunit/regress/regress-358057.js
+ test/mjsunit/regress/regress-358059.js
+ test/mjsunit/regress/regress-358088.js
+ test/mjsunit/regress/regress-358090.js
+ test/mjsunit/regress/regress-359441.js
+ test/mjsunit/regress/regress-359491.js
+ test/mjsunit/regress/regress-360733.js
+ test/mjsunit/regress/regress-361025.js
+ test/mjsunit/regress/regress-361608.js
+ test/mjsunit/regress/regress-362128.js
+ test/mjsunit/regress/regress-362870.js
+ test/mjsunit/regress/regress-363956.js
+ test/mjsunit/regress/regress-365172-1.js
+ test/mjsunit/regress/regress-365172-2.js
+ test/mjsunit/regress/regress-365172-3.js
+ test/mjsunit/regress/regress-368243.js
+ test/mjsunit/regress/regress-369450.js
+ test/mjsunit/regress/regress-370384.js
+ test/mjsunit/regress/regress-370827.js
+ test/mjsunit/regress/regress-373283.js
+ test/mjsunit/regress/regress-377290.js
+ test/mjsunit/regress/regress-379770.js
+ test/mjsunit/regress/regress-380049.js
+ test/mjsunit/regress/regress-380092.js
+ test/mjsunit/regress/regress-381313.js
+ test/mjsunit/regress/regress-385054.js
+ test/mjsunit/regress/regress-386034.js
+ test/mjsunit/regress/regress-411210.js
+ test/mjsunit/regress/regress-alloc-smi-check.js
+ test/mjsunit/regress/regress-builtinbust-1.js
+ test/mjsunit/regress/regress-builtinbust-3.js
+ test/mjsunit/regress/regress-builtinbust-4.js
+ test/mjsunit/regress/regress-builtinbust-5.js
+ test/mjsunit/regress/regress-builtinbust-6.js
+ test/mjsunit/regress/regress-builtinbust-7.js
+ test/mjsunit/regress/regress-captured-object-no-dummy-use.js
+ test/mjsunit/regress/regress-check-eliminate-loop-phis.js
+ test/mjsunit/regress/regress-crbug-344186.js
+ test/mjsunit/regress/regress-crbug-345715.js
+ test/mjsunit/regress/regress-crbug-345820.js
+ test/mjsunit/regress/regress-crbug-346636.js
+ test/mjsunit/regress/regress-crbug-347903.js
+ test/mjsunit/regress/regress-crbug-349079.js
+ test/mjsunit/regress/regress-crbug-349465.js
+ test/mjsunit/regress/regress-crbug-349853.js
+ test/mjsunit/regress/regress-crbug-349878.js
+ test/mjsunit/regress/regress-crbug-350434.js
+ test/mjsunit/regress/regress-crbug-350867.js
+ test/mjsunit/regress/regress-crbug-350890.js
+ test/mjsunit/regress/regress-crbug-351262.js
+ test/mjsunit/regress/regress-crbug-351320.js
+ test/mjsunit/regress/regress-crbug-351658.js
+ test/mjsunit/regress/regress-crbug-351787.js
+ test/mjsunit/regress/regress-crbug-352058.js
+ test/mjsunit/regress/regress-crbug-352586.js
+ test/mjsunit/regress/regress-crbug-352929.js
+ test/mjsunit/regress/regress-crbug-354391.js
+ test/mjsunit/regress/regress-crbug-357052.js
+ test/mjsunit/regress/regress-crbug-357137.js
+ test/mjsunit/regress/regress-crbug-357330.js
+ test/mjsunit/regress/regress-crbug-374838.js
+ test/mjsunit/regress/regress-crbug-380512.js
+ test/mjsunit/regress/regress-crbug-381534.js
+ test/mjsunit/regress/regress-crbug-382143.js
+ test/mjsunit/regress/regress-crbug-382513.js
+ test/mjsunit/regress/regress-crbug-385002.js
+ test/mjsunit/regress/regress-crbug-387031.js
+ test/mjsunit/regress/regress-crbug-387599.js
+ test/mjsunit/regress/regress-crbug-387627.js
+ test/mjsunit/regress/regress-crbug-387636.js
+ test/mjsunit/regress/regress-crbug-390918.js
+ test/mjsunit/regress/regress-crbug-390925.js
+ test/mjsunit/regress/regress-crbug-393988.js
+ test/mjsunit/regress/regress-crbug-401915.js
+ test/mjsunit/regress/regress-crbug-403409.js
+ test/mjsunit/regress/regress-crbug-407946.js
+ test/mjsunit/regress/regress-crbug-423687.js
+ test/mjsunit/regress/regress-debug-context-load.js
+ test/mjsunit/regress/regress-dictionary-to-fast-arguments.js
+ test/mjsunit/regress/regress-double-property.js
+ test/mjsunit/regress/regress-empty-fixed-double-array.js
+ test/mjsunit/regress/regress-enum-prop-keys-cache-size.js
+ test/mjsunit/regress/regress-escape-preserve-smi-representation.js
+ test/mjsunit/regress/regress-fast-empty-string.js
+ test/mjsunit/regress/regress-force-constant-representation.js
+ test/mjsunit/regress/regress-force-representation.js
+ test/mjsunit/regress/regress-freeze-setter.js
+ test/mjsunit/regress/regress-function-constructor-receiver.js
+ test/mjsunit/regress/regress-grow-deopt.js
+ test/mjsunit/regress/regress-gvn-ftt.js
+ test/mjsunit/regress/regress-handle-illegal-redeclaration.js
+ test/mjsunit/regress/regress-inline-getter-near-stack-limit.js
+ test/mjsunit/regress/regress-is-smi-repr.js
+ test/mjsunit/regress/regress-json-parse-index.js
+ test/mjsunit/regress/regress-keyed-store-global.js
+ test/mjsunit/regress/regress-lazy-deopt-inlining.js
+ test/mjsunit/regress/regress-lazy-deopt-inlining2.js
+ test/mjsunit/regress/regress-load-field-by-index.js
+ test/mjsunit/regress/regress-mask-array-length.js
+ test/mjsunit/regress/regress-migrate-callbacks.js
+ test/mjsunit/regress/regress-no-dummy-use-for-arguments-object.js
+ test/mjsunit/regress/regress-observe-map-cache.js
+ test/mjsunit/regress/regress-parseint.js
+ test/mjsunit/regress/regress-put-prototype-transition.js
+ test/mjsunit/regress/regress-reset-dictionary-elements.js
+ test/mjsunit/regress/regress-set-flags-stress-compact.js
+ test/mjsunit/regress/regress-sort-arguments.js
+ test/mjsunit/regress/regress-store-global-proxy.js
+ test/mjsunit/regress/regress-store-heapobject.js
+ test/mjsunit/regress/regress-update-field-type-attributes.js
+ test/mjsunit/runtime-gen/apply.js
+ test/mjsunit/runtime-gen/arraybuffergetbytelength.js
+ test/mjsunit/runtime-gen/arraybufferinitialize.js
+ test/mjsunit/runtime-gen/arraybufferisview.js
+ test/mjsunit/runtime-gen/arraybufferneuter.js
+ test/mjsunit/runtime-gen/arraybuffersliceimpl.js
+ test/mjsunit/runtime-gen/arraybufferviewgetbytelength.js
+ test/mjsunit/runtime-gen/arraybufferviewgetbyteoffset.js
+ test/mjsunit/runtime-gen/arrayconcat.js
+ test/mjsunit/runtime-gen/availablelocalesof.js
+ test/mjsunit/runtime-gen/basicjsonstringify.js
+ test/mjsunit/runtime-gen/booleanize.js
+ test/mjsunit/runtime-gen/boundfunctiongetbindings.js
+ test/mjsunit/runtime-gen/break.js
+ test/mjsunit/runtime-gen/breakiteratoradopttext.js
+ test/mjsunit/runtime-gen/breakiteratorbreaktype.js
+ test/mjsunit/runtime-gen/breakiteratorcurrent.js
+ test/mjsunit/runtime-gen/breakiteratorfirst.js
+ test/mjsunit/runtime-gen/breakiteratornext.js
+ test/mjsunit/runtime-gen/canonicalizelanguagetag.js
+ test/mjsunit/runtime-gen/changebreakonexception.js
+ test/mjsunit/runtime-gen/charfromcode.js
+ test/mjsunit/runtime-gen/checkexecutionstate.js
+ test/mjsunit/runtime-gen/checkisbootstrapping.js
+ test/mjsunit/runtime-gen/clearbreakpoint.js
+ test/mjsunit/runtime-gen/clearfunctiontypefeedback.js
+ test/mjsunit/runtime-gen/clearstepping.js
+ test/mjsunit/runtime-gen/collectstacktrace.js
+ test/mjsunit/runtime-gen/compilestring.js
+ test/mjsunit/runtime-gen/constructdouble.js
+ test/mjsunit/runtime-gen/createbreakiterator.js
+ test/mjsunit/runtime-gen/createcollator.js
+ test/mjsunit/runtime-gen/createglobalprivatesymbol.js
+ test/mjsunit/runtime-gen/createjsfunctionproxy.js
+ test/mjsunit/runtime-gen/createjsproxy.js
+ test/mjsunit/runtime-gen/createprivatesymbol.js
+ test/mjsunit/runtime-gen/createsymbol.js
+ test/mjsunit/runtime-gen/dataviewgetbuffer.js
+ test/mjsunit/runtime-gen/dataviewgetfloat32.js
+ test/mjsunit/runtime-gen/dataviewgetfloat64.js
+ test/mjsunit/runtime-gen/dataviewgetint16.js
+ test/mjsunit/runtime-gen/dataviewgetint32.js
+ test/mjsunit/runtime-gen/dataviewgetint8.js
+ test/mjsunit/runtime-gen/dataviewgetuint16.js
+ test/mjsunit/runtime-gen/dataviewgetuint32.js
+ test/mjsunit/runtime-gen/dataviewgetuint8.js
+ test/mjsunit/runtime-gen/dataviewinitialize.js
+ test/mjsunit/runtime-gen/dataviewsetfloat32.js
+ test/mjsunit/runtime-gen/dataviewsetfloat64.js
+ test/mjsunit/runtime-gen/dataviewsetint16.js
+ test/mjsunit/runtime-gen/dataviewsetint32.js
+ test/mjsunit/runtime-gen/dataviewsetint8.js
+ test/mjsunit/runtime-gen/dataviewsetuint16.js
+ test/mjsunit/runtime-gen/dataviewsetuint32.js
+ test/mjsunit/runtime-gen/dataviewsetuint8.js
+ test/mjsunit/runtime-gen/datecacheversion.js
+ test/mjsunit/runtime-gen/datecurrenttime.js
+ test/mjsunit/runtime-gen/datelocaltimezone.js
+ test/mjsunit/runtime-gen/datemakeday.js
+ test/mjsunit/runtime-gen/dateparsestring.js
+ test/mjsunit/runtime-gen/datesetvalue.js
+ test/mjsunit/runtime-gen/datetoutc.js
+ test/mjsunit/runtime-gen/debugasynctaskevent.js
+ test/mjsunit/runtime-gen/debugbreak.js
+ test/mjsunit/runtime-gen/debugcallbacksupportsstepping.js
+ test/mjsunit/runtime-gen/debugconstructedby.js
+ test/mjsunit/runtime-gen/debugdisassembleconstructor.js
+ test/mjsunit/runtime-gen/debugdisassemblefunction.js
+ test/mjsunit/runtime-gen/debugevaluate.js
+ test/mjsunit/runtime-gen/debugevaluateglobal.js
+ test/mjsunit/runtime-gen/debuggetproperty.js
+ test/mjsunit/runtime-gen/debuggetpropertydetails.js
+ test/mjsunit/runtime-gen/debuggetprototype.js
+ test/mjsunit/runtime-gen/debugindexedinterceptorelementvalue.js
+ test/mjsunit/runtime-gen/debugnamedinterceptorpropertyvalue.js
+ test/mjsunit/runtime-gen/debugpoppromise.js
+ test/mjsunit/runtime-gen/debugpreparestepinifstepping.js
+ test/mjsunit/runtime-gen/debugprintscopes.js
+ test/mjsunit/runtime-gen/debugpromiseevent.js
+ test/mjsunit/runtime-gen/debugpromiserejectevent.js
+ test/mjsunit/runtime-gen/debugpropertyattributesfromdetails.js
+ test/mjsunit/runtime-gen/debugpropertyindexfromdetails.js
+ test/mjsunit/runtime-gen/debugpropertytypefromdetails.js
+ test/mjsunit/runtime-gen/debugpushpromise.js
+ test/mjsunit/runtime-gen/debugreferencedby.js
+ test/mjsunit/runtime-gen/debugtrace.js
+ test/mjsunit/runtime-gen/defineaccessorpropertyunchecked.js
+ test/mjsunit/runtime-gen/defineapiaccessorproperty.js
+ test/mjsunit/runtime-gen/definedatapropertyunchecked.js
+ test/mjsunit/runtime-gen/deleteproperty.js
+ test/mjsunit/runtime-gen/deoptimizefunction.js
+ test/mjsunit/runtime-gen/doublehi.js
+ test/mjsunit/runtime-gen/doublelo.js
+ test/mjsunit/runtime-gen/enqueuemicrotask.js
+ test/mjsunit/runtime-gen/estimatenumberofelements.js
+ test/mjsunit/runtime-gen/executeindebugcontext.js
+ test/mjsunit/runtime-gen/finisharrayprototypesetup.js
+ test/mjsunit/runtime-gen/fix.js
+ test/mjsunit/runtime-gen/flattenstring.js
+ test/mjsunit/runtime-gen/functionbindarguments.js
+ test/mjsunit/runtime-gen/functiongetinferredname.js
+ test/mjsunit/runtime-gen/functiongetname.js
+ test/mjsunit/runtime-gen/functiongetscript.js
+ test/mjsunit/runtime-gen/functiongetscriptsourceposition.js
+ test/mjsunit/runtime-gen/functiongetsourcecode.js
+ test/mjsunit/runtime-gen/functionisapifunction.js
+ test/mjsunit/runtime-gen/functionisarrow.js
+ test/mjsunit/runtime-gen/functionisbuiltin.js
+ test/mjsunit/runtime-gen/functionisgenerator.js
+ test/mjsunit/runtime-gen/functionmarknameshouldprintasanonymous.js
+ test/mjsunit/runtime-gen/functionnameshouldprintasanonymous.js
+ test/mjsunit/runtime-gen/functionremoveprototype.js
+ test/mjsunit/runtime-gen/functionsetinstanceclassname.js
+ test/mjsunit/runtime-gen/functionsetlength.js
+ test/mjsunit/runtime-gen/functionsetname.js
+ test/mjsunit/runtime-gen/functionsetprototype.js
+ test/mjsunit/runtime-gen/getallscopesdetails.js
+ test/mjsunit/runtime-gen/getargumentsproperty.js
+ test/mjsunit/runtime-gen/getarraykeys.js
+ test/mjsunit/runtime-gen/getbreaklocations.js
+ test/mjsunit/runtime-gen/getcalltrap.js
+ test/mjsunit/runtime-gen/getconstructordelegate.js
+ test/mjsunit/runtime-gen/getconstructtrap.js
+ test/mjsunit/runtime-gen/getdataproperty.js
+ test/mjsunit/runtime-gen/getdefaulticulocale.js
+ test/mjsunit/runtime-gen/getdefaultreceiver.js
+ test/mjsunit/runtime-gen/getframecount.js
+ test/mjsunit/runtime-gen/getframedetails.js
+ test/mjsunit/runtime-gen/getfunctioncodepositionfromsource.js
+ test/mjsunit/runtime-gen/getfunctiondelegate.js
+ test/mjsunit/runtime-gen/getfunctionscopecount.js
+ test/mjsunit/runtime-gen/getfunctionscopedetails.js
+ test/mjsunit/runtime-gen/gethandler.js
+ test/mjsunit/runtime-gen/getheapusage.js
+ test/mjsunit/runtime-gen/getimplfrominitializedintlobject.js
+ test/mjsunit/runtime-gen/getindexedinterceptorelementnames.js
+ test/mjsunit/runtime-gen/getinterceptorinfo.js
+ test/mjsunit/runtime-gen/getlanguagetagvariants.js
+ test/mjsunit/runtime-gen/getnamedinterceptorpropertynames.js
+ test/mjsunit/runtime-gen/getobjectcontextnotifierperformchange.js
+ test/mjsunit/runtime-gen/getobjectcontextobjectgetnotifier.js
+ test/mjsunit/runtime-gen/getobjectcontextobjectobserve.js
+ test/mjsunit/runtime-gen/getobservationstate.js
+ test/mjsunit/runtime-gen/getoptimizationcount.js
+ test/mjsunit/runtime-gen/getownelementnames.js
+ test/mjsunit/runtime-gen/getownproperty.js
+ test/mjsunit/runtime-gen/getownpropertynames.js
+ test/mjsunit/runtime-gen/getproperty.js
+ test/mjsunit/runtime-gen/getpropertynames.js
+ test/mjsunit/runtime-gen/getpropertynamesfast.js
+ test/mjsunit/runtime-gen/getprototype.js
+ test/mjsunit/runtime-gen/getrootnan.js
+ test/mjsunit/runtime-gen/getscopecount.js
+ test/mjsunit/runtime-gen/getscopedetails.js
+ test/mjsunit/runtime-gen/getscript.js
+ test/mjsunit/runtime-gen/getstepinpositions.js
+ test/mjsunit/runtime-gen/gettemplatefield.js
+ test/mjsunit/runtime-gen/getthreadcount.js
+ test/mjsunit/runtime-gen/getthreaddetails.js
+ test/mjsunit/runtime-gen/getv8version.js
+ test/mjsunit/runtime-gen/getweakmapentries.js
+ test/mjsunit/runtime-gen/getweaksetvalues.js
+ test/mjsunit/runtime-gen/globalprint.js
+ test/mjsunit/runtime-gen/globalproxy.js
+ test/mjsunit/runtime-gen/haselement.js
+ test/mjsunit/runtime-gen/hasownproperty.js
+ test/mjsunit/runtime-gen/hasproperty.js
+ test/mjsunit/runtime-gen/havesamemap.js
+ test/mjsunit/runtime-gen/internalcompare.js
+ test/mjsunit/runtime-gen/internaldateformat.js
+ test/mjsunit/runtime-gen/internaldateparse.js
+ test/mjsunit/runtime-gen/internalnumberformat.js
+ test/mjsunit/runtime-gen/internalnumberparse.js
+ test/mjsunit/runtime-gen/internalsetprototype.js
+ test/mjsunit/runtime-gen/isattachedglobal.js
+ test/mjsunit/runtime-gen/isbreakonexception.js
+ test/mjsunit/runtime-gen/isconcurrentrecompilationsupported.js
+ test/mjsunit/runtime-gen/isextensible.js
+ test/mjsunit/runtime-gen/isinitializedintlobject.js
+ test/mjsunit/runtime-gen/isinitializedintlobjectoftype.js
+ test/mjsunit/runtime-gen/isinprototypechain.js
+ test/mjsunit/runtime-gen/isjsfunctionproxy.js
+ test/mjsunit/runtime-gen/isjsglobalproxy.js
+ test/mjsunit/runtime-gen/isjsmodule.js
+ test/mjsunit/runtime-gen/isjsproxy.js
+ test/mjsunit/runtime-gen/isobserved.js
+ test/mjsunit/runtime-gen/isoptimized.js
+ test/mjsunit/runtime-gen/ispropertyenumerable.js
+ test/mjsunit/runtime-gen/issloppymodefunction.js
+ test/mjsunit/runtime-gen/istemplate.js
+ test/mjsunit/runtime-gen/isvalidsmi.js
+ test/mjsunit/runtime-gen/keyedgetproperty.js
+ test/mjsunit/runtime-gen/liveeditcheckanddropactivations.js
+ test/mjsunit/runtime-gen/liveeditcomparestrings.js
+ test/mjsunit/runtime-gen/liveeditfunctionsetscript.js
+ test/mjsunit/runtime-gen/loadmutabledouble.js
+ test/mjsunit/runtime-gen/lookupaccessor.js
+ test/mjsunit/runtime-gen/mapclear.js
+ test/mjsunit/runtime-gen/mapdelete.js
+ test/mjsunit/runtime-gen/mapget.js
+ test/mjsunit/runtime-gen/mapgetsize.js
+ test/mjsunit/runtime-gen/maphas.js
+ test/mjsunit/runtime-gen/mapinitialize.js
+ test/mjsunit/runtime-gen/mapiteratorinitialize.js
+ test/mjsunit/runtime-gen/mapiteratornext.js
+ test/mjsunit/runtime-gen/mapset.js
+ test/mjsunit/runtime-gen/markasinitializedintlobjectoftype.js
+ test/mjsunit/runtime-gen/mathacos.js
+ test/mjsunit/runtime-gen/mathasin.js
+ test/mjsunit/runtime-gen/mathatan.js
+ test/mjsunit/runtime-gen/mathatan2.js
+ test/mjsunit/runtime-gen/mathexprt.js
+ test/mjsunit/runtime-gen/mathfloorrt.js
+ test/mjsunit/runtime-gen/mathfround.js
+ test/mjsunit/runtime-gen/mathlogrt.js
+ test/mjsunit/runtime-gen/mathsqrtrt.js
+ test/mjsunit/runtime-gen/maxsmi.js
+ test/mjsunit/runtime-gen/movearraycontents.js
+ test/mjsunit/runtime-gen/neveroptimizefunction.js
+ test/mjsunit/runtime-gen/newarguments.js
+ test/mjsunit/runtime-gen/newobjectfrombound.js
+ test/mjsunit/runtime-gen/newstring.js
+ test/mjsunit/runtime-gen/newstringwrapper.js
+ test/mjsunit/runtime-gen/newsymbolwrapper.js
+ test/mjsunit/runtime-gen/notifycontextdisposed.js
+ test/mjsunit/runtime-gen/numberadd.js
+ test/mjsunit/runtime-gen/numberand.js
+ test/mjsunit/runtime-gen/numbercompare.js
+ test/mjsunit/runtime-gen/numberdiv.js
+ test/mjsunit/runtime-gen/numberequals.js
+ test/mjsunit/runtime-gen/numberimul.js
+ test/mjsunit/runtime-gen/numbermod.js
+ test/mjsunit/runtime-gen/numbermul.js
+ test/mjsunit/runtime-gen/numberor.js
+ test/mjsunit/runtime-gen/numbersar.js
+ test/mjsunit/runtime-gen/numbershl.js
+ test/mjsunit/runtime-gen/numbershr.js
+ test/mjsunit/runtime-gen/numbersub.js
+ test/mjsunit/runtime-gen/numbertoexponential.js
+ test/mjsunit/runtime-gen/numbertofixed.js
+ test/mjsunit/runtime-gen/numbertointeger.js
+ test/mjsunit/runtime-gen/numbertointegermapminuszero.js
+ test/mjsunit/runtime-gen/numbertojsint32.js
+ test/mjsunit/runtime-gen/numbertojsuint32.js
+ test/mjsunit/runtime-gen/numbertoprecision.js
+ test/mjsunit/runtime-gen/numbertoradixstring.js
+ test/mjsunit/runtime-gen/numbertostringrt.js
+ test/mjsunit/runtime-gen/numberunaryminus.js
+ test/mjsunit/runtime-gen/numberxor.js
+ test/mjsunit/runtime-gen/objectfreeze.js
+ test/mjsunit/runtime-gen/objectwascreatedincurrentorigin.js
+ test/mjsunit/runtime-gen/observationweakmapcreate.js
+ test/mjsunit/runtime-gen/observerobjectandrecordhavesameorigin.js
+ test/mjsunit/runtime-gen/optimizeobjectforaddingmultipleproperties.js
+ test/mjsunit/runtime-gen/ownkeys.js
+ test/mjsunit/runtime-gen/parsejson.js
+ test/mjsunit/runtime-gen/preventextensions.js
+ test/mjsunit/runtime-gen/pushifabsent.js
+ test/mjsunit/runtime-gen/quotejsonstring.js
+ test/mjsunit/runtime-gen/regexpcompile.js
+ test/mjsunit/runtime-gen/regexpconstructresult.js
+ test/mjsunit/runtime-gen/regexpexecmultiple.js
+ test/mjsunit/runtime-gen/regexpexecrt.js
+ test/mjsunit/runtime-gen/regexpinitializeobject.js
+ test/mjsunit/runtime-gen/removearrayholes.js
+ test/mjsunit/runtime-gen/rempio2.js
+ test/mjsunit/runtime-gen/roundnumber.js
+ test/mjsunit/runtime-gen/runmicrotasks.js
+ test/mjsunit/runtime-gen/runninginsimulator.js
+ test/mjsunit/runtime-gen/setadd.js
+ test/mjsunit/runtime-gen/setclear.js
+ test/mjsunit/runtime-gen/setcode.js
+ test/mjsunit/runtime-gen/setdebugeventlistener.js
+ test/mjsunit/runtime-gen/setdelete.js
+ test/mjsunit/runtime-gen/setdisablebreak.js
+ test/mjsunit/runtime-gen/setflags.js
+ test/mjsunit/runtime-gen/setfunctionbreakpoint.js
+ test/mjsunit/runtime-gen/setgetsize.js
+ test/mjsunit/runtime-gen/sethas.js
+ test/mjsunit/runtime-gen/setinitialize.js
+ test/mjsunit/runtime-gen/setisobserved.js
+ test/mjsunit/runtime-gen/setiteratorinitialize.js
+ test/mjsunit/runtime-gen/setiteratornext.js
+ test/mjsunit/runtime-gen/setprototype.js
+ test/mjsunit/runtime-gen/setscopevariablevalue.js
+ test/mjsunit/runtime-gen/smilexicographiccompare.js
+ test/mjsunit/runtime-gen/sparsejoinwithseparator.js
+ test/mjsunit/runtime-gen/specialarrayfunctions.js
+ test/mjsunit/runtime-gen/stringbuilderconcat.js
+ test/mjsunit/runtime-gen/stringbuilderjoin.js
+ test/mjsunit/runtime-gen/stringcharcodeatrt.js
+ test/mjsunit/runtime-gen/stringequals.js
+ test/mjsunit/runtime-gen/stringindexof.js
+ test/mjsunit/runtime-gen/stringlastindexof.js
+ test/mjsunit/runtime-gen/stringlocalecompare.js
+ test/mjsunit/runtime-gen/stringmatch.js
+ test/mjsunit/runtime-gen/stringnormalize.js
+ test/mjsunit/runtime-gen/stringparsefloat.js
+ test/mjsunit/runtime-gen/stringparseint.js
+ test/mjsunit/runtime-gen/stringreplaceglobalregexpwithstring.js
+ test/mjsunit/runtime-gen/stringreplaceonecharwithstring.js
+ test/mjsunit/runtime-gen/stringsplit.js
+ test/mjsunit/runtime-gen/stringtoarray.js
+ test/mjsunit/runtime-gen/stringtolowercase.js
+ test/mjsunit/runtime-gen/stringtonumber.js
+ test/mjsunit/runtime-gen/stringtouppercase.js
+ test/mjsunit/runtime-gen/stringtrim.js
+ test/mjsunit/runtime-gen/symboldescription.js
+ test/mjsunit/runtime-gen/symbolisprivate.js
+ test/mjsunit/runtime-gen/symbolregistry.js
+ test/mjsunit/runtime-gen/tobool.js
+ test/mjsunit/runtime-gen/tofastproperties.js
+ test/mjsunit/runtime-gen/traceenter.js
+ test/mjsunit/runtime-gen/traceexit.js
+ test/mjsunit/runtime-gen/truncatestring.js
+ test/mjsunit/runtime-gen/trymigrateinstance.js
+ test/mjsunit/runtime-gen/typedarraygetbuffer.js
+ test/mjsunit/runtime-gen/typedarraygetlength.js
+ test/mjsunit/runtime-gen/typedarrayinitialize.js
+ test/mjsunit/runtime-gen/typedarrayinitializefromarraylike.js
+ test/mjsunit/runtime-gen/typedarraymaxsizeinheap.js
+ test/mjsunit/runtime-gen/typedarraysetfastcases.js
+ test/mjsunit/runtime-gen/typeof.js
+ test/mjsunit/runtime-gen/unblockconcurrentrecompilation.js
+ test/mjsunit/runtime-gen/uriescape.js
+ test/mjsunit/runtime-gen/uriunescape.js
+ test/mjsunit/runtime-gen/weakcollectiondelete.js
+ test/mjsunit/runtime-gen/weakcollectionget.js
+ test/mjsunit/runtime-gen/weakcollectionhas.js
+ test/mjsunit/runtime-gen/weakcollectioninitialize.js
+ test/mjsunit/runtime-gen/weakcollectionset.js
+ test/mjsunit/string-oom-array-join.js
+ test/mjsunit/string-oom-concat.js
+ test/mjsunit/string-oom-replace-global-regexp-with-string.js
+ test/mjsunit/string-oom-replace-regexp-global-with-function.js
+ test/mjsunit/test-hidden-string.js
+ test/mjsunit/whitespaces.js
+ test/webkit/resources/json2-es5-compat.js
+ test/webkit/run-json-stringify.js
+ testing/gmock.gyp
+ testing/gtest.gyp
+ tools/external-reference-check.py
+ tools/gdbinit
+ tools/push-to-trunk/auto_roll.py
+ tools/push-to-trunk/auto_tag.py
+ tools/push-to-trunk/bump_up_version.py
+ tools/push-to-trunk/chromium_roll.py
+ tools/push-to-trunk/releases.py
+ tools/run.py
+ tools/run_benchmarks.py
+ tools/testrunner/local/pool.py
+ tools/testrunner/local/pool_unittest.py
+ tools/unittests/run_benchmarks_test.py
+Copyright: 2006-2008, the V8 project authors.
+  2006-2009, the V8 project authors.
+  2006-2012, the V8 project authors.
+  2006-2013, the V8 project authors.
+  2007-2008, the V8 project authors.
+  2007-2010, the V8 project authors.
   2008, the V8 project authors.
   2008-2009, the V8 project authors.
   2009, the V8 project authors.
@@ -1779,7 +3362,1059 @@ Copyright: 2006-2008, the V8 project authors.
   2011, the V8 project authors.
   2012, the V8 project authors.
   2013, the V8 project authors.
-License: BSD-3-clause
+  2014, the V8 project authors.
+License: UNKNOWN
+ FIXME
+
+Files: test/mjsunit/regress/regress-2989.js
+ test/webkit/Array-isArray-expected.txt
+ test/webkit/Array-isArray.js
+ test/webkit/JSON-stringify-replacer-expected.txt
+ test/webkit/JSON-stringify-replacer.js
+ test/webkit/Object-create-expected.txt
+ test/webkit/Object-create.js
+ test/webkit/Object-defineProperties-expected.txt
+ test/webkit/Object-defineProperties.js
+ test/webkit/Object-keys-expected.txt
+ test/webkit/Object-keys.js
+ test/webkit/ToNumber-expected.txt
+ test/webkit/ToNumber.js
+ test/webkit/add-recovery-expected.txt
+ test/webkit/add-recovery.js
+ test/webkit/apply-varargs-expected.txt
+ test/webkit/apply-varargs.js
+ test/webkit/arguments-bad-index-expected.txt
+ test/webkit/arguments-bad-index.js
+ test/webkit/array-constructor-host-call-expected.txt
+ test/webkit/array-constructor-host-call.js
+ test/webkit/array-defineOwnProperty-expected.txt
+ test/webkit/array-defineOwnProperty.js
+ test/webkit/array-enumerators-functions-expected.txt
+ test/webkit/array-enumerators-functions.js
+ test/webkit/array-every-expected.txt
+ test/webkit/array-every.js
+ test/webkit/array-filter-expected.txt
+ test/webkit/array-filter.js
+ test/webkit/array-holes-expected.txt
+ test/webkit/array-holes.js
+ test/webkit/array-index-immediate-types-expected.txt
+ test/webkit/array-index-immediate-types.js
+ test/webkit/array-indexing-expected.txt
+ test/webkit/array-indexing.js
+ test/webkit/array-iterate-backwards-expected.txt
+ test/webkit/array-iterate-backwards.js
+ test/webkit/array-lastIndexOf-expected.txt
+ test/webkit/array-lastIndexOf.js
+ test/webkit/array-proto-func-length-getter-except-expected.txt
+ test/webkit/array-proto-func-length-getter-except.js
+ test/webkit/array-proto-func-property-getter-except-expected.txt
+ test/webkit/array-proto-func-property-getter-except.js
+ test/webkit/array-reduce-expected.txt
+ test/webkit/array-reduce.js
+ test/webkit/array-reduceRight-expected.txt
+ test/webkit/array-reduceRight.js
+ test/webkit/array-reset-large-index-expected.txt
+ test/webkit/array-reset-large-index.js
+ test/webkit/array-sort-numericCompare-expected.txt
+ test/webkit/array-sort-numericCompare.js
+ test/webkit/array-sort-reentrance-expected.txt
+ test/webkit/array-sort-reentrance.js
+ test/webkit/array-sort-small-sparse-array-with-large-length-expected.txt
+ test/webkit/array-sort-small-sparse-array-with-large-length.js
+ test/webkit/array-sort-sparse-expected.txt
+ test/webkit/array-sort-sparse.js
+ test/webkit/array-splice-expected.txt
+ test/webkit/array-splice.js
+ test/webkit/array-tostring-and-join-expected.txt
+ test/webkit/array-tostring-and-join.js
+ test/webkit/array-type-speculation-expected.txt
+ test/webkit/array-type-speculation.js
+ test/webkit/avl-crash-expected.txt
+ test/webkit/avl-crash.js
+ test/webkit/bitops-type-tag-expected.txt
+ test/webkit/bitops-type-tag.js
+ test/webkit/boolean-argument-prediction-expected.txt
+ test/webkit/boolean-argument-prediction.js
+ test/webkit/boxed-double-to-int-expected.txt
+ test/webkit/boxed-double-to-int.js
+ test/webkit/break-ASI-expected.txt
+ test/webkit/break-ASI.js
+ test/webkit/cached-call-uninitialized-arguments-expected.txt
+ test/webkit/cached-call-uninitialized-arguments.js
+ test/webkit/call-apply-crash-expected.txt
+ test/webkit/call-apply-crash.js
+ test/webkit/char-at-expected.txt
+ test/webkit/char-at.js
+ test/webkit/closure-inside-extra-arg-call-expected.txt
+ test/webkit/closure-inside-extra-arg-call.js
+ test/webkit/codegen-assign-nontemporary-as-rexp-expected.txt
+ test/webkit/codegen-assign-nontemporary-as-rexp.js
+ test/webkit/codegen-jless-expected.txt
+ test/webkit/codegen-jless.js
+ test/webkit/codegen-loops-logical-nodes-expected.txt
+ test/webkit/codegen-loops-logical-nodes.js
+ test/webkit/codegen-peephole-locals-expected.txt
+ test/webkit/codegen-peephole-locals.js
+ test/webkit/codegen-temporaries-expected.txt
+ test/webkit/codegen-temporaries.js
+ test/webkit/comparison-operators-expected.txt
+ test/webkit/comparison-operators-greater-expected.txt
+ test/webkit/comparison-operators-greater.js
+ test/webkit/comparison-operators-less-expected.txt
+ test/webkit/comparison-operators-less.js
+ test/webkit/comparison-operators.js
+ test/webkit/concat-while-having-a-bad-time-expected.txt
+ test/webkit/concat-while-having-a-bad-time.js
+ test/webkit/const-without-initializer-expected.txt
+ test/webkit/const-without-initializer.js
+ test/webkit/constant-count-expected.txt
+ test/webkit/constant-count.js
+ test/webkit/constant-encoding-expected.txt
+ test/webkit/constant-encoding.js
+ test/webkit/constant-folding-expected.txt
+ test/webkit/constant-folding.js
+ test/webkit/continue-break-multiple-labels-expected.txt
+ test/webkit/continue-break-multiple-labels.js
+ test/webkit/convert-nan-to-bool-expected.txt
+ test/webkit/convert-nan-to-bool.js
+ test/webkit/cyclic-prototypes-expected.txt
+ test/webkit/cyclic-prototypes.js
+ test/webkit/date-DST-pre-1970-expected.txt
+ test/webkit/date-DST-pre-1970.js
+ test/webkit/date-constructor-expected.txt
+ test/webkit/date-constructor.js
+ test/webkit/date-daysfrom1970-overflow-expected.txt
+ test/webkit/date-daysfrom1970-overflow.js
+ test/webkit/date-parse-comments-test-expected.txt
+ test/webkit/date-parse-comments-test.js
+ test/webkit/date-set-to-nan-expected.txt
+ test/webkit/date-set-to-nan.js
+ test/webkit/date-utc-timeclip-expected.txt
+ test/webkit/date-utc-timeclip.js
+ test/webkit/debugger-expected.txt
+ test/webkit/debugger.js
+ test/webkit/declaration-in-block-expected.txt
+ test/webkit/declaration-in-block.js
+ test/webkit/delete-getters-setters-expected.txt
+ test/webkit/delete-getters-setters.js
+ test/webkit/delete-then-put-expected.txt
+ test/webkit/delete-then-put.js
+ test/webkit/dfg-abs-backwards-propagation-expected.txt
+ test/webkit/dfg-abs-backwards-propagation.js
+ test/webkit/dfg-add-not-number-expected.txt
+ test/webkit/dfg-add-not-number.js
+ test/webkit/dfg-arguments-alias-escape-expected.txt
+ test/webkit/dfg-arguments-alias-escape.js
+ test/webkit/dfg-arguments-alias-expected.txt
+ test/webkit/dfg-arguments-alias-one-block-expected.txt
+ test/webkit/dfg-arguments-alias-one-block-osr-exit-expected.txt
+ test/webkit/dfg-arguments-alias-one-block-osr-exit.js
+ test/webkit/dfg-arguments-alias-one-block-overwrite-arguments-expected.txt
+ test/webkit/dfg-arguments-alias-one-block-overwrite-arguments.js
+ test/webkit/dfg-arguments-alias-one-block-overwrite-expected.txt
+ test/webkit/dfg-arguments-alias-one-block-overwrite.js
+ test/webkit/dfg-arguments-alias-one-block.js
+ test/webkit/dfg-arguments-alias.js
+ test/webkit/dfg-arguments-cross-code-origin-expected.txt
+ test/webkit/dfg-arguments-cross-code-origin.js
+ test/webkit/dfg-arguments-mixed-alias-expected.txt
+ test/webkit/dfg-arguments-mixed-alias.js
+ test/webkit/dfg-arguments-osr-exit-expected.txt
+ test/webkit/dfg-arguments-osr-exit-multiple-blocks-before-exit-expected.txt
+ test/webkit/dfg-arguments-osr-exit-multiple-blocks-before-exit.js
+ test/webkit/dfg-arguments-osr-exit-multiple-blocks-expected.txt
+ test/webkit/dfg-arguments-osr-exit-multiple-blocks.js
+ test/webkit/dfg-arguments-osr-exit.js
+ test/webkit/dfg-arguments-out-of-bounds-expected.txt
+ test/webkit/dfg-arguments-out-of-bounds.js
+ test/webkit/dfg-arguments-unexpected-escape-expected.txt
+ test/webkit/dfg-arguments-unexpected-escape.js
+ test/webkit/dfg-arith-add-overflow-check-elimination-predicted-but-not-proven-int-expected.txt
+ test/webkit/dfg-arith-add-overflow-check-elimination-predicted-but-not-proven-int.js
+ test/webkit/dfg-arith-add-overflow-check-elimination-tower-of-large-numbers-expected.txt
+ test/webkit/dfg-arith-add-overflow-check-elimination-tower-of-large-numbers.js
+ test/webkit/dfg-array-dead-expected.txt
+ test/webkit/dfg-array-dead.js
+ test/webkit/dfg-array-length-dead-expected.txt
+ test/webkit/dfg-array-length-dead.js
+ test/webkit/dfg-array-pop-side-effects-expected.txt
+ test/webkit/dfg-array-pop-side-effects.js
+ test/webkit/dfg-array-pop-value-clearing-expected.txt
+ test/webkit/dfg-array-pop-value-clearing.js
+ test/webkit/dfg-arrayify-elimination-expected.txt
+ test/webkit/dfg-arrayify-elimination.js
+ test/webkit/dfg-arrayify-when-late-prevent-extensions-expected.txt
+ test/webkit/dfg-arrayify-when-late-prevent-extensions.js
+ test/webkit/dfg-arrayify-when-prevent-extensions-expected.txt
+ test/webkit/dfg-arrayify-when-prevent-extensions.js
+ test/webkit/dfg-bool-to-int32-reuse-expected.txt
+ test/webkit/dfg-bool-to-int32-reuse.js
+ test/webkit/dfg-branch-logical-not-peephole-around-osr-exit-expected.txt
+ test/webkit/dfg-branch-logical-not-peephole-around-osr-exit.js
+ test/webkit/dfg-branch-not-fail-expected.txt
+ test/webkit/dfg-branch-not-fail.js
+ test/webkit/dfg-call-function-hit-watchpoint-expected.txt
+ test/webkit/dfg-call-function-hit-watchpoint.js
+ test/webkit/dfg-call-method-hit-watchpoint-expected.txt
+ test/webkit/dfg-call-method-hit-watchpoint.js
+ test/webkit/dfg-captured-var-get-local-expected.txt
+ test/webkit/dfg-captured-var-get-local.js
+ test/webkit/dfg-cfa-merge-with-dead-use-at-tail-expected.txt
+ test/webkit/dfg-cfa-merge-with-dead-use-at-tail.js
+ test/webkit/dfg-cfa-prove-put-by-id-simple-when-storing-to-specialized-function-expected.txt
+ test/webkit/dfg-cfa-prove-put-by-id-simple-when-storing-to-specialized-function.js
+ test/webkit/dfg-cfg-simplify-eliminate-set-local-type-check-then-branch-not-null-and-decrement-expected.txt
+ test/webkit/dfg-cfg-simplify-eliminate-set-local-type-check-then-branch-not-null-and-decrement.js
+ test/webkit/dfg-cfg-simplify-eliminate-set-local-type-check-then-branch-not-null-expected.txt
+ test/webkit/dfg-cfg-simplify-eliminate-set-local-type-check-then-branch-not-null.js
+ test/webkit/dfg-cfg-simplify-eliminate-set-local-type-check-then-typeof-expected.txt
+ test/webkit/dfg-cfg-simplify-eliminate-set-local-type-check-then-typeof.js
+ test/webkit/dfg-cfg-simplify-phantom-get-local-on-same-block-set-local-expected.txt
+ test/webkit/dfg-cfg-simplify-phantom-get-local-on-same-block-set-local.js
+ test/webkit/dfg-cfg-simplify-redundant-dead-get-local-expected.txt
+ test/webkit/dfg-cfg-simplify-redundant-dead-get-local.js
+ test/webkit/dfg-check-structure-elimination-for-non-cell-expected.txt
+ test/webkit/dfg-check-structure-elimination-for-non-cell.js
+ test/webkit/dfg-check-two-structures-expected.txt
+ test/webkit/dfg-check-two-structures.js
+ test/webkit/dfg-compare-final-object-to-final-object-or-other-when-both-proven-final-object-expected.txt
+ test/webkit/dfg-compare-final-object-to-final-object-or-other-when-both-proven-final-object.js
+ test/webkit/dfg-compare-final-object-to-final-object-or-other-when-proven-final-object-expected.txt
+ test/webkit/dfg-compare-final-object-to-final-object-or-other-when-proven-final-object.js
+ test/webkit/dfg-constant-fold-first-local-read-after-block-merge-expected.txt
+ test/webkit/dfg-constant-fold-first-local-read-after-block-merge.js
+ test/webkit/dfg-constant-fold-logical-not-branch-expected.txt
+ test/webkit/dfg-constant-fold-logical-not-branch.js
+ test/webkit/dfg-constant-fold-misprediction-expected.txt
+ test/webkit/dfg-constant-fold-misprediction.js
+ test/webkit/dfg-constant-fold-uncaptured-variable-that-is-later-captured-expected.txt
+ test/webkit/dfg-constant-fold-uncaptured-variable-that-is-later-captured.js
+ test/webkit/dfg-convert-this-dom-window-expected.txt
+ test/webkit/dfg-convert-this-dom-window.js
+ test/webkit/dfg-convert-this-object-then-exit-on-other-expected.txt
+ test/webkit/dfg-convert-this-object-then-exit-on-other.js
+ test/webkit/dfg-convert-this-other-then-exit-on-object-expected.txt
+ test/webkit/dfg-convert-this-other-then-exit-on-object.js
+ test/webkit/dfg-convert-this-polymorphic-object-then-exit-on-other-expected.txt
+ test/webkit/dfg-convert-this-polymorphic-object-then-exit-on-other.js
+ test/webkit/dfg-convert-this-polymorphic-object-then-exit-on-string-expected.txt
+ test/webkit/dfg-convert-this-polymorphic-object-then-exit-on-string.js
+ test/webkit/dfg-create-inlined-arguments-in-closure-inline-expected.txt
+ test/webkit/dfg-create-inlined-arguments-in-closure-inline.js
+ test/webkit/dfg-cse-cfa-discrepancy-expected.txt
+ test/webkit/dfg-cse-cfa-discrepancy.js
+ test/webkit/dfg-cse-dead-get-scoped-var-expected.txt
+ test/webkit/dfg-cse-dead-get-scoped-var.js
+ test/webkit/dfg-dead-min-one-arg-expected.txt
+ test/webkit/dfg-dead-min-one-arg.js
+ test/webkit/dfg-dead-min-two-args-expected.txt
+ test/webkit/dfg-dead-min-two-args.js
+ test/webkit/dfg-dead-redundant-get-array-length-expected.txt
+ test/webkit/dfg-dead-redundant-get-array-length.js
+ test/webkit/dfg-dead-speculation-expected.txt
+ test/webkit/dfg-dead-speculation.js
+ test/webkit/dfg-dead-unreachable-code-with-chain-of-dead-unchecked-nodes-expected.txt
+ test/webkit/dfg-dead-unreachable-code-with-chain-of-dead-unchecked-nodes.js
+ test/webkit/dfg-dead-variable-on-exit-expected.txt
+ test/webkit/dfg-dead-variable-on-exit.js
+ test/webkit/dfg-double-addition-simplify-to-int-expected.txt
+ test/webkit/dfg-double-addition-simplify-to-int.js
+ test/webkit/dfg-double-use-of-post-simplification-double-prediction-expected.txt
+ test/webkit/dfg-double-use-of-post-simplification-double-prediction.js
+ test/webkit/dfg-double-vote-fuzz-expected.txt
+ test/webkit/dfg-double-vote-fuzz.js
+ test/webkit/dfg-ensure-array-storage-on-string-expected.txt
+ test/webkit/dfg-ensure-array-storage-on-string.js
+ test/webkit/dfg-ensure-array-storage-on-window-expected.txt
+ test/webkit/dfg-ensure-array-storage-on-window.js
+ test/webkit/dfg-ensure-contiguous-on-string-expected.txt
+ test/webkit/dfg-ensure-contiguous-on-string.js
+ test/webkit/dfg-ensure-non-array-array-storage-on-window-expected.txt
+ test/webkit/dfg-ensure-non-array-array-storage-on-window.js
+ test/webkit/dfg-exception-expected.txt
+ test/webkit/dfg-exception.js
+ test/webkit/dfg-float32-array-nan-expected.txt
+ test/webkit/dfg-float32-array-nan.js
+ test/webkit/dfg-flush-get-local-expected.txt
+ test/webkit/dfg-flush-get-local.js
+ test/webkit/dfg-force-exit-then-sparse-conditional-constant-prop-in-loop-expected.txt
+ test/webkit/dfg-force-exit-then-sparse-conditional-constant-prop-in-loop.js
+ test/webkit/dfg-get-by-val-clobber-expected.txt
+ test/webkit/dfg-get-by-val-clobber.js
+ test/webkit/dfg-getter-expected.txt
+ test/webkit/dfg-getter-throw-expected.txt
+ test/webkit/dfg-getter-throw.js
+ test/webkit/dfg-getter.js
+ test/webkit/dfg-holy-put-by-val-interferes-with-get-array-length-expected.txt
+ test/webkit/dfg-holy-put-by-val-interferes-with-get-array-length.js
+ test/webkit/dfg-inline-arguments-become-double-expected.txt
+ test/webkit/dfg-inline-arguments-become-double.js
+ test/webkit/dfg-inline-arguments-become-int32-expected.txt
+ test/webkit/dfg-inline-arguments-become-int32.js
+ test/webkit/dfg-inline-arguments-int32-expected.txt
+ test/webkit/dfg-inline-arguments-int32.js
+ test/webkit/dfg-inline-arguments-osr-exit-and-capture-expected.txt
+ test/webkit/dfg-inline-arguments-osr-exit-and-capture.js
+ test/webkit/dfg-inline-arguments-out-of-bounds-expected.txt
+ test/webkit/dfg-inline-arguments-out-of-bounds.js
+ test/webkit/dfg-inline-arguments-reset-changetype-expected.txt
+ test/webkit/dfg-inline-arguments-reset-changetype.js
+ test/webkit/dfg-inline-arguments-reset-expected.txt
+ test/webkit/dfg-inline-arguments-reset.js
+ test/webkit/dfg-inline-arguments-simple-expected.txt
+ test/webkit/dfg-inline-arguments-simple.js
+ test/webkit/dfg-inline-arguments-use-directly-from-inlined-code-expected.txt
+ test/webkit/dfg-inline-arguments-use-directly-from-inlined-code.js
+ test/webkit/dfg-inline-arguments-use-from-all-the-places-broken-expected.txt
+ test/webkit/dfg-inline-arguments-use-from-all-the-places-broken.js
+ test/webkit/dfg-inline-arguments-use-from-all-the-places-expected.txt
+ test/webkit/dfg-inline-arguments-use-from-all-the-places.js
+ test/webkit/dfg-inline-arguments-use-from-getter-expected.txt
+ test/webkit/dfg-inline-arguments-use-from-getter.js
+ test/webkit/dfg-inline-arguments-use-from-uninlined-code-expected.txt
+ test/webkit/dfg-inline-arguments-use-from-uninlined-code.js
+ test/webkit/dfg-inline-constant-expected.txt
+ test/webkit/dfg-inline-constant.js
+ test/webkit/dfg-inline-constructor-that-uses-arguments-expected.txt
+ test/webkit/dfg-inline-constructor-that-uses-arguments.js
+ test/webkit/dfg-inline-early-return-expected.txt
+ test/webkit/dfg-inline-early-return.js
+ test/webkit/dfg-inline-function-dot-caller-expected.txt
+ test/webkit/dfg-inline-function-dot-caller.js
+ test/webkit/dfg-inline-new-array-buffer-expected.txt
+ test/webkit/dfg-inline-new-array-buffer.js
+ test/webkit/dfg-inline-unused-this-expected.txt
+ test/webkit/dfg-inline-unused-this-method-check-expected.txt
+ test/webkit/dfg-inline-unused-this-method-check.js
+ test/webkit/dfg-inline-unused-this.js
+ test/webkit/dfg-inlining-reg-alloc-expected.txt
+ test/webkit/dfg-inlining-reg-alloc.js
+ test/webkit/dfg-int-overflow-in-loop-expected.txt
+ test/webkit/dfg-int-overflow-in-loop.js
+ test/webkit/dfg-int-overflow-large-constants-in-a-line-expected.txt
+ test/webkit/dfg-int-overflow-large-constants-in-a-line.js
+ test/webkit/dfg-int32-to-double-on-known-number-expected.txt
+ test/webkit/dfg-int32-to-double-on-known-number.js
+ test/webkit/dfg-int32-to-double-on-set-local-and-exit-expected.txt
+ test/webkit/dfg-int32-to-double-on-set-local-and-exit.js
+ test/webkit/dfg-int32-to-double-on-set-local-and-sometimes-exit-expected.txt
+ test/webkit/dfg-int32-to-double-on-set-local-and-sometimes-exit.js
+ test/webkit/dfg-integer-optimization-expected.txt
+ test/webkit/dfg-integer-optimization.js
+ test/webkit/dfg-intrinsic-osr-exit-expected.txt
+ test/webkit/dfg-intrinsic-osr-exit.js
+ test/webkit/dfg-intrinsic-side-effect-assignment-osr-exit-expected.txt
+ test/webkit/dfg-intrinsic-side-effect-assignment-osr-exit.js
+ test/webkit/dfg-intrinsic-unused-this-expected.txt
+ test/webkit/dfg-intrinsic-unused-this-method-check-expected.txt
+ test/webkit/dfg-intrinsic-unused-this-method-check.js
+ test/webkit/dfg-intrinsic-unused-this.js
+ test/webkit/dfg-max-backwards-propagation-expected.txt
+ test/webkit/dfg-max-backwards-propagation.js
+ test/webkit/dfg-min-backwards-propagation-expected.txt
+ test/webkit/dfg-min-backwards-propagation.js
+ test/webkit/dfg-min-max-expected.txt
+ test/webkit/dfg-min-max.js
+ test/webkit/dfg-mispredict-variable-but-prove-int-expected.txt
+ test/webkit/dfg-mispredict-variable-but-prove-int.js
+ test/webkit/dfg-mul-big-integer-with-small-integer-and-bitor-expected.txt
+ test/webkit/dfg-mul-big-integer-with-small-integer-and-bitor.js
+ test/webkit/dfg-mul-big-integer-with-small-integer-and-detect-overflow-expected.txt
+ test/webkit/dfg-mul-big-integer-with-small-integer-and-detect-overflow.js
+ test/webkit/dfg-mul-big-integer-with-small-integer-expected.txt
+ test/webkit/dfg-mul-big-integer-with-small-integer.js
+ test/webkit/dfg-mul-big-integers-expected.txt
+ test/webkit/dfg-mul-big-integers.js
+ test/webkit/dfg-multi-basic-block-structure-clobber-expected.txt
+ test/webkit/dfg-multi-basic-block-structure-clobber.js
+ test/webkit/dfg-multiply-expected.txt
+ test/webkit/dfg-multiply.js
+ test/webkit/dfg-negative-array-index-expected.txt
+ test/webkit/dfg-negative-array-index.js
+ test/webkit/dfg-obvious-constant-cfa-expected.txt
+ test/webkit/dfg-obvious-constant-cfa.js
+ test/webkit/dfg-other-branch-expected.txt
+ test/webkit/dfg-other-branch.js
+ test/webkit/dfg-patchable-get-by-id-after-watchpoint-expected.txt
+ test/webkit/dfg-patchable-get-by-id-after-watchpoint.js
+ test/webkit/dfg-peephole-compare-final-object-to-final-object-or-other-when-both-proven-final-object-expected.txt
+ test/webkit/dfg-peephole-compare-final-object-to-final-object-or-other-when-both-proven-final-object.js
+ test/webkit/dfg-peephole-compare-final-object-to-final-object-or-other-when-proven-final-object-expected.txt
+ test/webkit/dfg-peephole-compare-final-object-to-final-object-or-other-when-proven-final-object.js
+ test/webkit/dfg-phantom-base-expected.txt
+ test/webkit/dfg-phantom-base.js
+ test/webkit/dfg-phantom-get-local-expected.txt
+ test/webkit/dfg-phantom-get-local.js
+ test/webkit/dfg-post-inc-then-exit-expected.txt
+ test/webkit/dfg-post-inc-then-exit.js
+ test/webkit/dfg-proto-access-inline-osr-exit-expected.txt
+ test/webkit/dfg-proto-access-inline-osr-exit.js
+ test/webkit/dfg-proto-stub-watchpoint-fire-expected.txt
+ test/webkit/dfg-proto-stub-watchpoint-fire.js
+ test/webkit/dfg-proven-sqrt-backwards-propagation-expected.txt
+ test/webkit/dfg-proven-sqrt-backwards-propagation.js
+ test/webkit/dfg-put-by-id-allocate-storage-expected.txt
+ test/webkit/dfg-put-by-id-allocate-storage-polymorphic-expected.txt
+ test/webkit/dfg-put-by-id-allocate-storage-polymorphic.js
+ test/webkit/dfg-put-by-id-allocate-storage.js
+ test/webkit/dfg-put-by-id-prototype-check-expected.txt
+ test/webkit/dfg-put-by-id-prototype-check.js
+ test/webkit/dfg-put-by-id-reallocate-storage-expected.txt
+ test/webkit/dfg-put-by-id-reallocate-storage-polymorphic-expected.txt
+ test/webkit/dfg-put-by-id-reallocate-storage-polymorphic.js
+ test/webkit/dfg-put-by-id-reallocate-storage.js
+ test/webkit/dfg-put-by-val-setter-then-get-by-val-expected.txt
+ test/webkit/dfg-put-by-val-setter-then-get-by-val.js
+ test/webkit/dfg-put-scoped-var-backward-flow-expected.txt
+ test/webkit/dfg-put-scoped-var-backward-flow.js
+ test/webkit/dfg-putbyval-cfa-clobber-expected.txt
+ test/webkit/dfg-putbyval-cfa-clobber.js
+ test/webkit/dfg-redundant-load-of-captured-variable-proven-constant-expected.txt
+ test/webkit/dfg-redundant-load-of-captured-variable-proven-constant.js
+ test/webkit/dfg-resolve-global-polymorphic-non-dictionary-expected.txt
+ test/webkit/dfg-resolve-global-polymorphic-non-dictionary.js
+ test/webkit/dfg-resolve-global-specific-dictionary-expected.txt
+ test/webkit/dfg-resolve-global-specific-dictionary.js
+ test/webkit/dfg-rshift-by-zero-eliminate-valuetoint32-expected.txt
+ test/webkit/dfg-rshift-by-zero-eliminate-valuetoint32.js
+ test/webkit/dfg-side-effect-assignment-osr-exit-expected.txt
+ test/webkit/dfg-side-effect-assignment-osr-exit.js
+ test/webkit/dfg-sqrt-backwards-propagation-expected.txt
+ test/webkit/dfg-sqrt-backwards-propagation.js
+ test/webkit/dfg-store-unexpected-value-into-argument-and-osr-exit-expected.txt
+ test/webkit/dfg-store-unexpected-value-into-argument-and-osr-exit.js
+ test/webkit/dfg-string-stricteq-expected.txt
+ test/webkit/dfg-string-stricteq.js
+ test/webkit/dfg-tear-off-arguments-not-activation-expected.txt
+ test/webkit/dfg-tear-off-arguments-not-activation.js
+ test/webkit/dfg-tear-off-function-dot-arguments-expected.txt
+ test/webkit/dfg-tear-off-function-dot-arguments.js
+ test/webkit/dfg-to-string-bad-toString-expected.txt
+ test/webkit/dfg-to-string-bad-toString.js
+ test/webkit/dfg-to-string-bad-valueOf-expected.txt
+ test/webkit/dfg-to-string-bad-valueOf.js
+ test/webkit/dfg-to-string-int-expected.txt
+ test/webkit/dfg-to-string-int-or-string-expected.txt
+ test/webkit/dfg-to-string-int-or-string.js
+ test/webkit/dfg-to-string-int.js
+ test/webkit/dfg-to-string-on-cell-expected.txt
+ test/webkit/dfg-to-string-on-cell.js
+ test/webkit/dfg-to-string-on-value-expected.txt
+ test/webkit/dfg-to-string-on-value.js
+ test/webkit/dfg-to-string-side-effect-clobbers-toString-expected.txt
+ test/webkit/dfg-to-string-side-effect-clobbers-toString.js
+ test/webkit/dfg-to-string-side-effect-expected.txt
+ test/webkit/dfg-to-string-side-effect.js
+ test/webkit/dfg-to-string-toString-becomes-bad-expected.txt
+ test/webkit/dfg-to-string-toString-becomes-bad-with-check-structure-expected.txt
+ test/webkit/dfg-to-string-toString-becomes-bad-with-check-structure.js
+ test/webkit/dfg-to-string-toString-becomes-bad-with-dictionary-string-prototype-expected.txt
+ test/webkit/dfg-to-string-toString-becomes-bad-with-dictionary-string-prototype.js
+ test/webkit/dfg-to-string-toString-becomes-bad.js
+ test/webkit/dfg-to-string-toString-in-string-expected.txt
+ test/webkit/dfg-to-string-toString-in-string.js
+ test/webkit/dfg-to-string-valueOf-in-string-expected.txt
+ test/webkit/dfg-to-string-valueOf-in-string.js
+ test/webkit/dfg-uint32-to-number-expected.txt
+ test/webkit/dfg-uint32-to-number-in-middle-of-copy-propagation-expected.txt
+ test/webkit/dfg-uint32-to-number-in-middle-of-copy-propagation.js
+ test/webkit/dfg-uint32-to-number-on-captured-variable-expected.txt
+ test/webkit/dfg-uint32-to-number-on-captured-variable.js
+ test/webkit/dfg-uint32-to-number-skip-then-exit-expected.txt
+ test/webkit/dfg-uint32-to-number-skip-then-exit.js
+ test/webkit/dfg-uint32-to-number.js
+ test/webkit/dfg-uint32array-overflow-constant-expected.txt
+ test/webkit/dfg-uint32array-overflow-constant.js
+ test/webkit/dfg-uint8clampedarray-out-of-bounds-put-by-val-alias-expected.txt
+ test/webkit/dfg-uint8clampedarray-out-of-bounds-put-by-val-alias.js
+ test/webkit/dfg-value-to-int32-with-side-effect-expected.txt
+ test/webkit/dfg-value-to-int32-with-side-effect.js
+ test/webkit/dfg-weak-js-constant-silent-fill-expected.txt
+ test/webkit/dfg-weak-js-constant-silent-fill.js
+ test/webkit/dictionary-no-cache-expected.txt
+ test/webkit/dictionary-no-cache.js
+ test/webkit/dictionary-prototype-caching-expected.txt
+ test/webkit/dictionary-prototype-caching.js
+ test/webkit/do-while-semicolon-expected.txt
+ test/webkit/do-while-semicolon.js
+ test/webkit/duplicate-param-crash-expected.txt
+ test/webkit/duplicate-param-crash.js
+ test/webkit/duplicate-param-gc-crash-expected.txt
+ test/webkit/duplicate-param-gc-crash.js
+ test/webkit/enter-dictionary-indexing-mode-with-blank-indexing-type-expected.txt
+ test/webkit/enter-dictionary-indexing-mode-with-blank-indexing-type.js
+ test/webkit/equality-expected.txt
+ test/webkit/equality.js
+ test/webkit/eval-and-with-expected.txt
+ test/webkit/eval-and-with.js
+ test/webkit/eval-cache-crash-expected.txt
+ test/webkit/eval-cache-crash.js
+ test/webkit/eval-throw-return-expected.txt
+ test/webkit/eval-throw-return.js
+ test/webkit/eval-var-decl-expected.txt
+ test/webkit/eval-var-decl.js
+ test/webkit/exception-for-nonobject-expected.txt
+ test/webkit/exception-for-nonobject.js
+ test/webkit/exception-propagate-from-dfg-to-llint-expected.txt
+ test/webkit/exception-propagate-from-dfg-to-llint.js
+ test/webkit/exception-try-finally-scope-error-expected.txt
+ test/webkit/exception-try-finally-scope-error.js
+ test/webkit/exception-with-handler-inside-eval-with-dynamic-scope-expected.txt
+ test/webkit/exception-with-handler-inside-eval-with-dynamic-scope.js
+ test/webkit/fast/js/JSON-parse-reviver-expected.txt
+ test/webkit/fast/js/JSON-parse-reviver.js
+ test/webkit/fast/js/Object-defineProperty-expected.txt
+ test/webkit/fast/js/Object-defineProperty.js
+ test/webkit/fast/js/Object-getOwnPropertyNames-expected.txt
+ test/webkit/fast/js/Object-getOwnPropertyNames.js
+ test/webkit/fast/js/Promise-already-rejected.js
+ test/webkit/fast/js/Promise-already-resolved.js
+ test/webkit/fast/js/Promise-catch.js
+ test/webkit/fast/js/Promise-exception.js
+ test/webkit/fast/js/Promise-init-callback-receiver.js
+ test/webkit/fast/js/Promise-init.js
+ test/webkit/fast/js/Promise-onFulfilled-deep.js
+ test/webkit/fast/js/Promise-onRejected-deep.js
+ test/webkit/fast/js/Promise-reject.js
+ test/webkit/fast/js/Promise-resolve-chain.js
+ test/webkit/fast/js/Promise-resolve-state.js
+ test/webkit/fast/js/Promise-resolve-with-itself.js
+ test/webkit/fast/js/Promise-resolve-with-then-exception.js
+ test/webkit/fast/js/Promise-resolve-with-then-fulfill.js
+ test/webkit/fast/js/Promise-resolve-with-then-reject.js
+ test/webkit/fast/js/Promise-resolve.js
+ test/webkit/fast/js/Promise-simple.js
+ test/webkit/fast/js/Promise-static-all.js
+ test/webkit/fast/js/Promise-static-cast.js
+ test/webkit/fast/js/Promise-static-race.js
+ test/webkit/fast/js/Promise-static-reject.js
+ test/webkit/fast/js/Promise-static-resolve.js
+ test/webkit/fast/js/Promise-then-callback-receiver.js
+ test/webkit/fast/js/Promise-then-without-callbacks.js
+ test/webkit/fast/js/Promise-then.js
+ test/webkit/fast/js/arguments-expected.txt
+ test/webkit/fast/js/arguments.js
+ test/webkit/fast/js/array-bad-time-expected.txt
+ test/webkit/fast/js/array-bad-time.js
+ test/webkit/fast/js/array-float-delete-expected.txt
+ test/webkit/fast/js/array-float-delete.js
+ test/webkit/fast/js/array-functions-non-arrays-expected.txt
+ test/webkit/fast/js/array-functions-non-arrays.js
+ test/webkit/fast/js/array-prototype-properties-expected.txt
+ test/webkit/fast/js/array-prototype-properties.js
+ test/webkit/fast/js/array-slow-put-expected.txt
+ test/webkit/fast/js/array-slow-put.js
+ test/webkit/fast/js/array-tostring-ignore-separator-expected.txt
+ test/webkit/fast/js/array-tostring-ignore-separator.js
+ test/webkit/fast/js/basic-strict-mode-expected.txt
+ test/webkit/fast/js/basic-strict-mode.js
+ test/webkit/fast/js/caller-property-expected.txt
+ test/webkit/fast/js/caller-property.js
+ test/webkit/fast/js/date-big-setmonth-expected.txt
+ test/webkit/fast/js/date-big-setmonth.js
+ test/webkit/fast/js/date-negative-setmonth-expected.txt
+ test/webkit/fast/js/date-negative-setmonth.js
+ test/webkit/fast/js/date-preserve-milliseconds-expected.txt
+ test/webkit/fast/js/date-preserve-milliseconds.js
+ test/webkit/fast/js/date-toisostring-expected.txt
+ test/webkit/fast/js/date-toisostring.js
+ test/webkit/fast/js/deep-recursion-test-expected.txt
+ test/webkit/fast/js/deep-recursion-test.js
+ test/webkit/fast/js/end-in-string-escape-expected.txt
+ test/webkit/fast/js/end-in-string-escape.js
+ test/webkit/fast/js/exception-properties-expected.txt
+ test/webkit/fast/js/exception-properties.js
+ test/webkit/fast/js/exception-registerfile-shrink-expected.txt
+ test/webkit/fast/js/exception-registerfile-shrink.js
+ test/webkit/fast/js/excessive-comma-usage-expected.txt
+ test/webkit/fast/js/excessive-comma-usage.js
+ test/webkit/fast/js/function-apply-expected.txt
+ test/webkit/fast/js/function-apply.js
+ test/webkit/fast/js/function-constructor-error-expected.txt
+ test/webkit/fast/js/function-constructor-error.js
+ test/webkit/fast/js/function-decompilation-operators-expected.txt
+ test/webkit/fast/js/function-decompilation-operators.js
+ test/webkit/fast/js/function-toString-parentheses-expected.txt
+ test/webkit/fast/js/function-toString-parentheses.js
+ test/webkit/fast/js/function-toString-semicolon-insertion-expected.txt
+ test/webkit/fast/js/function-toString-semicolon-insertion.js
+ test/webkit/fast/js/kde/Array-expected.txt
+ test/webkit/fast/js/kde/Boolean-expected.txt
+ test/webkit/fast/js/kde/Boolean.js
+ test/webkit/fast/js/kde/Date-setYear-expected.txt
+ test/webkit/fast/js/kde/Date-setYear.js
+ test/webkit/fast/js/kde/Error-expected.txt
+ test/webkit/fast/js/kde/Error.js
+ test/webkit/fast/js/kde/GlobalObject-expected.txt
+ test/webkit/fast/js/kde/GlobalObject.js
+ test/webkit/fast/js/kde/Number-expected.txt
+ test/webkit/fast/js/kde/Number.js
+ test/webkit/fast/js/kde/Object-expected.txt
+ test/webkit/fast/js/kde/Object.js
+ test/webkit/fast/js/kde/Prototype-expected.txt
+ test/webkit/fast/js/kde/Prototype.js
+ test/webkit/fast/js/kde/RegExp-expected.txt
+ test/webkit/fast/js/kde/RegExp.js
+ test/webkit/fast/js/kde/arguments-scope-expected.txt
+ test/webkit/fast/js/kde/arguments-scope.js
+ test/webkit/fast/js/kde/assignments-expected.txt
+ test/webkit/fast/js/kde/assignments.js
+ test/webkit/fast/js/kde/cast-expected.txt
+ test/webkit/fast/js/kde/cast.js
+ test/webkit/fast/js/kde/comment-1-expected.txt
+ test/webkit/fast/js/kde/comment-1.js
+ test/webkit/fast/js/kde/comment-2-expected.txt
+ test/webkit/fast/js/kde/comment-2.js
+ test/webkit/fast/js/kde/completion-expected.txt
+ test/webkit/fast/js/kde/completion.js
+ test/webkit/fast/js/kde/conditional-expected.txt
+ test/webkit/fast/js/kde/conditional.js
+ test/webkit/fast/js/kde/constructor_length-expected.txt
+ test/webkit/fast/js/kde/constructor_length.js
+ test/webkit/fast/js/kde/crash-1-expected.txt
+ test/webkit/fast/js/kde/crash-1.js
+ test/webkit/fast/js/kde/crash-2-expected.txt
+ test/webkit/fast/js/kde/crash-2.js
+ test/webkit/fast/js/kde/delete-expected.txt
+ test/webkit/fast/js/kde/delete.js
+ test/webkit/fast/js/kde/empty-expected.txt
+ test/webkit/fast/js/kde/empty.js
+ test/webkit/fast/js/kde/encode_decode_uri-expected.txt
+ test/webkit/fast/js/kde/encode_decode_uri.js
+ test/webkit/fast/js/kde/eval-expected.txt
+ test/webkit/fast/js/kde/eval.js
+ test/webkit/fast/js/kde/evil-n-expected.txt
+ test/webkit/fast/js/kde/evil-n.js
+ test/webkit/fast/js/kde/exception_propagation-expected.txt
+ test/webkit/fast/js/kde/exception_propagation.js
+ test/webkit/fast/js/kde/exceptions-expected.txt
+ test/webkit/fast/js/kde/exceptions.js
+ test/webkit/fast/js/kde/func-decl-expected.txt
+ test/webkit/fast/js/kde/func-decl.js
+ test/webkit/fast/js/kde/inbuilt_function_proto-expected.txt
+ test/webkit/fast/js/kde/inbuilt_function_proto.js
+ test/webkit/fast/js/kde/iteration-expected.txt
+ test/webkit/fast/js/kde/iteration.js
+ test/webkit/fast/js/kde/j-comment-3-expected.txt
+ test/webkit/fast/js/kde/j-comment-3.js
+ test/webkit/fast/js/kde/j-comment-4-expected.txt
+ test/webkit/fast/js/kde/j-comment-4.js
+ test/webkit/fast/js/kde/literals-expected.txt
+ test/webkit/fast/js/kde/literals.js
+ test/webkit/fast/js/kde/lval-exceptions-expected.txt
+ test/webkit/fast/js/kde/lval-exceptions.js
+ test/webkit/fast/js/kde/math-expected.txt
+ test/webkit/fast/js/kde/math.js
+ test/webkit/fast/js/kde/md5-1-expected.txt
+ test/webkit/fast/js/kde/md5-2-expected.txt
+ test/webkit/fast/js/kde/object_prototype-expected.txt
+ test/webkit/fast/js/kde/object_prototype.js
+ test/webkit/fast/js/kde/object_prototype_tostring-expected.txt
+ test/webkit/fast/js/kde/object_prototype_tostring.js
+ test/webkit/fast/js/kde/operators-expected.txt
+ test/webkit/fast/js/kde/operators.js
+ test/webkit/fast/js/kde/parse-expected.txt
+ test/webkit/fast/js/kde/parse.js
+ test/webkit/fast/js/kde/prototype_length-expected.txt
+ test/webkit/fast/js/kde/prototype_length.js
+ test/webkit/fast/js/kde/prototype_proto-expected.txt
+ test/webkit/fast/js/kde/prototype_proto.js
+ test/webkit/fast/js/kde/scope-expected.txt
+ test/webkit/fast/js/kde/scope.js
+ test/webkit/fast/js/kde/statements-expected.txt
+ test/webkit/fast/js/kde/statements.js
+ test/webkit/fast/js/kde/var_decl_init-expected.txt
+ test/webkit/fast/js/kde/var_decl_init.js
+ test/webkit/fast/js/modify-non-references-expected.txt
+ test/webkit/fast/js/modify-non-references.js
+ test/webkit/fast/js/native-error-prototype-expected.txt
+ test/webkit/fast/js/native-error-prototype.js
+ test/webkit/fast/js/number-toString-expected.txt
+ test/webkit/fast/js/number-toString.js
+ test/webkit/fast/js/number-tofixed-expected.txt
+ test/webkit/fast/js/number-tofixed.js
+ test/webkit/fast/js/number-toprecision-expected.txt
+ test/webkit/fast/js/number-toprecision.js
+ test/webkit/fast/js/numeric-escapes-in-string-literals-expected.txt
+ test/webkit/fast/js/numeric-escapes-in-string-literals.js
+ test/webkit/fast/js/object-bad-time-expected.txt
+ test/webkit/fast/js/object-bad-time.js
+ test/webkit/fast/js/object-extra-comma-expected.txt
+ test/webkit/fast/js/object-extra-comma.js
+ test/webkit/fast/js/object-prototype-constructor-expected.txt
+ test/webkit/fast/js/object-prototype-constructor.js
+ test/webkit/fast/js/object-prototype-properties-expected.txt
+ test/webkit/fast/js/object-prototype-properties.js
+ test/webkit/fast/js/object-prototype-toLocaleString-expected.txt
+ test/webkit/fast/js/object-prototype-toLocaleString.js
+ test/webkit/fast/js/object-slow-put-expected.txt
+ test/webkit/fast/js/object-slow-put.js
+ test/webkit/fast/js/primitive-property-access-edge-cases-expected.txt
+ test/webkit/fast/js/primitive-property-access-edge-cases.js
+ test/webkit/fast/js/read-modify-eval-expected.txt
+ test/webkit/fast/js/read-modify-eval.js
+ test/webkit/fast/js/regexp-bol-expected.txt
+ test/webkit/fast/js/regexp-bol-with-multiline-expected.txt
+ test/webkit/fast/js/regexp-bol-with-multiline.js
+ test/webkit/fast/js/regexp-bol.js
+ test/webkit/fast/js/regexp-extended-characters-crash-expected.txt
+ test/webkit/fast/js/regexp-extended-characters-crash.js
+ test/webkit/fast/js/regexp-lastindex-expected.txt
+ test/webkit/fast/js/regexp-lastindex.js
+ test/webkit/fast/js/regexp-look-ahead-expected.txt
+ test/webkit/fast/js/regexp-look-ahead.js
+ test/webkit/fast/js/regexp-no-extensions-expected.txt
+ test/webkit/fast/js/regexp-no-extensions.js
+ test/webkit/fast/js/regexp-non-capturing-groups-expected.txt
+ test/webkit/fast/js/regexp-non-capturing-groups.js
+ test/webkit/fast/js/regexp-non-greedy-parentheses-expected.txt
+ test/webkit/fast/js/regexp-non-greedy-parentheses.js
+ test/webkit/fast/js/regexp-range-out-of-order-expected.txt
+ test/webkit/fast/js/regexp-range-out-of-order.js
+ test/webkit/fast/js/regexp-ranges-and-escaped-hyphens-expected.txt
+ test/webkit/fast/js/regexp-ranges-and-escaped-hyphens.js
+ test/webkit/fast/js/regexp-stack-overflow-expected.txt
+ test/webkit/fast/js/regexp-unicode-handling-expected.txt
+ test/webkit/fast/js/regexp-unicode-handling.js
+ test/webkit/fast/js/reserved-words-strict-expected.txt
+ test/webkit/fast/js/reserved-words-strict.js
+ test/webkit/fast/js/stack-overflow-arrity-catch-expected.txt
+ test/webkit/fast/js/stack-overflow-arrity-catch.js
+ test/webkit/fast/js/string-anchor-expected.txt
+ test/webkit/fast/js/string-anchor.js
+ test/webkit/fast/js/string-capitalization-expected.txt
+ test/webkit/fast/js/string-capitalization.js
+ test/webkit/fast/js/string-fontcolor-expected.txt
+ test/webkit/fast/js/string-fontcolor.js
+ test/webkit/fast/js/string-fontsize-expected.txt
+ test/webkit/fast/js/string-fontsize.js
+ test/webkit/fast/js/string-link-expected.txt
+ test/webkit/fast/js/string-link.js
+ test/webkit/fast/js/string-split-conformance-expected.txt
+ test/webkit/fast/js/string-split-double-empty-expected.txt
+ test/webkit/fast/js/string-split-double-empty.js
+ test/webkit/fast/js/string-split-ignore-case-expected.txt
+ test/webkit/fast/js/string-split-ignore-case.js
+ test/webkit/fast/js/toString-exception-expected.txt
+ test/webkit/fast/js/toString-exception.js
+ test/webkit/fast/js/toString-number-expected.txt
+ test/webkit/fast/js/toString-number.js
+ test/webkit/fast/js/toString-overrides-expected.txt
+ test/webkit/fast/regex/alternative-length-miscalculation-expected.txt
+ test/webkit/fast/regex/alternative-length-miscalculation.js
+ test/webkit/fast/regex/assertion-expected.txt
+ test/webkit/fast/regex/assertion.js
+ test/webkit/fast/regex/constructor-expected.txt
+ test/webkit/fast/regex/constructor.js
+ test/webkit/fast/regex/dotstar-expected.txt
+ test/webkit/fast/regex/dotstar.js
+ test/webkit/fast/regex/early-acid3-86-expected.txt
+ test/webkit/fast/regex/early-acid3-86.js
+ test/webkit/fast/regex/ecma-regex-examples-expected.txt
+ test/webkit/fast/regex/ecma-regex-examples.js
+ test/webkit/fast/regex/invalid-range-in-class-expected.txt
+ test/webkit/fast/regex/invalid-range-in-class.js
+ test/webkit/fast/regex/lastIndex-expected.txt
+ test/webkit/fast/regex/lastIndex.js
+ test/webkit/fast/regex/malformed-escapes-expected.txt
+ test/webkit/fast/regex/malformed-escapes.js
+ test/webkit/fast/regex/non-capturing-backtracking-expected.txt
+ test/webkit/fast/regex/non-capturing-backtracking.js
+ test/webkit/fast/regex/overflow-expected.txt
+ test/webkit/fast/regex/overflow.js
+ test/webkit/fast/regex/parentheses-expected.txt
+ test/webkit/fast/regex/parentheses.js
+ test/webkit/fast/regex/pcre-test-4-expected.txt
+ test/webkit/fast/regex/pcre-test-4.js
+ test/webkit/fast/regex/quantified-assertions-expected.txt
+ test/webkit/fast/regex/quantified-assertions.js
+ test/webkit/fast/regex/repeat-match-waldemar-expected.txt
+ test/webkit/fast/regex/repeat-match-waldemar.js
+ test/webkit/fast/regex/toString-expected.txt
+ test/webkit/fast/regex/toString.js
+ test/webkit/fast/regex/unicodeCaseInsensitive-expected.txt
+ test/webkit/fast/regex/unicodeCaseInsensitive.js
+ test/webkit/finally-codegen-failure-expected.txt
+ test/webkit/finally-codegen-failure.js
+ test/webkit/flatten-dictionary-structure-from-which-all-properties-were-deleted-expected.txt
+ test/webkit/flatten-dictionary-structure-from-which-all-properties-were-deleted.js
+ test/webkit/for-in-avoid-duplicates-expected.txt
+ test/webkit/for-in-avoid-duplicates.js
+ test/webkit/for-in-cached-expected.txt
+ test/webkit/for-in-cached.js
+ test/webkit/for-in-exeception-expected.txt
+ test/webkit/for-in-exeception.js
+ test/webkit/for-in-to-text-expected.txt
+ test/webkit/for-in-to-text.js
+ test/webkit/for-in-var-scope-expected.txt
+ test/webkit/for-in-var-scope.js
+ test/webkit/function-apply-aliased-expected.txt
+ test/webkit/function-apply-aliased.js
+ test/webkit/function-call-aliased-expected.txt
+ test/webkit/function-call-aliased.js
+ test/webkit/function-call-register-allocation-expected.txt
+ test/webkit/function-call-register-allocation.js
+ test/webkit/function-constructor-newline-after-brace-expected.txt
+ test/webkit/function-constructor-newline-after-brace.js
+ test/webkit/function-constructor-single-line-comment-expected.txt
+ test/webkit/function-constructor-single-line-comment.js
+ test/webkit/function-declaration-expected.txt
+ test/webkit/function-declaration-statement-expected.txt
+ test/webkit/function-declaration-statement.js
+ test/webkit/function-declaration.js
+ test/webkit/function-declarations-in-switch-statement-expected.txt
+ test/webkit/function-declarations-in-switch-statement.js
+ test/webkit/function-dot-apply-replace-base-expected.txt
+ test/webkit/function-dot-apply-replace-base.js
+ test/webkit/function-dot-length-read-only-expected.txt
+ test/webkit/function-dot-length-read-only.js
+ test/webkit/function-prototype-descriptor-expected.txt
+ test/webkit/function-prototype-descriptor.js
+ test/webkit/function-toString-object-literals-expected.txt
+ test/webkit/function-toString-object-literals.js
+ test/webkit/get-by-pname-expected.txt
+ test/webkit/get-by-pname-non-final-object-expected.txt
+ test/webkit/get-by-pname-non-final-object.js
+ test/webkit/get-by-pname-that-looks-like-a-patchable-get-by-val-expected.txt
+ test/webkit/get-by-pname-that-looks-like-a-patchable-get-by-val.js
+ test/webkit/get-by-pname.js
+ test/webkit/getter-setter-gc-expected.txt
+ test/webkit/getter-setter-gc.js
+ test/webkit/global-resolve-through-eval-expected.txt
+ test/webkit/global-resolve-through-eval.js
+ test/webkit/gmail-re-re-expected.txt
+ test/webkit/gmail-re-re.js
+ test/webkit/has-own-property-expected.txt
+ test/webkit/has-own-property.js
+ test/webkit/ignored-result-null-comparison-crash-expected.txt
+ test/webkit/ignored-result-null-comparison-crash.js
+ test/webkit/ignored-result-ref-crash-expected.txt
+ test/webkit/ignored-result-ref-crash.js
+ test/webkit/indexed-setter-on-global-object-expected.txt
+ test/webkit/indexed-setter-on-global-object.js
+ test/webkit/instance-of-immediates-expected.txt
+ test/webkit/instance-of-immediates.js
+ test/webkit/instanceof-operator-expected.txt
+ test/webkit/instanceof-operator.js
+ test/webkit/integer-extremes-expected.txt
+ test/webkit/integer-extremes.js
+ test/webkit/interpreter-no-activation-expected.txt
+ test/webkit/interpreter-no-activation.js
+ test/webkit/invalid-callframe-during-unwind-expected.txt
+ test/webkit/invalid-callframe-during-unwind.js
+ test/webkit/isPrototypeOf-expected.txt
+ test/webkit/isPrototypeOf.js
+ test/webkit/jit-float32-array-nan-expected.txt
+ test/webkit/jit-float32-array-nan.js
+ test/webkit/js-continue-break-restrictions-expected.txt
+ test/webkit/js-continue-break-restrictions.js
+ test/webkit/keywords-and-reserved_words-expected.txt
+ test/webkit/keywords-and-reserved_words.js
+ test/webkit/legitimately-captured-argument-expected.txt
+ test/webkit/legitimately-captured-argument.js
+ test/webkit/logical-or-jless-expected.txt
+ test/webkit/logical-or-jless.js
+ test/webkit/math-expected.txt
+ test/webkit/math-transforms-expected.txt
+ test/webkit/math-transforms.js
+ test/webkit/math.js
+ test/webkit/mod-by-zero-expected.txt
+ test/webkit/mod-by-zero.js
+ test/webkit/mod-crash-expected.txt
+ test/webkit/mod-crash.js
+ test/webkit/multiline-comment-newline-expected.txt
+ test/webkit/multiline-comment-newline.js
+ test/webkit/named-function-expression-expected.txt
+ test/webkit/named-function-expression.js
+ test/webkit/nested-functions-expected.txt
+ test/webkit/nested-functions.js
+ test/webkit/new-array-double-with-holes-expected.txt
+ test/webkit/new-array-double-with-holes.js
+ test/webkit/no-semi-insertion-at-end-of-script-expected.txt
+ test/webkit/no-semi-insertion-at-end-of-script.js
+ test/webkit/number-cell-reuse-expected.txt
+ test/webkit/number-cell-reuse.js
+ test/webkit/number-parsing-crash-expected.txt
+ test/webkit/number-parsing-crash.js
+ test/webkit/number-toExponential-expected.txt
+ test/webkit/number-toExponential.js
+ test/webkit/numeric-compare-expected.txt
+ test/webkit/numeric-compare.js
+ test/webkit/numeric-conversion-expected.txt
+ test/webkit/numeric-conversion.js
+ test/webkit/object-literal-direct-put-expected.txt
+ test/webkit/object-literal-direct-put.js
+ test/webkit/object-literal-syntax-expected.txt
+ test/webkit/object-literal-syntax.js
+ test/webkit/order-of-operations-expected.txt
+ test/webkit/order-of-operations.js
+ test/webkit/parse-nan-expected.txt
+ test/webkit/parse-nan.js
+ test/webkit/parseFloat-expected.txt
+ test/webkit/parseFloat.js
+ test/webkit/parseInt-expected.txt
+ test/webkit/parseInt.js
+ test/webkit/parser-high-byte-character-expected.txt
+ test/webkit/parser-high-byte-character.js
+ test/webkit/parser-xml-close-comment-expected.txt
+ test/webkit/parser-xml-close-comment.js
+ test/webkit/polymorphic-construct-expected.txt
+ test/webkit/polymorphic-construct.js
+ test/webkit/pretty-print-expected.txt
+ test/webkit/pretty-print.js
+ test/webkit/preventExtensions-expected.txt
+ test/webkit/preventExtensions.js
+ test/webkit/primitive-method-this-expected.txt
+ test/webkit/primitive-method-this.js
+ test/webkit/property-getters-and-setters-expected.txt
+ test/webkit/property-getters-and-setters.js
+ test/webkit/property-iteration-expected.txt
+ test/webkit/property-iteration.js
+ test/webkit/propertyIsEnumerable-expected.txt
+ test/webkit/propertyIsEnumerable.js
+ test/webkit/prototypes-expected.txt
+ test/webkit/prototypes.js
+ test/webkit/reentrant-caching-expected.txt
+ test/webkit/reentrant-caching.js
+ test/webkit/reentrant-call-unwind-expected.txt
+ test/webkit/reentrant-call-unwind.js
+ test/webkit/regexp-alternatives-expected.txt
+ test/webkit/regexp-alternatives.js
+ test/webkit/regexp-backreferences-expected.txt
+ test/webkit/regexp-backreferences.js
+ test/webkit/regexp-char-insensitive-expected.txt
+ test/webkit/regexp-char-insensitive.js
+ test/webkit/regexp-character-match-out-of-order-expected.txt
+ test/webkit/regexp-character-match-out-of-order.js
+ test/webkit/regexp-compile-crash-expected.txt
+ test/webkit/regexp-compile-crash.js
+ test/webkit/regexp-compile-expected.txt
+ test/webkit/regexp-compile.js
+ test/webkit/regexp-divequal-expected.txt
+ test/webkit/regexp-divequal.js
+ test/webkit/regexp-extended-characters-match-expected.txt
+ test/webkit/regexp-extended-characters-match.js
+ test/webkit/regexp-extended-characters-more-expected.txt
+ test/webkit/regexp-extended-characters-more.js
+ test/webkit/regexp-find-first-asserted-expected.txt
+ test/webkit/regexp-find-first-asserted.js
+ test/webkit/regexp-in-and-foreach-handling-expected.txt
+ test/webkit/regexp-in-and-foreach-handling.js
+ test/webkit/regexp-literals-arent-constants-expected.txt
+ test/webkit/regexp-literals-arent-constants.js
+ test/webkit/regexp-many-brackets-expected.txt
+ test/webkit/regexp-many-brackets.js
+ test/webkit/regexp-negative-special-characters-expected.txt
+ test/webkit/regexp-negative-special-characters.js
+ test/webkit/regexp-non-bmp-expected.txt
+ test/webkit/regexp-non-bmp.js
+ test/webkit/regexp-non-character-expected.txt
+ test/webkit/regexp-non-character.js
+ test/webkit/regexp-norepeat-expected.txt
+ test/webkit/regexp-norepeat.js
+ test/webkit/regexp-range-bound-ffff-expected.txt
+ test/webkit/regexp-range-bound-ffff.js
+ test/webkit/regexp-zero-length-alternatives-expected.txt
+ test/webkit/regexp-zero-length-alternatives.js
+ test/webkit/registerCachingAcrossBranchTargets-expected.txt
+ test/webkit/registerCachingAcrossBranchTargets.js
+ test/webkit/rehash-assign-expected.txt
+ test/webkit/rehash-assign.js
+ test/webkit/reserved-words-expected.txt
+ test/webkit/reserved-words.js
+ test/webkit/resize-array-assign-expected.txt
+ test/webkit/resize-array-assign.js
+ test/webkit/resolve-arguments-from-scope-expected.txt
+ test/webkit/resolve-arguments-from-scope.js
+ test/webkit/resources/JSON-stringify.js
+ test/webkit/resources/standalone-post.js
+ test/webkit/resources/standalone-pre.js
+ test/webkit/slash-lineterminator-parse-expected.txt
+ test/webkit/slash-lineterminator-parse.js
+ test/webkit/sort-large-array-expected.txt
+ test/webkit/sort-large-array.js
+ test/webkit/sort-no-jit-code-crash-expected.txt
+ test/webkit/sort-no-jit-code-crash.js
+ test/webkit/sort-non-numbers-expected.txt
+ test/webkit/sort-non-numbers.js
+ test/webkit/sort-randomly-expected.txt
+ test/webkit/sort-randomly.js
+ test/webkit/sort-with-side-effecting-comparisons-expected.txt
+ test/webkit/sort-with-side-effecting-comparisons.js
+ test/webkit/sparse-array-expected.txt
+ test/webkit/sparse-array.js
+ test/webkit/stack-overflow-catch-expected.txt
+ test/webkit/stack-overflow-catch.js
+ test/webkit/stack-unwinding-expected.txt
+ test/webkit/stack-unwinding.js
+ test/webkit/statement-list-register-crash-expected.txt
+ test/webkit/statement-list-register-crash.js
+ test/webkit/static-scope-object-expected.txt
+ test/webkit/static-scope-object.js
+ test/webkit/strict-callback-this-expected.txt
+ test/webkit/strict-callback-this.js
+ test/webkit/strict-throw-type-error-expected.txt
+ test/webkit/strict-throw-type-error.js
+ test/webkit/string-from-char-code-expected.txt
+ test/webkit/string-from-char-code.js
+ test/webkit/string-index-overflow-expected.txt
+ test/webkit/string-index-overflow.js
+ test/webkit/string-property-deletion-expected.txt
+ test/webkit/string-property-deletion.js
+ test/webkit/string-property-iteration-expected.txt
+ test/webkit/string-property-iteration.js
+ test/webkit/string-replacement-outofmemory-expected.txt
+ test/webkit/string-replacement-outofmemory.js
+ test/webkit/string-slice-abnormal-values-expected.txt
+ test/webkit/string-slice-abnormal-values.js
+ test/webkit/string-sort-expected.txt
+ test/webkit/string-sort.js
+ test/webkit/string-substr-expected.txt
+ test/webkit/string-substr.js
+ test/webkit/string-trim-expected.txt
+ test/webkit/string-trim.js
+ test/webkit/string_replace-expected.txt
+ test/webkit/string_replace.js
+ test/webkit/this-non-object-proto-expected.txt
+ test/webkit/this-non-object-proto.js
+ test/webkit/throw-from-finally-expected.txt
+ test/webkit/throw-from-finally.js
+ test/webkit/toString-elision-trailing-comma-expected.txt
+ test/webkit/toString-elision-trailing-comma.js
+ test/webkit/toString-for-var-decl-expected.txt
+ test/webkit/toString-for-var-decl.js
+ test/webkit/toString-number-dot-expr-expected.txt
+ test/webkit/toString-number-dot-expr.js
+ test/webkit/toString-prefix-postfix-preserve-parens-expected.txt
+ test/webkit/toString-prefix-postfix-preserve-parens.js
+ test/webkit/toString-recursion-expected.txt
+ test/webkit/toString-recursion.js
+ test/webkit/tostring-exception-in-property-access-expected.txt
+ test/webkit/tostring-exception-in-property-access.js
+ test/webkit/try-catch-try-try-catch-try-finally-return-catch-finally-expected.txt
+ test/webkit/try-catch-try-try-catch-try-finally-return-catch-finally.js
+ test/webkit/try-try-return-finally-finally-expected.txt
+ test/webkit/try-try-return-finally-finally.js
+ test/webkit/typeof-codegen-crash-expected.txt
+ test/webkit/typeof-codegen-crash.js
+ test/webkit/typeof-constant-string-expected.txt
+ test/webkit/typeof-constant-string.js
+ test/webkit/unexpected-constant-crash-expected.txt
+ test/webkit/unexpected-constant-crash.js
+ test/webkit/unmatching-argument-count-expected.txt
+ test/webkit/unmatching-argument-count.js
+ test/webkit/var-declarations-zero-width-expected.txt
+ test/webkit/var-declarations-zero-width.js
+ test/webkit/var-shadows-arg-crash-expected.txt
+ test/webkit/var-shadows-arg-crash.js
+ test/webkit/var-shadows-arg-gc-crash-expected.txt
+ test/webkit/var-shadows-arg-gc-crash.js
+ test/webkit/vardecl-blocks-init-expected.txt
+ test/webkit/vardecl-blocks-init.js
+Copyright: 2005-2009, Apple Inc.
+  2013, the V8 project authors.
+  2014, the V8 project authors.
+License: BSD-2-clause
  FIXME
 
 Files: AUTHORS
@@ -1791,7 +4426,10 @@ Files: AUTHORS
  benchmarks/run.html
  benchmarks/spinning-balls/index.html
  benchmarks/style.css
+ benchmarks/v8.json
  build/README.txt
+ codereview.settings
+ debian/NEWS
  debian/README.source
  debian/compat
  debian/control
@@ -1805,16 +4443,39 @@ Files: AUTHORS
  debian/patches/0002_mips_r15102_backport.patch
  debian/patches/0002_mips_r19121_backport.patch
  debian/patches/0003_armv4t_disable_vfp.patch
+ debian/patches/0005_raspbian.patch
  debian/patches/0008_mksnapshot_stdout.patch
  debian/patches/0011_use_system_gyp.patch
  debian/patches/0012_loongson_force_cache_flush.patch
  debian/patches/0013_gcc_48_compat.patch
+ debian/patches/disable_compiler_unit_tests.patch
+ debian/patches/fix_CVE-2014-5256.patch
  debian/patches/series
  debian/rules
  debian/source/format
  debian/watch
  debian/watch.in
- test/es5conform/README
+ src/DEPS
+ src/OWNERS
+ src/arm/OWNERS
+ src/arm64/OWNERS
+ src/base/DEPS
+ src/libplatform/DEPS
+ src/mips/OWNERS
+ src/mips64/OWNERS
+ src/third_party/kernel/tools/perf/util/jitdump.h
+ src/x87/OWNERS
+ test/base-unittests/DEPS
+ test/cctest/DEPS
+ test/cctest/OWNERS
+ test/compiler-unittests/DEPS
+ test/intl/OWNERS
+ test/message/instanceof.out
+ test/message/isvar.out
+ test/message/paren_in_arg_string.out
+ test/message/single-function-literal.out
+ test/mjsunit/tools/profviz-test.default
+ test/mjsunit/tools/profviz-test.log
  test/mjsunit/tools/tickprocessor-test-func-info.log
  test/mjsunit/tools/tickprocessor-test.default
  test/mjsunit/tools/tickprocessor-test.func-info
@@ -1823,50 +4484,55 @@ Files: AUTHORS
  test/mjsunit/tools/tickprocessor-test.log
  test/mjsunit/tools/tickprocessor-test.separate-ic
  test/preparser/preparser.expectation
- test/sputnik/README
+ test/promises-aplus/README
  test/test262/README
+ test/webkit/fast/js/Promise-already-rejected-expected.txt
+ test/webkit/fast/js/Promise-already-resolved-expected.txt
+ test/webkit/fast/js/Promise-catch-expected.txt
+ test/webkit/fast/js/Promise-chained-then-expected.txt
+ test/webkit/fast/js/Promise-exception-expected.txt
+ test/webkit/fast/js/Promise-init-callback-receiver-expected.txt
+ test/webkit/fast/js/Promise-init-expected.txt
+ test/webkit/fast/js/Promise-onFulfilled-deep-expected.txt
+ test/webkit/fast/js/Promise-onRejected-deep-expected.txt
+ test/webkit/fast/js/Promise-reject-expected.txt
+ test/webkit/fast/js/Promise-resolve-chain-expected.txt
+ test/webkit/fast/js/Promise-resolve-expected.txt
+ test/webkit/fast/js/Promise-resolve-state-expected.txt
+ test/webkit/fast/js/Promise-resolve-with-itself-expected.txt
+ test/webkit/fast/js/Promise-resolve-with-then-exception-expected.txt
+ test/webkit/fast/js/Promise-resolve-with-then-fulfill-expected.txt
+ test/webkit/fast/js/Promise-resolve-with-then-reject-expected.txt
+ test/webkit/fast/js/Promise-simple-expected.txt
+ test/webkit/fast/js/Promise-static-all-expected.txt
+ test/webkit/fast/js/Promise-static-cast-expected.txt
+ test/webkit/fast/js/Promise-static-race-expected.txt
+ test/webkit/fast/js/Promise-static-reject-expected.txt
+ test/webkit/fast/js/Promise-static-resolve-expected.txt
+ test/webkit/fast/js/Promise-then-callback-receiver-expected.txt
+ test/webkit/fast/js/Promise-then-expected.txt
+ test/webkit/fast/js/Promise-then-without-callbacks-expected.txt
+ test/webkit/run-json-stringify-expected.txt
+ third_party/fdlibm/README.v8
+ tools/DEPS
+ tools/blink_tests/TestExpectations
  tools/freebsd-tick-processor
  tools/gcmole/README
  tools/linux-tick-processor
  tools/mac-nm
  tools/mac-tick-processor
  tools/oom_dump/README
+ tools/perf_tests/chromium_revision
+ tools/plot-timer-events
+ tools/sodium/index.html
+ tools/sodium/styles.css
  tools/testrunner/README
  tools/testrunner/server/daemon.py
  tools/v8.xcodeproj/README.txt
  tools/visual_studio/README.txt
+ tools/whitespace.txt
  tools/windows-tick-processor.bat
 Copyright: *No copyright*
-License: UNKNOWN
- FIXME
-
-Files: build/all.gyp
- test/cctest/test-circular-queue.cc
- test/cctest/test-conversions.cc
- test/cctest/test-cpu-profiler.cc
- test/cctest/test-diy-fp.cc
- test/cctest/test-double.cc
- test/cctest/test-fast-dtoa.cc
- test/cctest/test-heap-profiler.cc
- test/cctest/test-heap.cc
- test/cctest/test-lock.cc
- test/cctest/test-log.cc
- test/cctest/test-platform-linux.cc
- test/cctest/test-platform-macos.cc
- test/cctest/test-platform-nullos.cc
- test/cctest/test-platform-tls.cc
- test/cctest/test-platform-win32.cc
- test/cctest/test-profile-generator.cc
- test/cctest/test-sockets.cc
- test/cctest/test-strings.cc
- test/cctest/test-strtod.cc
- test/cctest/test-unbound-queue.cc
-Copyright: 2006-2008, the V8 project authors.
-  2006-2009, the V8 project authors.
-  2009, the V8 project authors.
-  2010, the V8 project authors.
-  2011, the V8 project authors.
-  2012, the V8 project authors.
 License: UNKNOWN
  FIXME
 
@@ -1881,20 +4547,64 @@ Files: src/arm/assembler-arm-inl.h
  src/mips/assembler-mips-inl.h
  src/mips/assembler-mips.cc
  src/mips/assembler-mips.h
+ src/mips64/assembler-mips64-inl.h
+ src/mips64/assembler-mips64.cc
+ src/mips64/assembler-mips64.h
  src/x64/assembler-x64.h
+ src/x87/assembler-x87-inl.h
+ src/x87/assembler-x87.cc
+ src/x87/assembler-x87.h
 Copyright: 1994-2006, Sun Microsystems Inc
   2011, the V8 project authors.
   2012, the V8 project authors.
 License: BSD-2-clause
  FIXME
 
-Files: test/mjsunit/third_party/array-isarray.js
- test/mjsunit/third_party/array-splice-webkit.js
- test/mjsunit/third_party/object-keys.js
- test/mjsunit/third_party/string-trim.js
-Copyright: 2006, Apple Computer, Inc.
-  2009, Apple Computer, Inc.
+Files: src/third_party/vtune/ittnotify_config.h
+ src/third_party/vtune/ittnotify_types.h
+ src/third_party/vtune/jitprofiling.cc
+ src/third_party/vtune/jitprofiling.h
+ src/third_party/vtune/v8-vtune.h
+ src/third_party/vtune/vtune-jit.cc
+ src/third_party/vtune/vtune-jit.h
+Copyright: 2005-2012, Intel Corporation.
+License: BSD (3 clause) GPL-2
+ FIXME
+
+Files: src/base/safe_conversions.h
+ src/base/safe_conversions_impl.h
+ src/base/safe_math.h
+ src/base/safe_math_impl.h
+Copyright: 2014, The Chromium Authors.
+  2014, the V8 project authors.
+License: UNKNOWN
+ FIXME
+
+Files: tools/SourceMap.js
+ tools/js2c.py
+ tools/mingw-generate-makefiles.sh
+Copyright: 2009, Google Inc.
+  2011, Google Inc.
+  2012, Google Inc.
+  2012, the V8 project authors.
+  2013, the V8 project authors.
 License: BSD-3-clause
+ FIXME
+
+Files: third_party/fdlibm/fdlibm.cc
+ third_party/fdlibm/fdlibm.h
+ third_party/fdlibm/fdlibm.js
+Copyright: 1993, Sun Microsystems, Inc.
+  2014, the V8 project authors.
+License: UNKNOWN
+ FIXME
+
+Files: test/webkit/fast/js/kde/Array.js
+ test/webkit/fast/js/toString-overrides.js
+Copyright: 2001, Harri Porten <porten@kde.org>
+  2005-2009, Apple Inc.
+  2013, the V8 project authors.
+License: BSD-2-clause
  FIXME
 
 Files: LICENSE.valgrind
@@ -1904,35 +4614,77 @@ Copyright: 2000-2007, Julian Seward.
 License: BSD-3-clause
  FIXME
 
+Files: BUILD.gn
+ debian/patches/icu_chromium_gyp_files.patch
+Copyright: 2012, The Chromium Authors.
+  2013, The Chromium Authors.
+  2014, The Chromium Authors.
+License: UNKNOWN
+ FIXME
+
+Files: test/webkit/fast/js/Promise-chained-then.js
+Copyright: // notice, this list of conditions and the following disclaimer in the
+  2005-2009, Apple Inc.
+  2014, the V8 project authors.
+License: BSD-2-clause
+ FIXME
+
+Files: test/webkit/fast/js/kde/md5-1.js
+Copyright: 1996, Henri Torgemane.
+  2005-2009, Apple Inc.
+  2013, the V8 project authors.
+License: BSD-2-clause
+ FIXME
+
+Files: test/webkit/fast/js/kde/md5-2.js
+Copyright: 2005-2009, Apple Inc.
+  2013, the V8 project authors.
+  Paul Johnston 1999, - 2002,
+License: BSD-2-clause
+ FIXME
+
+Files: test/webkit/fast/js/regexp-stack-overflow.js
+Copyright: 2005, Scott Baxter. Course Outline. Basic CDMA Principles. Coding","Url":"http:\\/\\/www.howcdmaworks.com\\/intro\\/132v3.pdf","ClickUrl":"http:\\/\\/www.howcdmaworks.com\\/intro\\/132v3.pdf#search=\'\'","ModificationDate":1107590400,"MimeType":"application\\/pdf","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBEx7dmMwF;_ylu=X3oDMTBxbTJnbmxhBGNvbG8DdwRwb3MDNjkEc2VjA3NyBHZ0aWQD\\/SIG=16ghr9cvr\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.howcdmaworks.com\\/intro\\/132v3.pdf%26w=132%26d=B6dAbEaqMu7t%26icp=1%26.intl=us","Size":"4342039"}},{"Title":"Thread Images Digitizing","Summary":"Free embroidery design. Specializes in providing custom quality embroidery designs to the professional embroiderer.","Url":"http:\\/\\/www.threadimages.com\\/","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBFR7dmMwF;_ylu=X3oDMTEwMmI2cWQzBGNvbG8DdwRsA1dTMQRwb3MDNzAEc2VjA3NyBHZ0aWQD\\/SIG=11gsp7523\\/EXP=1147592336\\/**http%3a\\/\\/www.threadimages.com\\/","ModificationDate":1147158000,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBGx7dmMwF;_ylu=X3oDMTBxaml0dDF0BGNvbG8DdwRwb3MDNzAEc2VjA3NyBHZ0aWQD\\/SIG=161ukrsfh\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.threadimages.com\\/%26w=132%26d=BmPG10aqMwgW%26icp=1%26.intl=us","Size":"55861"}},{"Title":"Psalms Chapter 132:1-18.","Summary":"Read the Hebrew Transliteration Psalms 132:1-18 Online.","Url":"http:\\/\\/bibledbdata.org\\/onlinebibles\\/hebrew_translit\\/19_132.htm","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBHR7dmMwF;_ylu=X3oDMTEwdXJnMnJuBGNvbG8DdwRsA1dTMQRwb3MDNzEEc2VjA3NyBHZ0aWQD\\/SIG=12i1mped7\\/EXP=1147592336\\/**http%3a\\/\\/bibledbdata.org\\/onlinebibles\\/hebrew_translit\\/19_132.htm","ModificationDate":1044172800,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBIh7dmMwF;_ylu=X3oDMTBxNmJocG1iBGNvbG8DdwRwb3MDNzEEc2VjA3NyBHZ0aWQD\\/SIG=173o8ajtj\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=bibledbdata.org\\/onlinebibles\\/hebrew_translit\\/19_132.htm%26w=132%26d=dfiAJkaqMi1u%26icp=1%26.intl=us","Size":"9706"}},{"Title":"PRC-132","Summary":"K6ERO Portable and pedestrian mobile amateur radio. PRC-132 &amp; M50B. To the left is a Loral Terracom M50B. made in 1988, Serial#19 . Its 10 inches tall. with out battery box or external power. box , 3.5 inches wide and 5.25 inches. deep, weight 6.9 lbs . ... The M50B is the early issue version of the. PRC-132 special operations HF Radio ...","Url":"http:\\/\\/www.muttmotorpool.com\\/PRC-132","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBJB7dmMwF;_ylu=X3oDMTEwYm80YTY1BGNvbG8DdwRsA1dTMQRwb3MDNzIEc2VjA3NyBHZ0aWQD\\/SIG=11ou3h7bi\\/EXP=1147592336\\/**http%3a\\/\\/www.muttmotorpool.com\\/PRC-132","ModificationDate":1146294000,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBKR7dmMwF;_ylu=X3oDMTBxaDgzYWcxBGNvbG8DdwRwb3MDNzIEc2VjA3NyBHZ0aWQD\\/SIG=169r7ofhd\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.muttmotorpool.com\\/PRC-132%26w=132%26d=Utj0H0aqMs48%26icp=1%26.intl=us","Size":"19723"}},{"Title":"Firenze 132 \\/ 170","Summary":"Firenze 132 \\/ 170. Matte Presentation Paper. 132 gram 2-side coated. 170 gram single side coated. Magicl\\u00e9e\\u00ae Firenze 132 and Firenze 170 matte. papers are designed for poster applications and. have an impressive price performance ratio. The ... If using the 132 gram. paper for 2-sided imaging ink limit on ...","Url":"http:\\/\\/www.magicinkjet.com\\/client_data_pdf\\/guides\\/Firenze.pdf","ClickUrl":"http:\\/\\/www.magicinkjet.com\\/client_data_pdf\\/guides\\/Firenze.pdf#search=\'\'","ModificationDate":1081839600,"MimeType":"application\\/pdf","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBLh7dmMwF;_ylu=X3oDMTBxbXY4b2luBGNvbG8DdwRwb3MDNzMEc2VjA3NyBHZ0aWQD\\/SIG=172sdum75\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.magicinkjet.com\\/client_data_pdf\\/guides\\/Firenze.pdf%26w=132%26d=Q4ILzEaqMh1n%26icp=1%26.intl=us","Size":"2152647"}},{"Title":"Museletter # 132 \\/ February 2003: The US and Eurasia: End Game for the Industrial Era?","Summary":"Defining democracy in the wake of the 2002, elections in the U.S.A..","Url":"http:\\/\\/www.museletter.com\\/archive\\/132.html","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBMB7dmMwF;_ylu=X3oDMTEwNGRiZ3FjBGNvbG8DdwRsA1dTMQRwb3MDNzQEc2VjA3NyBHZ0aWQD\\/SIG=11upr7v32\\/EXP=1147592336\\/**http%3a\\/\\/www.museletter.com\\/archive\\/132.html","ModificationDate":1108540800,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBNR7dmMwF;_ylu=X3oDMTBxZTNpbG1nBGNvbG8DdwRwb3MDNzQEc2VjA3NyBHZ0aWQD\\/SIG=16fg9g4no\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.museletter.com\\/archive\\/132.html%26w=132%26d=SS0AQEaqMvuR%26icp=1%26.intl=us","Size":"47428"}},{"Title":"Downloaded 25 Oct 2002, to 132.66.16.12. Redistribution subject to AIP license or , see http:\\/\\/ojps.aip.org\\/... ","Summary":"Downloaded 25 Oct 2002, to 132.66.16.12. Redistribution subject to AIP license or , see http:\\/\\/ojps.aip.org\\/jcpo\\/jcpcr.jsp. Downloaded 25 Oct 2002, to 132.66.16.12.","Url":"http:\\/\\/star.tau.ac.il\\/~andelman\\/reprints\\/018_JCP_1987_86_3673.pdf","ClickUrl":"http:\\/\\/star.tau.ac.il\\/~andelman\\/reprints\\/018_JCP_1987_86_3673.pdf#search=\'\'","ModificationDate":1035529200,"MimeType":"application\\/pdf","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBOh7dmMwF;_ylu=X3oDMTBxbGZmanU1BGNvbG8DdwRwb3MDNzUEc2VjA3NyBHZ0aWQD\\/SIG=17a4s312u\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=star.tau.ac.il\\/%257Eandelman\\/reprints\\/018_JCP_1987_86_3673.pdf%26w=132%26d=YANT3kaqMhfd%26icp=1%26.intl=us","Size":"1204421"}},{"Title":"Hepatitis B Virus: A Comprehensive Strategy for Eliminating Transmission in the United States Through Universal ... ","Summary":"Hepatitis B Virus: A Comprehensive Strategy for Eliminating Transmission in the United States Through Universal Childhood Vaccination: Recommendations of the Immunization Practices Advisory Committee (ACIP)","Url":"http:\\/\\/www.cdc.gov\\/mmwr\\/preview\\/mmwrhtml\\/00033405.htm","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBPB7dmMwF;_ylu=X3oDMTEwb2NlbHRuBGNvbG8DdwRsA1dTMQRwb3MDNzYEc2VjA3NyBHZ0aWQD\\/SIG=129kdm2n4\\/EXP=1147592336\\/**http%3a\\/\\/www.cdc.gov\\/mmwr\\/preview\\/mmwrhtml\\/00033405.htm","ModificationDate":1139990400,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBQR7dmMwF;_ylu=X3oDMTBxZm44bG9sBGNvbG8DdwRwb3MDNzYEc2VjA3NyBHZ0aWQD\\/SIG=16qv48dkp\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.cdc.gov\\/mmwr\\/preview\\/mmwrhtml\\/00033405.htm%26w=132%26d=b-Kz6UaqMwIM%26icp=1%26.intl=us","Size":"87232"}},{"Title":"Tour de France 2005","Summary":"... QUICK STEP - INNERGETIC. 132 - CRETSKENS Wilfried (BEL) Born in 10\\/07\\/1976, \\u00e0 Herk-de-Stad (BEL ...","Url":"http:\\/\\/www.letour.fr\\/2005\\/TDF\\/RIDERS\\/us\\/coureurs\\/132.html","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBQx7dmMwF;_ylu=X3oDMTEwYjdwazg2BGNvbG8DdwRsA1dTMQRwb3MDNzcEc2VjA3NyBHZ0aWQD\\/SIG=12dpjmcf6\\/EXP=1147592336\\/**http%3a\\/\\/www.letour.fr\\/2005\\/TDF\\/RIDERS\\/us\\/coureurs\\/132.html","ModificationDate":1121583600,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBSB7dmMwF;_ylu=X3oDMTBxa21laGFvBGNvbG8DdwRwb3MDNzcEc2VjA3NyBHZ0aWQD\\/SIG=16u0nn96f\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.letour.fr\\/2005\\/TDF\\/RIDERS\\/us\\/coureurs\\/132.html%26w=132%26d=BTTUC0aqMv4Z%26icp=1%26.intl=us","Size":"12171"}},{"Title":"This American Life | Father\'s Day \'99","Summary":"... 6\\/18\\/99. Episode 132. For Father\'s Day, stories about fathers going out of their way to protect their kids, and kids going ...","Url":"http:\\/\\/www.thisamericanlife.org\\/pages\\/descriptions\\/99\\/132.html","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBSh7dmMwF;_ylu=X3oDMTEwNDFvam42BGNvbG8DdwRsA1dTMQRwb3MDNzgEc2VjA3NyBHZ0aWQD\\/SIG=12iobnkgv\\/EXP=1147592336\\/**http%3a\\/\\/www.thisamericanlife.org\\/pages\\/descriptions\\/99\\/132.html","ModificationDate":1146466800,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBTx7dmMwF;_ylu=X3oDMTBxZzFuNDV2BGNvbG8DdwRwb3MDNzgEc2VjA3NyBHZ0aWQD\\/SIG=1738d5fam\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.thisamericanlife.org\\/pages\\/descriptions\\/99\\/132.html%26w=132%26d=Ss_yvkaqMvWK%26icp=1%26.intl=us","Size":"8411"}},{"Title":"Downloaded 21 Jan 2004, to 132.66.16.34. Redistribution subject to AIP license or , see http:\\/\\/ojps.aip.org\\/... ","Summary":"Downloaded 21 Jan 2004, to 132.66.16.34. Redistribution subject to AIP license or , see http:\\/\\/ojps.aip.org\\/jcpo\\/jcpcr.jsp. Downloaded 21 Jan 2004, to 132.66.16.34.","Url":"http:\\/\\/femto.tau.ac.il\\/~nitzan\\/3.pdf","ClickUrl":"http:\\/\\/femto.tau.ac.il\\/~nitzan\\/3.pdf#search=\'\'","ModificationDate":1088665200,"MimeType":"application\\/pdf","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBVB7dmMwF;_ylu=X3oDMTBxdXJmcnJsBGNvbG8DdwRwb3MDNzkEc2VjA3NyBHZ0aWQD\\/SIG=16da99c2u\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=femto.tau.ac.il\\/%257Enitzan\\/3.pdf%26w=132%26d=b5Br7UaqMjB1%26icp=1%26.intl=us","Size":"1071954"}},{"Title":"CHAPTER 12 ENVIRONMENTAL REVIEW \\u2013 EAST 132","Summary":"Solid Waste Management Plan. 12-1. October2004. DEIS. CHAPTER 12. ENVIRONMENTAL REVIEW \\u2013 EAST 132. ND. STREET SITE. 12.1 Introduction. The East 132. nd. Street Site is currently permitted to handle 2,999 tpd of putrescible waste, with a","Url":"http:\\/\\/www.nyc.gov\\/html\\/dsny\\/downloads\\/pdf\\/pubnrpts\\/swmp-4oct\\/deis\\/chapter12.pdf","ClickUrl":"http:\\/\\/www.nyc.gov\\/html\\/dsny\\/downloads\\/pdf\\/pubnrpts\\/swmp-4oct\\/deis\\/chapter12.pdf#search=\'\'","ModificationDate":1099555200,"MimeType":"application\\/pdf","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBWR7dmMwF;_ylu=X3oDMTBxaHNlODZrBGNvbG8DdwRwb3MDODAEc2VjA3NyBHZ0aWQD\\/SIG=17llu5bkp\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.nyc.gov\\/html\\/dsny\\/downloads\\/pdf\\/pubnrpts\\/swmp-4oct\\/deis\\/chapter12.pdf%26w=132%26d=RPmqz0aqMiKh%26icp=1%26.intl=us","Size":"1417879"}},{"Title":"Psalms 132 \\/ Hebrew - English Bible \\/ Mechon-Mamre","Summary":"... 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 ... Psalms Chapter 132. \\u00e0 \\u00f9\\u00d1\\u00c4\\u00e9\\u00f8, \\u00e4\\u00c7\\u00ee\\u00cc\\u00c7\\u00f2\\u00c2\\u00ec\\u00e5\\u00c9\\u00fa ...","Url":"http:\\/\\/www.mechon-mamre.org\\/p\\/pt\\/pt26d2.htm","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBWx7dmMwF;_ylu=X3oDMTEwc3RoZXBrBGNvbG8DdwRsA1dTMQRwb3MDODEEc2VjA3NyBHZ0aWQD\\/SIG=11vhbotpk\\/EXP=1147592336\\/**http%3a\\/\\/www.mechon-mamre.org\\/p\\/pt\\/pt26d2.htm","ModificationDate":1138694400,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBYB7dmMwF;_ylu=X3oDMTBxNjUwMGs2BGNvbG8DdwRwb3MDODEEc2VjA3NyBHZ0aWQD\\/SIG=16gg7tf89\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.mechon-mamre.org\\/p\\/pt\\/pt26d2.htm%26w=132%26d=WTHLVUaqMu6s%26icp=1%26.intl=us","Size":"13881"}},{"Title":"US CODE: Title 28,132. Creation and composition of district courts","Summary":"Creation and composition of district courts. Release date: 2005-09-29. (a) There shall be in each judicial district a district court which shall be a court of record known as the United States District Court for the district.","Url":"http:\\/\\/www4.law.cornell.edu\\/uscode\\/28\\/132.html","ClickUrl":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBYh7dmMwF;_ylu=X3oDMTEwcWlsMGMxBGNvbG8DdwRsA1dTMQRwb3MDODIEc2VjA3NyBHZ0aWQD\\/SIG=122ek55sr\\/EXP=1147592336\\/**http%3a\\/\\/www4.law.cornell.edu\\/uscode\\/28\\/132.html","ModificationDate":1143273600,"MimeType":"text\\/html","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBZx7dmMwF;_ylu=X3oDMTBxYWs1NmFvBGNvbG8DdwRwb3MDODIEc2VjA3NyBHZ0aWQD\\/SIG=16jb47dcg\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www4.law.cornell.edu\\/uscode\\/28\\/132.html%26w=132%26d=QQ2S7EaqMjbv%26icp=1%26.intl=us","Size":"9107"}},{"Title":"Fiscal Note","Summary":"... Bill, Resolutions and Memorial Documents. SB05-132 ... Final Act\\/ Resolutions or Memorial: 132_enr.pdfn. 132.enrn. Preamended Documents ...","Url":"http:\\/\\/www.leg.state.co.us\\/Clics2005a\\/csl.nsf\\/fsbillcont3\\/A4058D1E27570DC987256F7E0059EAA8?Open&file=132_enr.pdf","ClickUrl":"http:\\/\\/www.leg.state.co.us\\/Clics2005a\\/csl.nsf\\/fsbillcont3\\/A4058D1E27570DC987256F7E0059EAA8?Open&file=132_enr.pdf#search=\'\'","ModificationDate":1124521200,"MimeType":"application\\/pdf","Cache":{"Url":"http:\\/\\/uk.wrs.yahoo.com\\/_ylt=A0Je5VwQjWVEsGcBbB7dmMwF;_ylu=X3oDMTBxbGJmNjEwBGNvbG8DdwRwb3MDODMEc2VjA3NyBHZ0aWQD\\/SIG=191n41l4b\\/EXP=1147592336\\/**http%3a\\/\\/66.218.69.11\\/search\\/cache%3fei=UTF-8%26query=132%26output=json%26results=100%26appid=jennyhan_ac%26u=www.leg.state.co.us\\/Clics2005a\\/csl.nsf\\/fsbillcont3\\/A4058D1E27570DC987256F7E0059EAA8%253FOpen%2526file%253D132_enr.pdf%26w=132%26d=LViIXUaqMkKL%26icp=1%26.intl=us","Size":"87930"}},{"Title":"Development -- Table of Contents (January 1 2005, 132 [1
+  2005-2009, Apple Inc.
+  2013, the V8 project authors.
+License: BSD-2-clause
+ FIXME
+
+Files: test/webkit/fast/js/string-split-conformance.js
+Copyright: 2005-2009, Apple Inc.
+  2013, the V8 project authors.
+  Steven Levithan
+License: BSD-2-clause
+ FIXME
+
+Files: test/webkit/fast/js/parser-syntax-check-expected.txt
+Copyright: 2005-2009, Apple Inc.
+  2013, the V8 project authors.
+  with(d) {} else e; else f }"
+  with(d) {} else e; else f"
+License: BSD-2-clause
+ FIXME
+
+Files: test/webkit/fast/js/parser-syntax-check.js
+Copyright: 2005-2009, Apple Inc.
+  2013, the V8 project authors.
+  with(d) {} else e; else f");
+License: BSD-2-clause
+ FIXME
+
 Files: LICENSE.strongtalk
 Copyright: 1994-2006, Sun Microsystems Inc
 License: BSD-2-clause
  FIXME
 
-Files: tools/presubmit.py
-Copyright: 
+Files: test/intl/string/normalization.js
+Copyright: 2013, the V8 project authors.
+  : Singleton, OHM sign vs. Greek capital letter OMEGA
 License: BSD-3-clause
  FIXME
 
-Files: src/scanner.cc
-Copyright: && IsCarriageReturn(c0_)) Advance();
-  && IsLineFeed(c0_)) Advance();
-  2011, the V8 project authors.
-License: BSD-3-clause
- FIXME
-
-Files: src/runtime.cc
-Copyright: * kJsonQuotesCharactersPerEntry;
-  2012, the V8 project authors.
-  >= kQuoteTableLength) {
-  || c == 0x200b || c == 0xfeff;
-License: BSD-3-clause
- FIXME
-
-Files: src/scanner.h
-Copyright: 2011, the V8 project authors.
-  <= 5) return c + 10;
-  <= 9) return c;
+Files: test/mjsunit/third_party/object-keys.js
+Copyright: 2006, Apple Computer, Inc.
 License: BSD-3-clause
  FIXME
 
@@ -1948,21 +4700,27 @@ Copyright: 1997-2007, University of Cambridge
 License: BSD-3-clause
  FIXME
 
-Files: tools/js2c.py
-Copyright: 2011, Google Inc.
-  2012, the V8 project authors.
+Files: test/mjsunit/md5.js
+Copyright: 2013, the V8 project authors.
+  Paul Johnston 1999, - 2002,
 License: BSD-3-clause
  FIXME
 
-Files: src/hydrogen.cc
-Copyright: 2012, the V8 project authors.
-  Reachable only normally
+Files: tools/presubmit.py
+Copyright: header, trailing whitespaces and " \
+  header." % name
 License: BSD-3-clause
  FIXME
 
 Files: PRESUBMIT.py
 Copyright: 2012, the V8 project authors.
-  header and trailing whitespaces check failed"))
+  header, trailing whitespaces and two empty lines " \
+License: BSD-3-clause
+ FIXME
+
+Files: tools/tick-processor.html
+Copyright: 2012, the V8 project authors.
+  the V8 Authors - Last change to this page: 12/12/2012,
 License: BSD-3-clause
  FIXME
 
@@ -1972,14 +4730,14 @@ Copyright: 2010, the V8 project authors.
 License: BSD-3-clause
  FIXME
 
-Files: src/char-predicates-inl.h
-Copyright: 2011, the V8 project authors.
-  || IsInRange(AsciiAlphaToLower, 'a', 'f');
+Files: test/mjsunit/regress/d8-readbuffer.js
+Copyright: 2014, the V8 project authors.
+  2014, the V8 project authors.";
 License: BSD-3-clause
  FIXME
 
-Files: tools/test.py
-Copyright: 2012, the V8 project authors. /
+Files: src/mips/lithium-codegen-mips.cc
+Copyright: 2012, the V8 project authors.7
 License: BSD-3-clause
  FIXME
 
@@ -2010,8 +4768,50 @@ Copyright: != -1 || // ID-char
 License: UNKNOWN
  FIXME
 
+Files: src/scanner.cc
+Copyright: && IsCarriageReturn(c0_)) Advance();
+  && IsLineFeed(c0_)) Advance();
+  2011, the V8 project authors.
+License: UNKNOWN
+ FIXME
+
+Files: src/scanner.h
+Copyright: 2011, the V8 project authors.
+  <= 5) return c + 10;
+  <= 9) return c;
+License: UNKNOWN
+ FIXME
+
 Files: benchmarks/raytrace.js
 Copyright: 2005-2007, Sam Stephenson
+License: UNKNOWN
+ FIXME
+
+Files: third_party/fdlibm/LICENSE
+Copyright: 1993, Sun Microsystems, Inc.
+License: UNKNOWN
+ FIXME
+
+Files: tools/profviz/gnuplot-4.6.3-emscripten.js
+Copyright: 1986, - 1993, 1998, 2004, Thomas Williams, Colin Kelley
+License: UNKNOWN
+ FIXME
+
+Files: tools/generate-runtime-tests.py
+Copyright: 2014, the V8 project authors.
+  2014, the V8 project authors."
+License: UNKNOWN
+ FIXME
+
+Files: src/char-predicates-inl.h
+Copyright: 2011, the V8 project authors.
+  || IsInRange(AsciiAlphaToLower, 'a', 'f');
+License: UNKNOWN
+ FIXME
+
+Files: src/char-predicates.h
+Copyright: 2011, the V8 project authors.
+  || unibrow::LineTerminator::Is;
 License: UNKNOWN
  FIXME
 
