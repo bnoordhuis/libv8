@@ -6,7 +6,7 @@ Origin:upstream,https://github.com/paul99/v8m-rb/commit/ded6c2c2.patch
 Last-Update: 2012-06-13
 --- a/src/mips/cpu-mips.cc
 +++ b/src/mips/cpu-mips.cc
-@@ -72,6 +72,13 @@
+@@ -39,6 +39,13 @@
  #else  // ANDROID
    int res;
    // See http://www.linux-mips.org/wiki/Cacheflush_Syscall.
