@@ -9,7 +9,7 @@ Files-Excluded:
  tools/profviz/gnuplot-4.6.3-emscripten.js
 
 Files: *
-Copyright: 2006-2013 the V8 project authors
+Copyright: 2006-2014 the V8 project authors
 License: BSD-3-clause~Google
 
 Files: src/arm/assembler-arm*
