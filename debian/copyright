@@ -30,6 +30,12 @@ Files: test/webkit/*
 Copyright: 2005-2009, Apple Computer, Inc.
 License: BSD-2-clause~Apple
 
+Files: src/base/safe_*.h
+ BUILD.gn
+ debian/patches/icu_chromium_gyp_files.patch
+Copyright: 2012-2014, The Chromium Authors.
+License: BSD-3-clause~Google
+
 Files: src/third_party/valgrind/valgrind.h
 Copyright: 2000-2010, Julian Seward
 License: BSD-4-clause
@@ -61,10 +67,6 @@ Comment:
  http://prototype.conio.net/
 
 Files: build/android.gypi
-Copyright: 2012, The Chromium Authors
-License: BSD-3-clause~Google
-
-Files: debian/patches/icu_chromium_gyp_files.patch
 Copyright: 2012, The Chromium Authors
 License: BSD-3-clause~Google
 
