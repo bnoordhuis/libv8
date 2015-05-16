@@ -1,7 +1,22 @@
 libv8-3.28.71 (3.28.71.19~dfsg-1) UNRELEASED; urgency=medium
 
-  [ Peter Michael Green ]
-  * Add Raspbian support to configuration logic (Closes: #749288).
+  * Imported Upstream version 3.28.71.19~dfsg
+  * Set SONAME to a Major.Minor.Build, stricter but safer
+  * Refresh patches, remove:
+    + mips patches, too difficult to update
+    + vfp disabling for armv4t, either upstream improved compatibility
+      or armv4t cannot be supported
+    + hurd, too difficult to update
+    + raspbian, too difficult to update
+    + gcc 4.8 compatibility, fixed upstream
+    + CVE patches applied upstream or n/a
+  * Add a patch to disable quality code tests that depend on gmock, not
+    available in debian.
+  * Build-Depends libgtest-dev, libicu-dev
+  * Patch in missing icu.gyp, icu.gypi files needed to build against icu
+  * DFSG-exclude gnuplot-4.6.3-emscripten.js - the build tool `emscripten`
+    is not available in debian and this file is a developer tool.
+  * Add copyright sections for several third party sources
 
  -- Jérémy Lal <kapouer@melix.org>  Thu, 15 Jan 2015 01:02:47 +0100
 
