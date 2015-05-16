@@ -30,6 +30,32 @@ Files: test/webkit/*
 Copyright: 2005-2009, Apple Computer, Inc.
 License: BSD-2-clause~Apple
 
+Files: test/webkit/fast/js/kde/Array.js
+ test/webkit/fast/js/toString-overrides.js
+Copyright: 2001, Harri Porten <porten@kde.org>
+  2005-2009, Apple Inc.
+License: BSD-2-clause~Apple
+
+Files: test/webkit/fast/js/kde/md5-1.js
+Copyright: 1996, Henri Torgemane
+License:
+ Permission to use, copy, modify, and distribute this software
+ and its documentation for any purposes and without
+ fee is hereby granted provided that this copyright notice
+ appears in all copies.
+ .
+ Of course, this soft is provided "as is" without express or implied
+ warranty of any kind.
+
+Files: test/webkit/fast/js/kde/md5-2.js
+ test/mjsunit/md5.js
+Copyright: 1999-2002, Paul Johnston
+License: BSD-2-clause
+
+Files: test/webkit/fast/js/string-split-conformance.js
+Copyright: Steven Levithan
+License: MIT
+
 Files: src/base/safe_*.h
  BUILD.gn
  debian/patches/icu_chromium_gyp_files.patch
