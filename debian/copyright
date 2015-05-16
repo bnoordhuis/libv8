@@ -40,6 +40,10 @@ Files: src/third_party/valgrind/valgrind.h
 Copyright: 2000-2010, Julian Seward
 License: BSD-4-clause
 
+Files: src/third_party/vtune/*
+Copyright: 2005-2012, Intel Corporation.
+License: BSD-3-clause or GPL-2
+
 Files: test/mjsunit/third_party/regexp-pcre.js
 Copyright: 1997-2007, University of Cambridge
   2007, Google Inc
@@ -295,6 +299,22 @@ License: MIT~Prototype
  WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
  REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+
+License: GPL-2
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation version 2.
+  .
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+Comment:
+  On Debian systems the 'GNU General Public License' version 2 is located
+  in '/usr/share/common-licenses/GPL-2'.
+  .
+  You should have received a copy of the 'GNU General Public License'
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 License: GPL-2+
  This program is free software; you can redistribute it and/or modify it
