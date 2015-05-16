@@ -5,6 +5,7 @@ Uploaders: Jérémy Lal <kapouer@melix.org>,
  Jonas Smedegaard <dr@jones.dk>
 Build-Depends: @cdbs@,
  libgtest-dev,
+ libicu-dev,
  gyp
 Standards-Version: 3.9.5
 Section: libs
