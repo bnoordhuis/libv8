@@ -3,6 +3,10 @@ Upstream-Name: V8
 Upstream-Contact: the V8 Project Authors <v8-dev@googlegroups.com>
 Source: http://code.google.com/p/v8
  https://github.com/v8/v8
+ Repackaged to exclude a file compiled using emscripten, which is not
+ available in debian, making its inclusion non-DFSG.
+Files-Excluded:
+ tools/profviz/gnuplot-4.6.3-emscripten.js
 
 Files: *
 Copyright: 2006-2013 the V8 project authors
