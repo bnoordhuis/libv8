@@ -1,4 +1,4 @@
-libv8-3.28.71 (3.28.71.19~dfsg-1) UNRELEASED; urgency=medium
+libv8-3.28.71 (3.28.71.19~dfsg-1) unstable; urgency=medium
 
   * Imported Upstream version 3.28.71.19~dfsg
   * Set SONAME to a Major.Minor.Build, stricter but safer
@@ -18,7 +18,7 @@ libv8-3.28.71 (3.28.71.19~dfsg-1) UNRELEASED; urgency=medium
     is not available in debian and this file is a developer tool.
   * Add copyright sections for several third party sources
 
- -- Jérémy Lal <kapouer@melix.org>  Thu, 15 Jan 2015 01:02:47 +0100
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 16 May 2015 11:50:58 +0200
 
 libv8-3.14 (3.14.5.8-9) unstable; urgency=medium
 
