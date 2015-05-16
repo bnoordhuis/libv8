@@ -8,6 +8,7 @@ Build-Depends: cdbs,
  debhelper,
  dh-buildinfo,
  libgtest-dev,
+ libicu-dev,
  gyp
 Standards-Version: 3.9.5
 Section: libs
