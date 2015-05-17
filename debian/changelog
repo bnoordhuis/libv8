@@ -1,7 +1,6 @@
-libv8-3.28.71 (3.28.71.19~dfsg-1) unstable; urgency=medium
+libv8-3.28 (3.28.71.19~dfsg-1) unstable; urgency=medium
 
   * Imported Upstream version 3.28.71.19~dfsg
-  * Set SONAME to a Major.Minor.Build, stricter but safer
   * Refresh patches, remove:
     + mips patches, too difficult to update
     + vfp disabling for armv4t, either upstream improved compatibility
@@ -12,7 +11,9 @@ libv8-3.28.71 (3.28.71.19~dfsg-1) unstable; urgency=medium
     + CVE patches applied upstream or n/a
   * Add a patch to disable quality code tests that depend on gmock, not
     available in debian.
-  * Build-Depends libgtest-dev, libicu-dev
+  * Use abi-compliance-checker to track abi changes, with initial .acc
+    and .abi files.
+  * Build-Depends libgtest-dev, libicu-dev, abi-compliance-checker
   * Patch in missing icu.gyp, icu.gypi files needed to build against icu
   * DFSG-exclude gnuplot-4.6.3-emscripten.js - the build tool `emscripten`
     is not available in debian and this file is a developer tool.
