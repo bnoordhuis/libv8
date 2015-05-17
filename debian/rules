@@ -20,7 +20,7 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 MAJOR = $(word 1, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
 MINOR = $(word 2, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
 BUILD = $(word 3, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
-API = $(MAJOR).$(MINOR).$(BUILD)
+API = $(MAJOR).$(MINOR)
 ABI = $(MAJOR).$(MINOR).$(BUILD)
 LIBSTEM = libv8.so
 watchBranch = $(MAJOR)\\.$(MINOR)
