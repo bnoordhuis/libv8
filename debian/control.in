@@ -6,7 +6,8 @@ Uploaders: Jérémy Lal <kapouer@melix.org>,
 Build-Depends: @cdbs@,
  libgtest-dev,
  libicu-dev,
- gyp
+ gyp,
+ abi-compliance-checker
 Standards-Version: 3.9.6
 Section: libs
 Homepage: http://code.google.com/p/v8/
