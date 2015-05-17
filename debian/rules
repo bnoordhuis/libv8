@@ -156,9 +156,18 @@ clean::
 	rm -f build/*.pyc
 	rm -f test/*/*.pyc
 	rm -f test/*/*.status2
+	rm -f debian/libv8*.new.abi
+	rm -f debian/acc_report.html
 
 common-install-impl::
 	mkdir -p debian/tmp/usr/lib ; \
 	cd debian/tmp/usr/lib ; \
 	cp $(v8out) . ; \
 	ln -s -T $(LIBSTEM).$(ABI) $(LIBSTEM)
+
+common-binary-post-install-arch::
+	abi-compliance-checker -l $(package) -v1 $(DEB_VERSION) \
+		-dump debian/libv8.acc -dump-path debian/$(package).new.abi
+	abi-compliance-checker -l $(package) -d1 debian/$(package).abi \
+		-d2 debian/$(package).new.abi -report-path debian/acc_report.html
+

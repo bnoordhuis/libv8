@@ -1,0 +1,16 @@
+<desc>
+
+<headers>
+    debian/libv8-dev/usr/include
+</headers>
+
+<libs>
+    debian/tmp/usr/lib/libv8.so
+</libs>
+
+<skip_headers>
+    v8-testing.h
+    v8-debug.h
+</skip_headers>
+
+</desc>
