@@ -1,4 +1,4 @@
-Source: libv8-3.28.71
+Source: libv8-3.28
 Priority: optional
 Maintainer: Debian Javascript Maintainers <pkg-javascript-devel@lists.alioth.debian.org>
 Uploaders: Jérémy Lal <kapouer@melix.org>,
@@ -28,18 +28,18 @@ Description: V8 JavaScript engine - development files for latest branch
  .
  This package provide development headers for latest V8 branch.
 
-Package: libv8-3.28.71-dev
+Package: libv8-3.28-dev
 Section: libdevel
 Architecture: i386 kfreebsd-i386 hurd-i386 amd64 kfreebsd-amd64 armel armhf mipsel mips
 Depends: libv8-3.28.71 (= ${binary:Version}), ${misc:Depends}
 Provides: libv8-legacy-dev, libv8-dev
 Conflicts: libv8-dev
 Replaces: libv8-dev
-Description: V8 JavaScript engine - development files for 3.28.71 branch
+Description: V8 JavaScript engine - development files for 3.28 branch
  V8 is a high performance JavaScript engine written in C++.  It is used
  in the web browser Chromium.
  .
- This package provide development headers for V8 3.28.71 branch.
+ This package provide development headers for V8 3.28 branch.
 
 Package: libv8-3.28.71
 Architecture: i386 kfreebsd-i386 hurd-i386 amd64 kfreebsd-amd64 armel armhf mipsel mips
@@ -50,7 +50,7 @@ Description: V8 JavaScript engine - runtime library
  .
  This package provides the dynamic library for V8.
 
-Package: libv8-3.28.71-dbg
+Package: libv8-3.28-dbg
 Priority: extra
 Section: debug
 Architecture: i386 kfreebsd-i386 hurd-i386 amd64 kfreebsd-amd64 armel armhf mipsel mips
