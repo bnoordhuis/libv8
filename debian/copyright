@@ -38,7 +38,7 @@ License: BSD-2-clause~Apple
 
 Files: test/webkit/fast/js/kde/md5-1.js
 Copyright: 1996, Henri Torgemane
-License: unknown
+License: ISC-short-disclaim
  Permission to use, copy, modify, and distribute this software
  and its documentation for any purposes and without
  fee is hereby granted provided that this copyright notice
@@ -102,7 +102,7 @@ License: BSD-3-clause~Google
 
 Files: third_party/fdlibm/*
 Copyright: 1993 by Sun Microsystems, Inc. All rights reserved.
-License: unknown~SunSoft
+License: ISC-no-disclaim
  Developed at SunSoft, a Sun Microsystems, Inc. business.
  Permission to use, copy, modify, and distribute this
  software is freely granted, provided that this notice
