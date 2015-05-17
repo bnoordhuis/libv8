@@ -135,17 +135,19 @@ DEB_MAKE_CHECK_TARGET = $(v8arch).release.check \
 
 DEB_DH_INSTALL_ARGS_libv8-$(ABI) = usr/lib/$(LIBSTEM).$(ABI)
 
+package = libv8-$(API)
+
 # Setup dynamically named debhelper install file during build
 pre-build::
-	cp -f debian/libv8-dev.install debian/libv8-$(API)-dev.install
-	cp -f debian/libv8-dev.examples debian/libv8-$(API)-dev.examples
+	cp -f debian/libv8-dev.install debian/$(package)-dev.install
+	cp -f debian/libv8-dev.examples debian/$(package)-dev.examples
 	mkdir -p testing/gtest
 	cp -r /usr/src/gtest/src testing/gtest/
 	mkdir -p testing/gtest/include
 	cp -r /usr/include/gtest testing/gtest/include/
 clean::
-	rm -f debian/libv8-$(API)-dev.install
-	rm -f debian/libv8-$(API)-dev.examples
+	rm -f debian/$(package)-dev.install
+	rm -f debian/$(package)-dev.examples
 	rm -rf testing/gtest
 
 clean::
