@@ -17,18 +17,10 @@ libv8-3.28.71 (3.28.71.19~dfsg-1) unstable; urgency=medium
   * DFSG-exclude gnuplot-4.6.3-emscripten.js - the build tool `emscripten`
     is not available in debian and this file is a developer tool.
   * Add copyright sections for several third party sources
+  * Add README.Debian.security documenting the lack of security support for
+    this package for jessie.
 
  -- Jérémy Lal <kapouer@melix.org>  Sat, 16 May 2015 11:50:58 +0200
-
-libv8-3.14 (3.14.5.8-9) unstable; urgency=medium
-
-  [ Jérémy Lal ]
-  * Add NEWS about lack of security support
-
-  [ Jean Baptiste Favre ]
-  * Add patch for CVE-2014-5256 (Closes: #7603850)
-
- -- Balint Reczey <balint@balintreczey.hu>  Mon, 24 Nov 2014 20:28:53 +0100
 
 libv8-3.14 (3.14.5.8-8) unstable; urgency=medium
 
