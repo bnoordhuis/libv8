@@ -10,7 +10,7 @@ Build-Depends: cdbs,
  libgtest-dev,
  libicu-dev,
  gyp
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Section: libs
 Homepage: http://code.google.com/p/v8/
 Vcs-Browser: http://anonscm.debian.org/git/collab-maint/libv8.git
