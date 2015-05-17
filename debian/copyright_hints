@@ -4429,15 +4429,17 @@ Files: AUTHORS
  benchmarks/v8.json
  build/README.txt
  codereview.settings
- debian/NEWS
+ debian/README.Debian.security
  debian/README.source
  debian/compat
  debian/control
  debian/control.in
  debian/control.in.in
  debian/gbp.conf
+ debian/libv8-3.28.abi
  debian/libv8-dev.examples
  debian/libv8-dev.install
+ debian/libv8.acc
  debian/patches/0001_kfreebsd.patch
  debian/patches/0002_mips.patch
  debian/patches/0002_mips_r15102_backport.patch
@@ -4571,6 +4573,16 @@ Copyright: 2005-2012, Intel Corporation.
 License: BSD (3 clause) GPL-2
  FIXME
 
+Files: BUILD.gn
+ debian/patches/icu_chromium_gyp_files.patch
+ third_party/icu/icu.gyp
+ third_party/icu/icu.gypi
+Copyright: 2012, The Chromium Authors.
+  2013, The Chromium Authors.
+  2014, The Chromium Authors.
+License: UNKNOWN
+ FIXME
+
 Files: src/base/safe_conversions.h
  src/base/safe_conversions_impl.h
  src/base/safe_math.h
@@ -4612,14 +4624,6 @@ Files: LICENSE.valgrind
 Copyright: 2000-2007, Julian Seward.
   2000-2010, Julian Seward.
 License: BSD-3-clause
- FIXME
-
-Files: BUILD.gn
- debian/patches/icu_chromium_gyp_files.patch
-Copyright: 2012, The Chromium Authors.
-  2013, The Chromium Authors.
-  2014, The Chromium Authors.
-License: UNKNOWN
  FIXME
 
 Files: test/webkit/fast/js/Promise-chained-then.js
@@ -4789,11 +4793,6 @@ License: UNKNOWN
 
 Files: third_party/fdlibm/LICENSE
 Copyright: 1993, Sun Microsystems, Inc.
-License: UNKNOWN
- FIXME
-
-Files: tools/profviz/gnuplot-4.6.3-emscripten.js
-Copyright: 1986, - 1993, 1998, 2004, Thomas Williams, Colin Kelley
 License: UNKNOWN
  FIXME
 
