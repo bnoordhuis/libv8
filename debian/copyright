@@ -83,10 +83,10 @@ Files: src/third_party/vtune/*
 Copyright: 2005-2012, Intel Corporation.
 License: BSD-3-clause or GPL-2
 
-Files: test/mjsunit/third_party/regexp-pcre.js
+Files: test/mjsunit/third_party/regexp-pcre/*
 Copyright: 1997-2007, University of Cambridge
   2007, Google Inc
-License: BSD-3-clause~Cambridge
+License: BSD-3-clause~Cambridge+Google
 
 Files: benchmarks/deltablue.js
 Copyright: 1996, John Maloney
@@ -245,7 +245,7 @@ License: BSD-3-clause~SUN
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-License: BSD-3-clause~Cambridge
+License: BSD-3-clause~Cambridge+Google
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are
  met:
