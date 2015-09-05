@@ -94,13 +94,10 @@ Copyright: 1996, John Maloney
 License: GPL-2+
 
 Files: benchmarks/crypto.js
-Copyright: 2003-2005, Tom Wu
-License: MIT~Wu
-
-Files: test/mjsunit/asm/embenchen/lua_binarytrees.js
+ test/mjsunit/asm/embenchen/lua_binarytrees.js
  test/mjsunit/asm/poppler/poppler.js
 Copyright: 2003-2005, Tom Wu
-License: MIT/X11
+License: MIT~Wu
 
 Files: test/mjsunit/asm/embenchen/lua_binarytrees.js
  test/mjsunit/asm/poppler/poppler.js
