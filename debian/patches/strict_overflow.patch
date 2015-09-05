@@ -4,7 +4,7 @@ Author: Jérémy Lal <kapoure@melix.org>
 Last-Update: 2015-08-18
 --- a/src/bignum.cc
 +++ b/src/bignum.cc
-@@ -105,7 +105,7 @@
+@@ -84,7 +84,7 @@
    const int kMaxUint64DecimalDigits = 19;
    Zero();
    int length = value.length();
