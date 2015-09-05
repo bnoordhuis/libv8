@@ -116,10 +116,6 @@ Comment:
  license.  For details, see the Prototype web site:
  http://prototype.conio.net/
 
-Files: build/android.gypi
-Copyright: 2012, The Chromium Authors
-License: BSD-3-clause~Google
-
 Files: src/third_party/fdlibm/*
 Copyright: 1993-2004 by Sun Microsystems, Inc. All rights reserved.
 License: ISC-no-disclaim
