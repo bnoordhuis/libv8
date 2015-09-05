@@ -1,3 +1,9 @@
+libv8-4.5 (4.5.103.30~dfsg-1) UNRELEASED; urgency=medium
+
+  * Imported Upstream version 4.5.103.30~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 05 Sep 2015 14:40:57 +0200
+
 libv8-3.28 (3.28.71.19~dfsg-1) unstable; urgency=medium
 
   * Imported Upstream version 3.28.71.19~dfsg
