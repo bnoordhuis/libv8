@@ -64,15 +64,9 @@ var valuesWithoutNull = coercibleValues.concat(undefined);
 function TestSetPrototypeOfCoercibleValues() {
   for (var i = 0; i < coercibleValues.length; i++) {
     var value = coercibleValues[i];
-    assertThrows(function() {
-      Object.getPrototypeOf(value);
-    }, TypeError);
-
+    var proto = Object.getPrototypeOf(value);
     assertEquals(Object.setPrototypeOf(value, {}), value);
-
-    assertThrows(function() {
-      Object.getPrototypeOf(value);
-    }, TypeError);
+    assertSame(proto, Object.getPrototypeOf(value));
   }
 }
 TestSetPrototypeOfCoercibleValues();
@@ -143,6 +137,24 @@ function TestSetPrototypeOfNonExtensibleObject() {
   }
 }
 TestSetPrototypeOfNonExtensibleObject();
+
+
+function TestSetPrototypeCyclic() {
+  var objects = [
+    Object.prototype, {},
+    Array.prototype, [],
+    Error.prototype, new TypeError,
+    // etc ...
+  ];
+  for (var i = 0; i < objects.length; i += 2) {
+    var object = objects[i];
+    var value = objects[i + 1];
+    assertThrows(function() {
+      Object.setPrototypeOf(object, value);
+    }, TypeError);
+  }
+}
+TestSetPrototypeCyclic();
 
 
 function TestLookup() {

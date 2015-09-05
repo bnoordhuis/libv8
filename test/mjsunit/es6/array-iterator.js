@@ -25,7 +25,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Flags: --allow-natives-syntax
+// Flags: --allow-natives-syntax --harmony-tostring
 
 
 var NONE = 0;
@@ -158,6 +158,15 @@ function TestArrayIteratorPrototype() {
       Object.getOwnPropertyNames(ArrayIteratorPrototype));
   assertHasOwnProperty(ArrayIteratorPrototype, 'next', DONT_ENUM);
   assertHasOwnProperty(ArrayIteratorPrototype, Symbol.iterator, DONT_ENUM);
+
+  assertEquals("[object Array Iterator]",
+      Object.prototype.toString.call(iterator));
+  assertEquals("Array Iterator", ArrayIteratorPrototype[Symbol.toStringTag]);
+  var desc = Object.getOwnPropertyDescriptor(
+      ArrayIteratorPrototype, Symbol.toStringTag);
+  assertTrue(desc.configurable);
+  assertFalse(desc.writable);
+  assertEquals("Array Iterator", desc.value);
 }
 TestArrayIteratorPrototype();
 
@@ -172,10 +181,9 @@ function TestForArrayValues() {
 
   assertEquals(8, buffer.length);
 
-  for (var i = 0; i < buffer.length - 1; i++) {
+  for (var i = 0; i < buffer.length; i++) {
     assertSame(array[i], buffer[i]);
   }
-  assertTrue(isNaN(buffer[buffer.length - 1]));
 }
 TestForArrayValues();
 
@@ -207,10 +215,9 @@ function TestForArrayEntries() {
 
   assertEquals(8, buffer.length);
 
-  for (var i = 0; i < buffer.length - 1; i++) {
+  for (var i = 0; i < buffer.length; i++) {
     assertSame(array[i], buffer[i][1]);
   }
-  assertTrue(isNaN(buffer[buffer.length - 1][1]));
 
   for (var i = 0; i < buffer.length; i++) {
     assertEquals(i, buffer[i][0]);
@@ -229,10 +236,9 @@ function TestForArray() {
 
   assertEquals(8, buffer.length);
 
-  for (var i = 0; i < buffer.length - 1; i++) {
+  for (var i = 0; i < buffer.length; i++) {
     assertSame(array[i], buffer[i]);
   }
-  assertTrue(isNaN(buffer[buffer.length - 1]));
 }
 TestForArrayValues();
 

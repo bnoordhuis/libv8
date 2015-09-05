@@ -111,12 +111,11 @@ namespace internal {
 
 #define __ ACCESS_MASM(masm_)
 
-RegExpMacroAssemblerARM64::RegExpMacroAssemblerARM64(
-    Mode mode,
-    int registers_to_save,
-    Zone* zone)
-    : NativeRegExpMacroAssembler(zone),
-      masm_(new MacroAssembler(zone->isolate(), NULL, kRegExpCodeSize)),
+RegExpMacroAssemblerARM64::RegExpMacroAssemblerARM64(Isolate* isolate,
+                                                     Zone* zone, Mode mode,
+                                                     int registers_to_save)
+    : NativeRegExpMacroAssembler(isolate, zone),
+      masm_(new MacroAssembler(isolate, NULL, kRegExpCodeSize)),
       mode_(mode),
       num_registers_(registers_to_save),
       num_saved_registers_(registers_to_save),
@@ -260,7 +259,7 @@ void RegExpMacroAssemblerARM64::CheckCharacters(Vector<const uc16> str,
   }
 
   for (int i = 0; i < str.length(); i++) {
-    if (mode_ == ASCII) {
+    if (mode_ == LATIN1) {
       __ Ldrb(w10, MemOperand(characters_address, 1, PostIndex));
       DCHECK(str[i] <= String::kMaxOneByteCharCode);
     } else {
@@ -307,7 +306,7 @@ void RegExpMacroAssemblerARM64::CheckNotBackReferenceIgnoreCase(
   __ Cmn(capture_length, current_input_offset());
   BranchOrBacktrack(gt, on_no_match);
 
-  if (mode_ == ASCII) {
+  if (mode_ == LATIN1) {
     Label success;
     Label fail;
     Label loop_check;
@@ -447,7 +446,7 @@ void RegExpMacroAssemblerARM64::CheckNotBackReference(
 
   Label loop;
   __ Bind(&loop);
-  if (mode_ == ASCII) {
+  if (mode_ == LATIN1) {
     __ Ldrb(w10, MemOperand(capture_start_address, 1, PostIndex));
     __ Ldrb(w11, MemOperand(current_position_address, 1, PostIndex));
   } else {
@@ -530,7 +529,7 @@ void RegExpMacroAssemblerARM64::CheckBitInTable(
     Handle<ByteArray> table,
     Label* on_bit_set) {
   __ Mov(x11, Operand(table));
-  if ((mode_ != ASCII) || (kTableMask != String::kMaxOneByteCharCode)) {
+  if ((mode_ != LATIN1) || (kTableMask != String::kMaxOneByteCharCode)) {
     __ And(w10, current_character(), kTableMask);
     __ Add(w10, w10, ByteArray::kHeaderSize - kHeapObjectTag);
   } else {
@@ -548,7 +547,7 @@ bool RegExpMacroAssemblerARM64::CheckSpecialCharacterClass(uc16 type,
   switch (type) {
   case 's':
     // Match space-characters
-    if (mode_ == ASCII) {
+    if (mode_ == LATIN1) {
       // One byte space characters are '\t'..'\r', ' ' and \u00a0.
       Label success;
       // Check for ' ' or 0x00a0.
@@ -611,8 +610,8 @@ bool RegExpMacroAssemblerARM64::CheckSpecialCharacterClass(uc16 type,
     return true;
   }
   case 'w': {
-    if (mode_ != ASCII) {
-      // Table is 128 entries, so all ASCII characters can be tested.
+    if (mode_ != LATIN1) {
+      // Table is 256 entries, so all Latin1 characters can be tested.
       CompareAndBranchOrBacktrack(current_character(), 'z', hi, on_no_match);
     }
     ExternalReference map = ExternalReference::re_word_character_map();
@@ -623,8 +622,8 @@ bool RegExpMacroAssemblerARM64::CheckSpecialCharacterClass(uc16 type,
   }
   case 'W': {
     Label done;
-    if (mode_ != ASCII) {
-      // Table is 128 entries, so all ASCII characters can be tested.
+    if (mode_ != LATIN1) {
+      // Table is 256 entries, so all Latin1 characters can be tested.
       __ Cmp(current_character(), 'z');
       __ B(hi, &done);
     }
@@ -1286,104 +1285,19 @@ static T& frame_entry(Address re_frame, int frame_offset) {
 }
 
 
-int RegExpMacroAssemblerARM64::CheckStackGuardState(Address* return_address,
-                                                  Code* re_code,
-                                                  Address re_frame,
-                                                  int start_offset,
-                                                  const byte** input_start,
-                                                  const byte** input_end) {
-  Isolate* isolate = frame_entry<Isolate*>(re_frame, kIsolate);
-  StackLimitCheck check(isolate);
-  if (check.JsHasOverflowed()) {
-    isolate->StackOverflow();
-    return EXCEPTION;
-  }
+template <typename T>
+static T* frame_entry_address(Address re_frame, int frame_offset) {
+  return reinterpret_cast<T*>(re_frame + frame_offset);
+}
 
-  // If not real stack overflow the stack guard was used to interrupt
-  // execution for another purpose.
 
-  // If this is a direct call from JavaScript retry the RegExp forcing the call
-  // through the runtime system. Currently the direct call cannot handle a GC.
-  if (frame_entry<int>(re_frame, kDirectCall) == 1) {
-    return RETRY;
-  }
-
-  // Prepare for possible GC.
-  HandleScope handles(isolate);
-  Handle<Code> code_handle(re_code);
-
-  Handle<String> subject(frame_entry<String*>(re_frame, kInput));
-
-  // Current string.
-  bool is_ascii = subject->IsOneByteRepresentationUnderneath();
-
-  DCHECK(re_code->instruction_start() <= *return_address);
-  DCHECK(*return_address <=
-      re_code->instruction_start() + re_code->instruction_size());
-
-  Object* result = isolate->stack_guard()->HandleInterrupts();
-
-  if (*code_handle != re_code) {  // Return address no longer valid
-    int delta = code_handle->address() - re_code->address();
-    // Overwrite the return address on the stack.
-    *return_address += delta;
-  }
-
-  if (result->IsException()) {
-    return EXCEPTION;
-  }
-
-  Handle<String> subject_tmp = subject;
-  int slice_offset = 0;
-
-  // Extract the underlying string and the slice offset.
-  if (StringShape(*subject_tmp).IsCons()) {
-    subject_tmp = Handle<String>(ConsString::cast(*subject_tmp)->first());
-  } else if (StringShape(*subject_tmp).IsSliced()) {
-    SlicedString* slice = SlicedString::cast(*subject_tmp);
-    subject_tmp = Handle<String>(slice->parent());
-    slice_offset = slice->offset();
-  }
-
-  // String might have changed.
-  if (subject_tmp->IsOneByteRepresentation() != is_ascii) {
-    // If we changed between an ASCII and an UC16 string, the specialized
-    // code cannot be used, and we need to restart regexp matching from
-    // scratch (including, potentially, compiling a new version of the code).
-    return RETRY;
-  }
-
-  // Otherwise, the content of the string might have moved. It must still
-  // be a sequential or external string with the same content.
-  // Update the start and end pointers in the stack frame to the current
-  // location (whether it has actually moved or not).
-  DCHECK(StringShape(*subject_tmp).IsSequential() ||
-         StringShape(*subject_tmp).IsExternal());
-
-  // The original start address of the characters to match.
-  const byte* start_address = *input_start;
-
-  // Find the current start address of the same character at the current string
-  // position.
-  const byte* new_address = StringCharacterPosition(*subject_tmp,
-      start_offset + slice_offset);
-
-  if (start_address != new_address) {
-    // If there is a difference, update the object pointer and start and end
-    // addresses in the RegExp stack frame to match the new value.
-    const byte* end_address = *input_end;
-    int byte_length = static_cast<int>(end_address - start_address);
-    frame_entry<const String*>(re_frame, kInput) = *subject;
-    *input_start = new_address;
-    *input_end = new_address + byte_length;
-  } else if (frame_entry<const String*>(re_frame, kInput) != *subject) {
-    // Subject string might have been a ConsString that underwent
-    // short-circuiting during GC. That will not change start_address but
-    // will change pointer inside the subject handle.
-    frame_entry<const String*>(re_frame, kInput) = *subject;
-  }
-
-  return 0;
+int RegExpMacroAssemblerARM64::CheckStackGuardState(
+    Address* return_address, Code* re_code, Address re_frame, int start_index,
+    const byte** input_start, const byte** input_end) {
+  return NativeRegExpMacroAssembler::CheckStackGuardState(
+      frame_entry<Isolate*>(re_frame, kIsolate), start_index,
+      frame_entry<int>(re_frame, kDirectCall) == 1, return_address, re_code,
+      frame_entry_address<String*>(re_frame, kInput), input_start, input_end);
 }
 
 
@@ -1675,7 +1589,7 @@ void RegExpMacroAssemblerARM64::LoadCurrentCharacterUnchecked(int cp_offset,
     offset = w10;
   }
 
-  if (mode_ == ASCII) {
+  if (mode_ == LATIN1) {
     if (characters == 4) {
       __ Ldr(current_character(), MemOperand(input_end(), offset, SXTW));
     } else if (characters == 2) {
@@ -1697,6 +1611,7 @@ void RegExpMacroAssemblerARM64::LoadCurrentCharacterUnchecked(int cp_offset,
 
 #endif  // V8_INTERPRETED_REGEXP
 
-}}  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8
 
 #endif  // V8_TARGET_ARCH_ARM64

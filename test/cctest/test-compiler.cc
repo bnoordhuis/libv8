@@ -60,9 +60,9 @@ static Handle<JSFunction> Compile(const char* source) {
   Handle<String> source_code = isolate->factory()->NewStringFromUtf8(
       CStrVector(source)).ToHandleChecked();
   Handle<SharedFunctionInfo> shared_function = Compiler::CompileScript(
-      source_code, Handle<String>(), 0, 0, false,
-      Handle<Context>(isolate->native_context()), NULL, NULL,
-      v8::ScriptCompiler::kNoCompileOptions, NOT_NATIVES_CODE);
+      source_code, Handle<String>(), 0, 0, v8::ScriptOriginOptions(),
+      Handle<Object>(), Handle<Context>(isolate->native_context()), NULL, NULL,
+      v8::ScriptCompiler::kNoCompileOptions, NOT_NATIVES_CODE, false);
   return isolate->factory()->NewFunctionFromSharedFunctionInfo(
       shared_function, isolate->native_context());
 }
@@ -227,18 +227,18 @@ TEST(C2JSFrames) {
   Handle<JSObject> global(isolate->context()->global_object());
   Execution::Call(isolate, fun0, global, 0, NULL).Check();
 
-  Handle<String> foo_string = isolate->factory()->InternalizeOneByteString(
-      STATIC_ASCII_VECTOR("foo"));
+  Handle<String> foo_string =
+      isolate->factory()->InternalizeOneByteString(STATIC_CHAR_VECTOR("foo"));
   Handle<Object> fun1 = Object::GetProperty(
       isolate->global_object(), foo_string).ToHandleChecked();
   CHECK(fun1->IsJSFunction());
 
-  Handle<Object> argv[] = { isolate->factory()->InternalizeOneByteString(
-      STATIC_ASCII_VECTOR("hello")) };
+  Handle<Object> argv[] = {isolate->factory()->InternalizeOneByteString(
+      STATIC_CHAR_VECTOR("hello"))};
   Execution::Call(isolate,
                   Handle<JSFunction>::cast(fun1),
                   global,
-                  ARRAY_SIZE(argv),
+                  arraysize(argv),
                   argv).Check();
 }
 
@@ -306,12 +306,17 @@ TEST(FeedbackVectorPreservedAcrossRecompiles) {
   // We shouldn't have deoptimization support. We want to recompile and
   // verify that our feedback vector preserves information.
   CHECK(!f->shared()->has_deoptimization_support());
-  Handle<FixedArray> feedback_vector(f->shared()->feedback_vector());
+  Handle<TypeFeedbackVector> feedback_vector(f->shared()->feedback_vector());
 
   // Verify that we gathered feedback.
-  int expected_count = FLAG_vector_ics ? 2 : 1;
-  CHECK_EQ(expected_count, feedback_vector->length());
-  CHECK(feedback_vector->get(expected_count - 1)->IsJSFunction());
+  int expected_slots = 0;
+  int expected_ic_slots = 1;
+  CHECK_EQ(expected_slots, feedback_vector->Slots());
+  CHECK_EQ(expected_ic_slots, feedback_vector->ICSlots());
+  FeedbackVectorICSlot slot_for_a(0);
+  Object* object = feedback_vector->Get(slot_for_a);
+  CHECK(object->IsWeakCell() &&
+        WeakCell::cast(object)->value()->IsJSFunction());
 
   CompileRun("%OptimizeFunctionOnNextCall(f); f(fun1);");
 
@@ -319,8 +324,9 @@ TEST(FeedbackVectorPreservedAcrossRecompiles) {
   // of the full code.
   CHECK(f->IsOptimized());
   CHECK(f->shared()->has_deoptimization_support());
-  CHECK(f->shared()->feedback_vector()->
-        get(expected_count - 1)->IsJSFunction());
+  object = f->shared()->feedback_vector()->Get(slot_for_a);
+  CHECK(object->IsWeakCell() &&
+        WeakCell::cast(object)->value()->IsJSFunction());
 }
 
 
@@ -346,52 +352,217 @@ TEST(FeedbackVectorUnaffectedByScopeChanges) {
           *v8::Handle<v8::Function>::Cast(
               CcTest::global()->Get(v8_str("morphing_call"))));
 
-  int expected_count = FLAG_vector_ics ? 2 : 1;
-  CHECK_EQ(expected_count, f->shared()->feedback_vector()->length());
-  // And yet it's not compiled.
+  // Not compiled, and so no feedback vector allocated yet.
   CHECK(!f->shared()->is_compiled());
+  CHECK_EQ(0, f->shared()->feedback_vector()->Slots());
+  CHECK_EQ(0, f->shared()->feedback_vector()->ICSlots());
 
   CompileRun("morphing_call();");
 
-  // The vector should have the same size despite the new scoping.
-  CHECK_EQ(expected_count, f->shared()->feedback_vector()->length());
+  // Now a feedback vector is allocated.
   CHECK(f->shared()->is_compiled());
+  int expected_slots = 0;
+  int expected_ic_slots = 2;
+  CHECK_EQ(expected_slots, f->shared()->feedback_vector()->Slots());
+  CHECK_EQ(expected_ic_slots, f->shared()->feedback_vector()->ICSlots());
 }
 
 
 // Test that optimized code for different closures is actually shared
 // immediately by the FastNewClosureStub when run in the same context.
-TEST(OptimizedCodeSharing) {
-  // Skip test if --cache-optimized-code is not activated by default because
-  // FastNewClosureStub that is baked into the snapshot is incorrect.
-  if (!FLAG_cache_optimized_code) return;
+TEST(OptimizedCodeSharing1) {
   FLAG_stress_compaction = false;
   FLAG_allow_natives_syntax = true;
+  FLAG_cache_optimized_code = true;
   CcTest::InitializeVM();
   v8::HandleScope scope(CcTest::isolate());
   for (int i = 0; i < 10; i++) {
     LocalContext env;
     env->Global()->Set(v8::String::NewFromUtf8(CcTest::isolate(), "x"),
                        v8::Integer::New(CcTest::isolate(), i));
-    CompileRun("function MakeClosure() {"
-               "  return function() { return x; };"
-               "}"
-               "var closure0 = MakeClosure();"
-               "%DebugPrint(closure0());"
-               "%OptimizeFunctionOnNextCall(closure0);"
-               "%DebugPrint(closure0());"
-               "var closure1 = MakeClosure();"
-               "var closure2 = MakeClosure();");
+    CompileRun(
+        "function MakeClosure() {"
+        "  return function() { return x; };"
+        "}"
+        "var closure0 = MakeClosure();"
+        "%DebugPrint(closure0());"
+        "%OptimizeFunctionOnNextCall(closure0);"
+        "%DebugPrint(closure0());"
+        "var closure1 = MakeClosure();"
+        "var closure2 = MakeClosure();");
     Handle<JSFunction> fun1 = v8::Utils::OpenHandle(
         *v8::Local<v8::Function>::Cast(env->Global()->Get(v8_str("closure1"))));
     Handle<JSFunction> fun2 = v8::Utils::OpenHandle(
         *v8::Local<v8::Function>::Cast(env->Global()->Get(v8_str("closure2"))));
-    CHECK(fun1->IsOptimized()
-          || !CcTest::i_isolate()->use_crankshaft() || !fun1->IsOptimizable());
-    CHECK(fun2->IsOptimized()
-          || !CcTest::i_isolate()->use_crankshaft() || !fun2->IsOptimizable());
+    CHECK(fun1->IsOptimized() || !CcTest::i_isolate()->use_crankshaft());
+    CHECK(fun2->IsOptimized() || !CcTest::i_isolate()->use_crankshaft());
     CHECK_EQ(fun1->code(), fun2->code());
   }
+}
+
+
+// Test that optimized code for different closures is actually shared
+// immediately by the FastNewClosureStub when run different contexts.
+TEST(OptimizedCodeSharing2) {
+  if (FLAG_stress_compaction) return;
+  FLAG_allow_natives_syntax = true;
+  FLAG_cache_optimized_code = true;
+  FLAG_turbo_cache_shared_code = true;
+  const char* flag = "--turbo-filter=*";
+  FlagList::SetFlagsFromString(flag, StrLength(flag));
+  CcTest::InitializeVM();
+  v8::HandleScope scope(CcTest::isolate());
+  v8::Local<v8::Script> script = v8_compile(
+      "function MakeClosure() {"
+      "  return function() { return x; };"
+      "}");
+  Handle<Code> reference_code;
+  {
+    LocalContext env;
+    env->Global()->Set(v8::String::NewFromUtf8(CcTest::isolate(), "x"),
+                       v8::Integer::New(CcTest::isolate(), 23));
+    script->GetUnboundScript()->BindToCurrentContext()->Run();
+    CompileRun(
+        "var closure0 = MakeClosure();"
+        "%DebugPrint(closure0());"
+        "%OptimizeFunctionOnNextCall(closure0);"
+        "%DebugPrint(closure0());");
+    Handle<JSFunction> fun0 = v8::Utils::OpenHandle(
+        *v8::Local<v8::Function>::Cast(env->Global()->Get(v8_str("closure0"))));
+    CHECK(fun0->IsOptimized() || !CcTest::i_isolate()->use_crankshaft());
+    reference_code = handle(fun0->code());
+  }
+  for (int i = 0; i < 10; i++) {
+    LocalContext env;
+    env->Global()->Set(v8::String::NewFromUtf8(CcTest::isolate(), "x"),
+                       v8::Integer::New(CcTest::isolate(), i));
+    script->GetUnboundScript()->BindToCurrentContext()->Run();
+    CompileRun(
+        "var closure0 = MakeClosure();"
+        "%DebugPrint(closure0());"
+        "%OptimizeFunctionOnNextCall(closure0);"
+        "%DebugPrint(closure0());"
+        "var closure1 = MakeClosure();"
+        "var closure2 = MakeClosure();");
+    Handle<JSFunction> fun1 = v8::Utils::OpenHandle(
+        *v8::Local<v8::Function>::Cast(env->Global()->Get(v8_str("closure1"))));
+    Handle<JSFunction> fun2 = v8::Utils::OpenHandle(
+        *v8::Local<v8::Function>::Cast(env->Global()->Get(v8_str("closure2"))));
+    CHECK(fun1->IsOptimized() || !CcTest::i_isolate()->use_crankshaft());
+    CHECK(fun2->IsOptimized() || !CcTest::i_isolate()->use_crankshaft());
+    CHECK_EQ(*reference_code, fun1->code());
+    CHECK_EQ(*reference_code, fun2->code());
+  }
+}
+
+
+TEST(CompileFunctionInContext) {
+  CcTest::InitializeVM();
+  v8::HandleScope scope(CcTest::isolate());
+  LocalContext env;
+  CompileRun("var r = 10;");
+  v8::Local<v8::Object> math =
+      v8::Local<v8::Object>::Cast(env->Global()->Get(v8_str("Math")));
+  v8::ScriptCompiler::Source script_source(v8_str(
+      "a = PI * r * r;"
+      "x = r * cos(PI);"
+      "y = r * sin(PI / 2);"));
+  v8::Local<v8::Function> fun = v8::ScriptCompiler::CompileFunctionInContext(
+      CcTest::isolate(), &script_source, env.local(), 0, NULL, 1, &math);
+  CHECK(!fun.IsEmpty());
+  fun->Call(env->Global(), 0, NULL);
+  CHECK(env->Global()->Has(v8_str("a")));
+  v8::Local<v8::Value> a = env->Global()->Get(v8_str("a"));
+  CHECK(a->IsNumber());
+  CHECK(env->Global()->Has(v8_str("x")));
+  v8::Local<v8::Value> x = env->Global()->Get(v8_str("x"));
+  CHECK(x->IsNumber());
+  CHECK(env->Global()->Has(v8_str("y")));
+  v8::Local<v8::Value> y = env->Global()->Get(v8_str("y"));
+  CHECK(y->IsNumber());
+  CHECK_EQ(314.1592653589793, a->NumberValue());
+  CHECK_EQ(-10.0, x->NumberValue());
+  CHECK_EQ(10.0, y->NumberValue());
+}
+
+
+TEST(CompileFunctionInContextComplex) {
+  CcTest::InitializeVM();
+  v8::HandleScope scope(CcTest::isolate());
+  LocalContext env;
+  CompileRun(
+      "var x = 1;"
+      "var y = 2;"
+      "var z = 4;"
+      "var a = {x: 8, y: 16};"
+      "var b = {x: 32};");
+  v8::Local<v8::Object> ext[2];
+  ext[0] = v8::Local<v8::Object>::Cast(env->Global()->Get(v8_str("a")));
+  ext[1] = v8::Local<v8::Object>::Cast(env->Global()->Get(v8_str("b")));
+  v8::ScriptCompiler::Source script_source(v8_str("result = x + y + z"));
+  v8::Local<v8::Function> fun = v8::ScriptCompiler::CompileFunctionInContext(
+      CcTest::isolate(), &script_source, env.local(), 0, NULL, 2, ext);
+  CHECK(!fun.IsEmpty());
+  fun->Call(env->Global(), 0, NULL);
+  CHECK(env->Global()->Has(v8_str("result")));
+  v8::Local<v8::Value> result = env->Global()->Get(v8_str("result"));
+  CHECK(result->IsNumber());
+  CHECK_EQ(52.0, result->NumberValue());
+}
+
+
+TEST(CompileFunctionInContextArgs) {
+  CcTest::InitializeVM();
+  v8::HandleScope scope(CcTest::isolate());
+  LocalContext env;
+  CompileRun("var a = {x: 23};");
+  v8::Local<v8::Object> ext[1];
+  ext[0] = v8::Local<v8::Object>::Cast(env->Global()->Get(v8_str("a")));
+  v8::ScriptCompiler::Source script_source(v8_str("result = x + b"));
+  v8::Local<v8::String> arg = v8_str("b");
+  v8::Local<v8::Function> fun = v8::ScriptCompiler::CompileFunctionInContext(
+      CcTest::isolate(), &script_source, env.local(), 1, &arg, 1, ext);
+  CHECK(!fun.IsEmpty());
+  v8::Local<v8::Value> b_value = v8::Number::New(CcTest::isolate(), 42.0);
+  fun->Call(env->Global(), 1, &b_value);
+  CHECK(env->Global()->Has(v8_str("result")));
+  v8::Local<v8::Value> result = env->Global()->Get(v8_str("result"));
+  CHECK(result->IsNumber());
+  CHECK_EQ(65.0, result->NumberValue());
+}
+
+
+TEST(CompileFunctionInContextComments) {
+  CcTest::InitializeVM();
+  v8::HandleScope scope(CcTest::isolate());
+  LocalContext env;
+  CompileRun("var a = {x: 23, y: 1, z: 2};");
+  v8::Local<v8::Object> ext[1];
+  ext[0] = v8::Local<v8::Object>::Cast(env->Global()->Get(v8_str("a")));
+  v8::ScriptCompiler::Source script_source(
+      v8_str("result = /* y + */ x + b // + z"));
+  v8::Local<v8::String> arg = v8_str("b");
+  v8::Local<v8::Function> fun = v8::ScriptCompiler::CompileFunctionInContext(
+      CcTest::isolate(), &script_source, env.local(), 1, &arg, 1, ext);
+  CHECK(!fun.IsEmpty());
+  v8::Local<v8::Value> b_value = v8::Number::New(CcTest::isolate(), 42.0);
+  fun->Call(env->Global(), 1, &b_value);
+  CHECK(env->Global()->Has(v8_str("result")));
+  v8::Local<v8::Value> result = env->Global()->Get(v8_str("result"));
+  CHECK(result->IsNumber());
+  CHECK_EQ(65.0, result->NumberValue());
+}
+
+
+TEST(CompileFunctionInContextNonIdentifierArgs) {
+  CcTest::InitializeVM();
+  v8::HandleScope scope(CcTest::isolate());
+  LocalContext env;
+  v8::ScriptCompiler::Source script_source(v8_str("result = 1"));
+  v8::Local<v8::String> arg = v8_str("b }");
+  v8::Local<v8::Function> fun = v8::ScriptCompiler::CompileFunctionInContext(
+      CcTest::isolate(), &script_source, env.local(), 1, &arg, 0, NULL);
+  CHECK(fun.IsEmpty());
 }
 
 
@@ -414,6 +585,9 @@ static void CheckCodeForUnsafeLiteral(Handle<JSFunction> f) {
     int decode_size =
         Min(f->code()->instruction_size(),
             static_cast<int>(f->code()->back_edge_table_offset()));
+    if (FLAG_enable_embedded_constant_pool) {
+      decode_size = Min(decode_size, f->code()->constant_pool_offset());
+    }
     Address end = pc + decode_size;
 
     v8::internal::EmbeddedVector<char, 128> decode_buffer;

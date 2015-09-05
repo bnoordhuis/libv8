@@ -30,36 +30,21 @@
     'icu_use_data_file_flag%': 0,
     'v8_code': 1,
     'v8_random_seed%': 314159265,
+    'embed_script%': "",
+    'v8_extra_library_files%': [],
+    'mksnapshot_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)mksnapshot<(EXECUTABLE_SUFFIX)',
   },
   'includes': ['../../build/toolchain.gypi', '../../build/features.gypi'],
   'targets': [
     {
       'target_name': 'v8',
       'dependencies_traverse': 1,
+      'dependencies': ['v8_maybe_snapshot'],
       'conditions': [
         ['want_separate_host_toolset==1', {
           'toolsets': ['host', 'target'],
         }, {
           'toolsets': ['target'],
-        }],
-
-        ['v8_use_snapshot=="true" and v8_use_external_startup_data==0', {
-          # The dependency on v8_base should come from a transitive
-          # dependency however the Android toolchain requires libv8_base.a
-          # to appear before libv8_snapshot.a so it's listed explicitly.
-          'dependencies': ['v8_base', 'v8_snapshot'],
-        }],
-        ['v8_use_snapshot!="true" and v8_use_external_startup_data==0', {
-          # The dependency on v8_base should come from a transitive
-          # dependency however the Android toolchain requires libv8_base.a
-          # to appear before libv8_snapshot.a so it's listed explicitly.
-          'dependencies': ['v8_base', 'v8_nosnapshot'],
-        }],
-        ['v8_use_external_startup_data==1 and want_separate_host_toolset==0', {
-          'dependencies': ['v8_base', 'v8_external_snapshot'],
-        }],
-        ['v8_use_external_startup_data==1 and want_separate_host_toolset==1', {
-          'dependencies': ['v8_base', 'v8_external_snapshot#host'],
         }],
         ['component=="shared_library"', {
           'type': '<(component)',
@@ -113,6 +98,50 @@
       },
     },
     {
+      # This rule delegates to either v8_snapshot, v8_nosnapshot, or
+      # v8_external_snapshot, depending on the current variables.
+      # The intention is to make the 'calling' rules a bit simpler.
+      'target_name': 'v8_maybe_snapshot',
+      'type': 'none',
+      'conditions': [
+        ['v8_use_snapshot!="true"', {
+          # The dependency on v8_base should come from a transitive
+          # dependency however the Android toolchain requires libv8_base.a
+          # to appear before libv8_snapshot.a so it's listed explicitly.
+          'dependencies': ['v8_base', 'v8_nosnapshot'],
+        }],
+        ['v8_use_snapshot=="true" and v8_use_external_startup_data==0', {
+          # The dependency on v8_base should come from a transitive
+          # dependency however the Android toolchain requires libv8_base.a
+          # to appear before libv8_snapshot.a so it's listed explicitly.
+          'dependencies': ['v8_base', 'v8_snapshot'],
+        }],
+        ['v8_use_snapshot=="true" and v8_use_external_startup_data==1 and want_separate_host_toolset==0', {
+          'dependencies': ['v8_base', 'v8_external_snapshot'],
+          'inputs': [ '<(PRODUCT_DIR)/snapshot_blob.bin', ],
+        }],
+        ['v8_use_snapshot=="true" and v8_use_external_startup_data==1 and want_separate_host_toolset==1', {
+          'dependencies': ['v8_base', 'v8_external_snapshot'],
+          'target_conditions': [
+            ['_toolset=="host"', {
+              'inputs': [
+                '<(PRODUCT_DIR)/snapshot_blob_host.bin',
+              ],
+            }, {
+              'inputs': [
+                '<(PRODUCT_DIR)/snapshot_blob.bin',
+              ],
+            }],
+          ],
+        }],
+        ['want_separate_host_toolset==1', {
+          'toolsets': ['host', 'target'],
+        }, {
+          'toolsets': ['target'],
+        }],
+      ]
+    },
+    {
       'target_name': 'v8_snapshot',
       'type': 'static_library',
       'conditions': [
@@ -151,14 +180,15 @@
       'sources': [
         '<(SHARED_INTERMEDIATE_DIR)/libraries.cc',
         '<(SHARED_INTERMEDIATE_DIR)/experimental-libraries.cc',
+        '<(SHARED_INTERMEDIATE_DIR)/extras-libraries.cc',
         '<(INTERMEDIATE_DIR)/snapshot.cc',
-        '../../src/snapshot-common.cc',
       ],
       'actions': [
         {
           'action_name': 'run_mksnapshot',
           'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)mksnapshot<(EXECUTABLE_SUFFIX)',
+            '<(mksnapshot_exec)',
+            '<(embed_script)',
           ],
           'outputs': [
             '<(INTERMEDIATE_DIR)/snapshot.cc',
@@ -175,9 +205,10 @@
             ],
           },
           'action': [
-            '<@(_inputs)',
+            '<(mksnapshot_exec)',
             '<@(mksnapshot_flags)',
-            '<@(INTERMEDIATE_DIR)/snapshot.cc'
+            '<@(INTERMEDIATE_DIR)/snapshot.cc',
+            '<(embed_script)',
           ],
         },
       ],
@@ -194,8 +225,8 @@
       'sources': [
         '<(SHARED_INTERMEDIATE_DIR)/libraries.cc',
         '<(SHARED_INTERMEDIATE_DIR)/experimental-libraries.cc',
-        '../../src/snapshot-common.cc',
-        '../../src/snapshot-empty.cc',
+        '<(SHARED_INTERMEDIATE_DIR)/extras-libraries.cc',
+        '../../src/snapshot/snapshot-empty.cc',
       ],
       'conditions': [
         ['want_separate_host_toolset==1', {
@@ -217,71 +248,108 @@
       'target_name': 'v8_external_snapshot',
       'type': 'static_library',
       'conditions': [
-        ['want_separate_host_toolset==1', {
-          'toolsets': ['host'],
+        [ 'v8_use_external_startup_data==1', {
+          'conditions': [
+            ['want_separate_host_toolset==1', {
+              'toolsets': ['host', 'target'],
+              'dependencies': [
+                'mksnapshot#host',
+                'js2c#host',
+                'natives_blob',
+            ]}, {
+              'toolsets': ['target'],
+              'dependencies': [
+                'mksnapshot',
+                'js2c',
+                'natives_blob',
+              ],
+            }],
+            ['component=="shared_library"', {
+              'defines': [
+                'V8_SHARED',
+                'BUILDING_V8_SHARED',
+              ],
+              'direct_dependent_settings': {
+                'defines': [
+                  'V8_SHARED',
+                  'USING_V8_SHARED',
+                ],
+              },
+            }],
+          ],
           'dependencies': [
-            'mksnapshot#host',
-            'js2c#host',
-            'natives_blob#host',
-        ]}, {
-          'toolsets': ['target'],
-          'dependencies': [
-            'mksnapshot',
-            'js2c',
-            'natives_blob',
+            'v8_base',
+          ],
+          'include_dirs+': [
+            '../..',
+          ],
+          'sources': [
+            '../../src/snapshot/natives-external.cc',
+            '../../src/snapshot/snapshot-external.cc',
+          ],
+          'actions': [
+            {
+              'action_name': 'run_mksnapshot (external)',
+              'inputs': [
+                '<(mksnapshot_exec)',
+              ],
+              'variables': {
+                'mksnapshot_flags': [
+                  '--log-snapshot-positions',
+                  '--logfile', '<(INTERMEDIATE_DIR)/snapshot.log',
+                ],
+                'conditions': [
+                  ['v8_random_seed!=0', {
+                    'mksnapshot_flags': ['--random-seed', '<(v8_random_seed)'],
+                  }],
+                ],
+              },
+              'conditions': [
+                ['want_separate_host_toolset==1', {
+                  'target_conditions': [
+                    ['_toolset=="host"', {
+                      'outputs': [
+                        '<(INTERMEDIATE_DIR)/snapshot.cc',
+                        '<(PRODUCT_DIR)/snapshot_blob_host.bin',
+                      ],
+                      'action': [
+                        '<(mksnapshot_exec)',
+                        '<@(mksnapshot_flags)',
+                        '<@(INTERMEDIATE_DIR)/snapshot.cc',
+                        '--startup_blob', '<(PRODUCT_DIR)/snapshot_blob_host.bin',
+                        '<(embed_script)',
+                      ],
+                    }, {
+                      'outputs': [
+                        '<(INTERMEDIATE_DIR)/snapshot.cc',
+                        '<(PRODUCT_DIR)/snapshot_blob.bin',
+                      ],
+                      'action': [
+                        '<(mksnapshot_exec)',
+                        '<@(mksnapshot_flags)',
+                        '<@(INTERMEDIATE_DIR)/snapshot.cc',
+                        '--startup_blob', '<(PRODUCT_DIR)/snapshot_blob.bin',
+                        '<(embed_script)',
+                      ],
+                    }],
+                  ],
+                }, {
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/snapshot.cc',
+                    '<(PRODUCT_DIR)/snapshot_blob.bin',
+                  ],
+                  'action': [
+                    '<(mksnapshot_exec)',
+                    '<@(mksnapshot_flags)',
+                    '<@(INTERMEDIATE_DIR)/snapshot.cc',
+                    '--startup_blob', '<(PRODUCT_DIR)/snapshot_blob.bin',
+                    '<(embed_script)',
+                  ],
+                }],
+              ],
+            },
           ],
         }],
-        ['component=="shared_library"', {
-          'defines': [
-            'V8_SHARED',
-            'BUILDING_V8_SHARED',
-          ],
-          'direct_dependent_settings': {
-            'defines': [
-              'V8_SHARED',
-              'USING_V8_SHARED',
-            ],
-          },
-        }],
-      ],
-      'dependencies': [
-        'v8_base',
-      ],
-      'include_dirs+': [
-        '../..',
-      ],
-      'sources': [
-        '../../src/natives-external.cc',
-        '../../src/snapshot-external.cc',
-      ],
-      'actions': [
-        {
-          'action_name': 'run_mksnapshot (external)',
-          'inputs': [
-            '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)mksnapshot<(EXECUTABLE_SUFFIX)',
-          ],
-          'outputs': [
-            '<(INTERMEDIATE_DIR)/snapshot.cc',
-            '<(PRODUCT_DIR)/snapshot_blob.bin',
-          ],
-          'variables': {
-            'mksnapshot_flags': [
-              '--log-snapshot-positions',
-              '--logfile', '<(INTERMEDIATE_DIR)/snapshot.log',
-            ],
-            'conditions': [
-              ['v8_random_seed!=0', {
-                'mksnapshot_flags': ['--random-seed', '<(v8_random_seed)'],
-              }],
-            ],
-          },
-          'action': [
-            '<@(_inputs)',
-            '<@(mksnapshot_flags)',
-            '<@(INTERMEDIATE_DIR)/snapshot.cc',
-            '--startup_blob', '<(PRODUCT_DIR)/snapshot_blob.bin',
-          ],
-        },
       ],
     },
     {
@@ -296,7 +364,19 @@
       'include_dirs+': [
         '../..',
       ],
+      'defines': [
+        # TODO(jochen): Remove again after this is globally turned on.
+        'V8_IMMINENT_DEPRECATION_WARNINGS',
+      ],
       'sources': [  ### gcmole(all) ###
+        '../../include/v8-debug.h',
+        '../../include/v8-platform.h',
+        '../../include/v8-profiler.h',
+        '../../include/v8-testing.h',
+        '../../include/v8-util.h',
+        '../../include/v8-version.h',
+        '../../include/v8.h',
+        '../../include/v8config.h',
         '../../src/accessors.cc',
         '../../src/accessors.h',
         '../../src/allocation.cc',
@@ -307,6 +387,8 @@
         '../../src/allocation-tracker.h',
         '../../src/api.cc',
         '../../src/api.h',
+        '../../src/api-natives.cc',
+        '../../src/api-natives.h',
         '../../src/arguments.cc',
         '../../src/arguments.h',
         '../../src/assembler.cc',
@@ -315,12 +397,24 @@
         '../../src/assert-scope.cc',
         '../../src/ast-value-factory.cc',
         '../../src/ast-value-factory.h',
+        '../../src/ast-literal-reindexer.cc',
+        '../../src/ast-literal-reindexer.h',
+        '../../src/ast-numbering.cc',
+        '../../src/ast-numbering.h',
         '../../src/ast.cc',
         '../../src/ast.h',
+        '../../src/background-parsing-task.cc',
+        '../../src/background-parsing-task.h',
+        '../../src/bailout-reason.cc',
+        '../../src/bailout-reason.h',
+        '../../src/basic-block-profiler.cc',
+        '../../src/basic-block-profiler.h',
         '../../src/bignum-dtoa.cc',
         '../../src/bignum-dtoa.h',
         '../../src/bignum.cc',
         '../../src/bignum.h',
+        '../../src/bit-vector.cc',
+        '../../src/bit-vector.h',
         '../../src/bootstrapper.cc',
         '../../src/bootstrapper.h',
         '../../src/builtins.cc',
@@ -328,12 +422,15 @@
         '../../src/bytecodes-irregexp.h',
         '../../src/cached-powers.cc',
         '../../src/cached-powers.h',
+        '../../src/char-predicates.cc',
         '../../src/char-predicates-inl.h',
         '../../src/char-predicates.h',
         '../../src/checks.cc',
         '../../src/checks.h',
         '../../src/circular-queue-inl.h',
         '../../src/circular-queue.h',
+        '../../src/code-factory.cc',
+        '../../src/code-factory.h',
         '../../src/code-stubs.cc',
         '../../src/code-stubs.h',
         '../../src/code-stubs-hydrogen.cc',
@@ -342,96 +439,167 @@
         '../../src/codegen.h',
         '../../src/compilation-cache.cc',
         '../../src/compilation-cache.h',
+        '../../src/compilation-dependencies.cc',
+        '../../src/compilation-dependencies.h',
+        '../../src/compilation-statistics.cc',
+        '../../src/compilation-statistics.h',
+        '../../src/compiler/access-builder.cc',
+        '../../src/compiler/access-builder.h',
+        '../../src/compiler/all-nodes.cc',
+        '../../src/compiler/all-nodes.h',
         '../../src/compiler/ast-graph-builder.cc',
         '../../src/compiler/ast-graph-builder.h',
+        '../../src/compiler/ast-loop-assignment-analyzer.cc',
+        '../../src/compiler/ast-loop-assignment-analyzer.h',
+        '../../src/compiler/basic-block-instrumentor.cc',
+        '../../src/compiler/basic-block-instrumentor.h',
+        '../../src/compiler/change-lowering.cc',
+        '../../src/compiler/change-lowering.h',
+        '../../src/compiler/coalesced-live-ranges.cc',
+        '../../src/compiler/coalesced-live-ranges.h',
         '../../src/compiler/code-generator-impl.h',
         '../../src/compiler/code-generator.cc',
         '../../src/compiler/code-generator.h',
+        '../../src/compiler/common-node-cache.cc',
         '../../src/compiler/common-node-cache.h',
+        '../../src/compiler/common-operator-reducer.cc',
+        '../../src/compiler/common-operator-reducer.h',
+        '../../src/compiler/common-operator.cc',
         '../../src/compiler/common-operator.h',
         '../../src/compiler/control-builders.cc',
         '../../src/compiler/control-builders.h',
+        '../../src/compiler/control-equivalence.cc',
+        '../../src/compiler/control-equivalence.h',
+        '../../src/compiler/control-flow-optimizer.cc',
+        '../../src/compiler/control-flow-optimizer.h',
+        '../../src/compiler/dead-code-elimination.cc',
+        '../../src/compiler/dead-code-elimination.h',
+        '../../src/compiler/diamond.h',
         '../../src/compiler/frame.h',
+        '../../src/compiler/frame-elider.cc',
+        '../../src/compiler/frame-elider.h',
+        "../../src/compiler/frame-states.cc",
+        "../../src/compiler/frame-states.h",
         '../../src/compiler/gap-resolver.cc',
         '../../src/compiler/gap-resolver.h',
-        '../../src/compiler/generic-algorithm-inl.h',
-        '../../src/compiler/generic-algorithm.h',
-        '../../src/compiler/generic-graph.h',
-        '../../src/compiler/generic-node-inl.h',
-        '../../src/compiler/generic-node.h',
-        '../../src/compiler/graph-builder.cc',
         '../../src/compiler/graph-builder.h',
-        '../../src/compiler/graph-inl.h',
         '../../src/compiler/graph-reducer.cc',
         '../../src/compiler/graph-reducer.h',
         '../../src/compiler/graph-replay.cc',
         '../../src/compiler/graph-replay.h',
+        '../../src/compiler/graph-trimmer.cc',
+        '../../src/compiler/graph-trimmer.h',
         '../../src/compiler/graph-visualizer.cc',
         '../../src/compiler/graph-visualizer.h',
         '../../src/compiler/graph.cc',
         '../../src/compiler/graph.h',
+        '../../src/compiler/greedy-allocator.cc',
+        '../../src/compiler/greedy-allocator.h',
         '../../src/compiler/instruction-codes.h',
         '../../src/compiler/instruction-selector-impl.h',
         '../../src/compiler/instruction-selector.cc',
         '../../src/compiler/instruction-selector.h',
         '../../src/compiler/instruction.cc',
         '../../src/compiler/instruction.h',
+        '../../src/compiler/js-builtin-reducer.cc',
+        '../../src/compiler/js-builtin-reducer.h',
         '../../src/compiler/js-context-specialization.cc',
         '../../src/compiler/js-context-specialization.h',
+        '../../src/compiler/js-frame-specialization.cc',
+        '../../src/compiler/js-frame-specialization.h',
         '../../src/compiler/js-generic-lowering.cc',
         '../../src/compiler/js-generic-lowering.h',
         '../../src/compiler/js-graph.cc',
         '../../src/compiler/js-graph.h',
+        '../../src/compiler/js-inlining.cc',
+        '../../src/compiler/js-inlining.h',
+        '../../src/compiler/js-intrinsic-lowering.cc',
+        '../../src/compiler/js-intrinsic-lowering.h',
+        '../../src/compiler/js-operator.cc',
         '../../src/compiler/js-operator.h',
+        '../../src/compiler/js-type-feedback.cc',
+        '../../src/compiler/js-type-feedback.h',
         '../../src/compiler/js-typed-lowering.cc',
         '../../src/compiler/js-typed-lowering.h',
+        '../../src/compiler/jump-threading.cc',
+        '../../src/compiler/jump-threading.h',
         '../../src/compiler/linkage-impl.h',
         '../../src/compiler/linkage.cc',
         '../../src/compiler/linkage.h',
-        '../../src/compiler/lowering-builder.cc',
-        '../../src/compiler/lowering-builder.h',
-        '../../src/compiler/machine-node-factory.h',
+        '../../src/compiler/liveness-analyzer.cc',
+        '../../src/compiler/liveness-analyzer.h',
+        '../../src/compiler/load-elimination.cc',
+        '../../src/compiler/load-elimination.h',
+        '../../src/compiler/loop-analysis.cc',
+        '../../src/compiler/loop-analysis.h',
+        '../../src/compiler/loop-peeling.cc',
+        '../../src/compiler/loop-peeling.h',
         '../../src/compiler/machine-operator-reducer.cc',
         '../../src/compiler/machine-operator-reducer.h',
+        '../../src/compiler/machine-operator.cc',
         '../../src/compiler/machine-operator.h',
+        '../../src/compiler/machine-type.cc',
         '../../src/compiler/machine-type.h',
-        '../../src/compiler/node-aux-data-inl.h',
+        '../../src/compiler/move-optimizer.cc',
+        '../../src/compiler/move-optimizer.h',
         '../../src/compiler/node-aux-data.h',
         '../../src/compiler/node-cache.cc',
         '../../src/compiler/node-cache.h',
+        '../../src/compiler/node-marker.cc',
+        '../../src/compiler/node-marker.h',
+        '../../src/compiler/node-matchers.cc',
         '../../src/compiler/node-matchers.h',
-        '../../src/compiler/node-properties-inl.h',
+        '../../src/compiler/node-properties.cc',
         '../../src/compiler/node-properties.h',
         '../../src/compiler/node.cc',
         '../../src/compiler/node.h',
+        '../../src/compiler/opcodes.cc',
         '../../src/compiler/opcodes.h',
-        '../../src/compiler/operator-properties-inl.h',
+        '../../src/compiler/operator-properties.cc',
         '../../src/compiler/operator-properties.h',
+        '../../src/compiler/operator.cc',
         '../../src/compiler/operator.h',
-        '../../src/compiler/phi-reducer.h',
+        '../../src/compiler/osr.cc',
+        '../../src/compiler/osr.h',
         '../../src/compiler/pipeline.cc',
         '../../src/compiler/pipeline.h',
+        '../../src/compiler/pipeline-statistics.cc',
+        '../../src/compiler/pipeline-statistics.h',
         '../../src/compiler/raw-machine-assembler.cc',
         '../../src/compiler/raw-machine-assembler.h',
         '../../src/compiler/register-allocator.cc',
         '../../src/compiler/register-allocator.h',
+        '../../src/compiler/register-allocator-verifier.cc',
+        '../../src/compiler/register-allocator-verifier.h',
+        '../../src/compiler/register-configuration.cc',
+        '../../src/compiler/register-configuration.h',
         '../../src/compiler/representation-change.h',
         '../../src/compiler/schedule.cc',
         '../../src/compiler/schedule.h',
         '../../src/compiler/scheduler.cc',
         '../../src/compiler/scheduler.h',
+        '../../src/compiler/select-lowering.cc',
+        '../../src/compiler/select-lowering.h',
         '../../src/compiler/simplified-lowering.cc',
         '../../src/compiler/simplified-lowering.h',
-        '../../src/compiler/simplified-node-factory.h',
+        '../../src/compiler/simplified-operator-reducer.cc',
+        '../../src/compiler/simplified-operator-reducer.h',
+        '../../src/compiler/simplified-operator.cc',
         '../../src/compiler/simplified-operator.h',
         '../../src/compiler/source-position.cc',
         '../../src/compiler/source-position.h',
-        '../../src/compiler/structured-machine-assembler.cc',
-        '../../src/compiler/structured-machine-assembler.h',
+        '../../src/compiler/state-values-utils.cc',
+        '../../src/compiler/state-values-utils.h',
+        '../../src/compiler/tail-call-optimization.cc',
+        '../../src/compiler/tail-call-optimization.h',
         '../../src/compiler/typer.cc',
         '../../src/compiler/typer.h',
+        '../../src/compiler/value-numbering-reducer.cc',
+        '../../src/compiler/value-numbering-reducer.h',
         '../../src/compiler/verifier.cc',
         '../../src/compiler/verifier.h',
+        '../../src/compiler/zone-pool.cc',
+        '../../src/compiler/zone-pool.h',
         '../../src/compiler.cc',
         '../../src/compiler.h',
         '../../src/contexts.cc',
@@ -444,8 +612,6 @@
         '../../src/cpu-profiler-inl.h',
         '../../src/cpu-profiler.cc',
         '../../src/cpu-profiler.h',
-        '../../src/data-flow.cc',
-        '../../src/data-flow.h',
         '../../src/date.cc',
         '../../src/date.h',
         '../../src/dateparser-inl.h',
@@ -470,6 +636,7 @@
         '../../src/elements.h',
         '../../src/execution.cc',
         '../../src/execution.h',
+        '../../src/expression-classifier.h',
         '../../src/extensions/externalize-string-extension.cc',
         '../../src/extensions/externalize-string-extension.h',
         '../../src/extensions/free-buffer-extension.cc',
@@ -484,8 +651,6 @@
         '../../src/factory.h',
         '../../src/fast-dtoa.cc',
         '../../src/fast-dtoa.h',
-        '../../src/feedback-slots.h',
-        '../../src/field-index.cc',
         '../../src/field-index.h',
         '../../src/field-index-inl.h',
         '../../src/fixed-dtoa.cc',
@@ -514,11 +679,17 @@
         '../../src/heap-snapshot-generator-inl.h',
         '../../src/heap-snapshot-generator.cc',
         '../../src/heap-snapshot-generator.h',
+        '../../src/heap/memory-reducer.cc',
+        '../../src/heap/memory-reducer.h',
+        '../../src/heap/gc-idle-time-handler.cc',
+        '../../src/heap/gc-idle-time-handler.h',
         '../../src/heap/gc-tracer.cc',
         '../../src/heap/gc-tracer.h',
         '../../src/heap/heap-inl.h',
         '../../src/heap/heap.cc',
         '../../src/heap/heap.h',
+        '../../src/heap/identity-map.cc',
+        '../../src/heap/identity-map.h',
         '../../src/heap/incremental-marking-inl.h',
         '../../src/heap/incremental-marking.cc',
         '../../src/heap/incremental-marking.h',
@@ -534,8 +705,6 @@
         '../../src/heap/store-buffer-inl.h',
         '../../src/heap/store-buffer.cc',
         '../../src/heap/store-buffer.h',
-        '../../src/heap/sweeper-thread.h',
-        '../../src/heap/sweeper-thread.cc',
         '../../src/hydrogen-alias-analysis.h',
         '../../src/hydrogen-bce.cc',
         '../../src/hydrogen-bce.h',
@@ -592,11 +761,21 @@
         '../../src/i18n.h',
         '../../src/icu_util.cc',
         '../../src/icu_util.h',
-        '../../src/ic-inl.h',
-        '../../src/ic.cc',
-        '../../src/ic.h',
-        '../../src/interface.cc',
-        '../../src/interface.h',
+        '../../src/ic/access-compiler.cc',
+        '../../src/ic/access-compiler.h',
+        '../../src/ic/call-optimization.cc',
+        '../../src/ic/call-optimization.h',
+        '../../src/ic/handler-compiler.cc',
+        '../../src/ic/handler-compiler.h',
+        '../../src/ic/ic-inl.h',
+        '../../src/ic/ic-state.cc',
+        '../../src/ic/ic-state.h',
+        '../../src/ic/ic.cc',
+        '../../src/ic/ic.h',
+        '../../src/ic/ic-compiler.cc',
+        '../../src/ic/ic-compiler.h',
+        '../../src/interface-descriptors.cc',
+        '../../src/interface-descriptors.h',
         '../../src/interpreter-irregexp.cc',
         '../../src/interpreter-irregexp.h',
         '../../src/isolate.cc',
@@ -606,6 +785,9 @@
         '../../src/jsregexp-inl.h',
         '../../src/jsregexp.cc',
         '../../src/jsregexp.h',
+        '../../src/layout-descriptor-inl.h',
+        '../../src/layout-descriptor.cc',
+        '../../src/layout-descriptor.h',
         '../../src/list-inl.h',
         '../../src/list.h',
         '../../src/lithium-allocator-inl.h',
@@ -629,21 +811,23 @@
         '../../src/macro-assembler.h',
         '../../src/messages.cc',
         '../../src/messages.h',
+        '../../src/modules.cc',
+        '../../src/modules.h',
         '../../src/msan.h',
-        '../../src/natives.h',
         '../../src/objects-debug.cc',
         '../../src/objects-inl.h',
         '../../src/objects-printer.cc',
         '../../src/objects.cc',
         '../../src/objects.h',
-        '../../src/optimizing-compiler-thread.cc',
-        '../../src/optimizing-compiler-thread.h',
+        '../../src/optimizing-compile-dispatcher.cc',
+        '../../src/optimizing-compile-dispatcher.h',
         '../../src/ostreams.cc',
         '../../src/ostreams.h',
+        '../../src/pattern-rewriter.cc',
         '../../src/parser.cc',
         '../../src/parser.h',
-        '../../src/perf-jit.cc',
-        '../../src/perf-jit.h',
+        '../../src/pending-compilation-error-handler.cc',
+        '../../src/pending-compilation-error-handler.h',
         '../../src/preparse-data-format.h',
         '../../src/preparse-data.cc',
         '../../src/preparse-data.h',
@@ -671,8 +855,36 @@
         '../../src/rewriter.h',
         '../../src/runtime-profiler.cc',
         '../../src/runtime-profiler.h',
-        '../../src/runtime.cc',
-        '../../src/runtime.h',
+        '../../src/runtime/runtime-array.cc',
+        '../../src/runtime/runtime-atomics.cc',
+        '../../src/runtime/runtime-classes.cc',
+        '../../src/runtime/runtime-collections.cc',
+        '../../src/runtime/runtime-compiler.cc',
+        '../../src/runtime/runtime-date.cc',
+        '../../src/runtime/runtime-debug.cc',
+        '../../src/runtime/runtime-forin.cc',
+        '../../src/runtime/runtime-function.cc',
+        '../../src/runtime/runtime-generator.cc',
+        '../../src/runtime/runtime-i18n.cc',
+        '../../src/runtime/runtime-internal.cc',
+        '../../src/runtime/runtime-json.cc',
+        '../../src/runtime/runtime-literals.cc',
+        '../../src/runtime/runtime-liveedit.cc',
+        '../../src/runtime/runtime-maths.cc',
+        '../../src/runtime/runtime-numbers.cc',
+        '../../src/runtime/runtime-object.cc',
+        '../../src/runtime/runtime-observe.cc',
+        '../../src/runtime/runtime-proxy.cc',
+        '../../src/runtime/runtime-regexp.cc',
+        '../../src/runtime/runtime-scopes.cc',
+        '../../src/runtime/runtime-strings.cc',
+        '../../src/runtime/runtime-symbol.cc',
+        '../../src/runtime/runtime-test.cc',
+        '../../src/runtime/runtime-typedarray.cc',
+        '../../src/runtime/runtime-uri.cc',
+        '../../src/runtime/runtime-utils.h',
+        '../../src/runtime/runtime.cc',
+        '../../src/runtime/runtime.h',
         '../../src/safepoint-table.cc',
         '../../src/safepoint-table.h',
         '../../src/sampler.cc',
@@ -685,26 +897,41 @@
         '../../src/scopeinfo.h',
         '../../src/scopes.cc',
         '../../src/scopes.h',
-        '../../src/serialize.cc',
-        '../../src/serialize.h',
+        '../../src/signature.h',
+        '../../src/simulator.h',
         '../../src/small-pointer-list.h',
         '../../src/smart-pointers.h',
-        '../../src/snapshot.h',
-        '../../src/snapshot-source-sink.cc',
-        '../../src/snapshot-source-sink.h',
+        '../../src/snapshot/natives.h',
+        '../../src/snapshot/serialize.cc',
+        '../../src/snapshot/serialize.h',
+        '../../src/snapshot/snapshot.h',
+        '../../src/snapshot/snapshot-common.cc',
+        '../../src/snapshot/snapshot-source-sink.cc',
+        '../../src/snapshot/snapshot-source-sink.h',
+        '../../src/splay-tree.h',
+        '../../src/splay-tree-inl.h',
+        '../../src/startup-data-util.cc',
+        '../../src/startup-data-util.h',
+        '../../src/string-builder.cc',
+        '../../src/string-builder.h',
         '../../src/string-search.cc',
         '../../src/string-search.h',
         '../../src/string-stream.cc',
         '../../src/string-stream.h',
+        '../../src/strings-storage.cc',
+        '../../src/strings-storage.h',
         '../../src/strtod.cc',
         '../../src/strtod.h',
-        '../../src/stub-cache.cc',
-        '../../src/stub-cache.h',
+        '../../src/ic/stub-cache.cc',
+        '../../src/ic/stub-cache.h',
         '../../src/token.cc',
         '../../src/token.h',
         '../../src/transitions-inl.h',
         '../../src/transitions.cc',
         '../../src/transitions.h',
+        '../../src/type-feedback-vector-inl.h',
+        '../../src/type-feedback-vector.cc',
+        '../../src/type-feedback-vector.h',
         '../../src/type-info.cc',
         '../../src/type-info.h',
         '../../src/types-inl.h',
@@ -717,9 +944,9 @@
         '../../src/unicode-inl.h',
         '../../src/unicode.cc',
         '../../src/unicode.h',
+        '../../src/unicode-decoder.cc',
+        '../../src/unicode-decoder.h',
         '../../src/unique.h',
-        '../../src/uri.h',
-        '../../src/utils-inl.h',
         '../../src/utils.cc',
         '../../src/utils.h',
         '../../src/v8.cc',
@@ -734,11 +961,12 @@
         '../../src/version.h',
         '../../src/vm-state-inl.h',
         '../../src/vm-state.h',
-        '../../src/zone-inl.h',
         '../../src/zone.cc',
         '../../src/zone.h',
-        '../../third_party/fdlibm/fdlibm.cc',
-        '../../third_party/fdlibm/fdlibm.h',
+        '../../src/zone-allocator.h',
+        '../../src/zone-containers.h',
+        '../../src/third_party/fdlibm/fdlibm.cc',
+        '../../src/third_party/fdlibm/fdlibm.h',
       ],
       'conditions': [
         ['want_separate_host_toolset==1', {
@@ -765,7 +993,8 @@
             '../../src/arm/frames-arm.cc',
             '../../src/arm/frames-arm.h',
             '../../src/arm/full-codegen-arm.cc',
-            '../../src/arm/ic-arm.cc',
+            '../../src/arm/interface-descriptors-arm.cc',
+            '../../src/arm/interface-descriptors-arm.h',
             '../../src/arm/lithium-arm.cc',
             '../../src/arm/lithium-arm.h',
             '../../src/arm/lithium-codegen-arm.cc',
@@ -777,11 +1006,16 @@
             '../../src/arm/regexp-macro-assembler-arm.cc',
             '../../src/arm/regexp-macro-assembler-arm.h',
             '../../src/arm/simulator-arm.cc',
-            '../../src/arm/stub-cache-arm.cc',
+            '../../src/arm/simulator-arm.h',
             '../../src/compiler/arm/code-generator-arm.cc',
             '../../src/compiler/arm/instruction-codes-arm.h',
             '../../src/compiler/arm/instruction-selector-arm.cc',
             '../../src/compiler/arm/linkage-arm.cc',
+            '../../src/ic/arm/access-compiler-arm.cc',
+            '../../src/ic/arm/handler-compiler-arm.cc',
+            '../../src/ic/arm/ic-arm.cc',
+            '../../src/ic/arm/ic-compiler-arm.cc',
+            '../../src/ic/arm/stub-cache-arm.cc',
           ],
         }],
         ['v8_target_arch=="arm64"', {
@@ -809,11 +1043,12 @@
             '../../src/arm64/frames-arm64.cc',
             '../../src/arm64/frames-arm64.h',
             '../../src/arm64/full-codegen-arm64.cc',
-            '../../src/arm64/ic-arm64.cc',
             '../../src/arm64/instructions-arm64.cc',
             '../../src/arm64/instructions-arm64.h',
             '../../src/arm64/instrument-arm64.cc',
             '../../src/arm64/instrument-arm64.h',
+            '../../src/arm64/interface-descriptors-arm64.cc',
+            '../../src/arm64/interface-descriptors-arm64.h',
             '../../src/arm64/lithium-arm64.cc',
             '../../src/arm64/lithium-arm64.h',
             '../../src/arm64/lithium-codegen-arm64.cc',
@@ -827,13 +1062,17 @@
             '../../src/arm64/regexp-macro-assembler-arm64.h',
             '../../src/arm64/simulator-arm64.cc',
             '../../src/arm64/simulator-arm64.h',
-            '../../src/arm64/stub-cache-arm64.cc',
             '../../src/arm64/utils-arm64.cc',
             '../../src/arm64/utils-arm64.h',
             '../../src/compiler/arm64/code-generator-arm64.cc',
             '../../src/compiler/arm64/instruction-codes-arm64.h',
             '../../src/compiler/arm64/instruction-selector-arm64.cc',
             '../../src/compiler/arm64/linkage-arm64.cc',
+            '../../src/ic/arm64/access-compiler-arm64.cc',
+            '../../src/ic/arm64/handler-compiler-arm64.cc',
+            '../../src/ic/arm64/ic-arm64.cc',
+            '../../src/ic/arm64/ic-compiler-arm64.cc',
+            '../../src/ic/arm64/stub-cache-arm64.cc',
           ],
         }],
         ['v8_target_arch=="ia32"', {
@@ -853,7 +1092,7 @@
             '../../src/ia32/frames-ia32.cc',
             '../../src/ia32/frames-ia32.h',
             '../../src/ia32/full-codegen-ia32.cc',
-            '../../src/ia32/ic-ia32.cc',
+            '../../src/ia32/interface-descriptors-ia32.cc',
             '../../src/ia32/lithium-codegen-ia32.cc',
             '../../src/ia32/lithium-codegen-ia32.h',
             '../../src/ia32/lithium-gap-resolver-ia32.cc',
@@ -864,11 +1103,15 @@
             '../../src/ia32/macro-assembler-ia32.h',
             '../../src/ia32/regexp-macro-assembler-ia32.cc',
             '../../src/ia32/regexp-macro-assembler-ia32.h',
-            '../../src/ia32/stub-cache-ia32.cc',
             '../../src/compiler/ia32/code-generator-ia32.cc',
             '../../src/compiler/ia32/instruction-codes-ia32.h',
             '../../src/compiler/ia32/instruction-selector-ia32.cc',
             '../../src/compiler/ia32/linkage-ia32.cc',
+            '../../src/ic/ia32/access-compiler-ia32.cc',
+            '../../src/ic/ia32/handler-compiler-ia32.cc',
+            '../../src/ic/ia32/ic-ia32.cc',
+            '../../src/ic/ia32/ic-compiler-ia32.cc',
+            '../../src/ic/ia32/stub-cache-ia32.cc',
           ],
         }],
         ['v8_target_arch=="x87"', {
@@ -888,7 +1131,7 @@
             '../../src/x87/frames-x87.cc',
             '../../src/x87/frames-x87.h',
             '../../src/x87/full-codegen-x87.cc',
-            '../../src/x87/ic-x87.cc',
+            '../../src/x87/interface-descriptors-x87.cc',
             '../../src/x87/lithium-codegen-x87.cc',
             '../../src/x87/lithium-codegen-x87.h',
             '../../src/x87/lithium-gap-resolver-x87.cc',
@@ -899,7 +1142,15 @@
             '../../src/x87/macro-assembler-x87.h',
             '../../src/x87/regexp-macro-assembler-x87.cc',
             '../../src/x87/regexp-macro-assembler-x87.h',
-            '../../src/x87/stub-cache-x87.cc',
+            '../../src/compiler/x87/code-generator-x87.cc',
+            '../../src/compiler/x87/instruction-codes-x87.h',
+            '../../src/compiler/x87/instruction-selector-x87.cc',
+            '../../src/compiler/x87/linkage-x87.cc',
+            '../../src/ic/x87/access-compiler-x87.cc',
+            '../../src/ic/x87/handler-compiler-x87.cc',
+            '../../src/ic/x87/ic-x87.cc',
+            '../../src/ic/x87/ic-compiler-x87.cc',
+            '../../src/ic/x87/stub-cache-x87.cc',
           ],
         }],
         ['v8_target_arch=="mips" or v8_target_arch=="mipsel"', {
@@ -921,7 +1172,7 @@
             '../../src/mips/frames-mips.cc',
             '../../src/mips/frames-mips.h',
             '../../src/mips/full-codegen-mips.cc',
-            '../../src/mips/ic-mips.cc',
+            '../../src/mips/interface-descriptors-mips.cc',
             '../../src/mips/lithium-codegen-mips.cc',
             '../../src/mips/lithium-codegen-mips.h',
             '../../src/mips/lithium-gap-resolver-mips.cc',
@@ -933,7 +1184,16 @@
             '../../src/mips/regexp-macro-assembler-mips.cc',
             '../../src/mips/regexp-macro-assembler-mips.h',
             '../../src/mips/simulator-mips.cc',
-            '../../src/mips/stub-cache-mips.cc',
+            '../../src/mips/simulator-mips.h',
+            '../../src/compiler/mips/code-generator-mips.cc',
+            '../../src/compiler/mips/instruction-codes-mips.h',
+            '../../src/compiler/mips/instruction-selector-mips.cc',
+            '../../src/compiler/mips/linkage-mips.cc',
+            '../../src/ic/mips/access-compiler-mips.cc',
+            '../../src/ic/mips/handler-compiler-mips.cc',
+            '../../src/ic/mips/ic-mips.cc',
+            '../../src/ic/mips/ic-compiler-mips.cc',
+            '../../src/ic/mips/stub-cache-mips.cc',
           ],
         }],
         ['v8_target_arch=="mips64el"', {
@@ -955,7 +1215,7 @@
             '../../src/mips64/frames-mips64.cc',
             '../../src/mips64/frames-mips64.h',
             '../../src/mips64/full-codegen-mips64.cc',
-            '../../src/mips64/ic-mips64.cc',
+            '../../src/mips64/interface-descriptors-mips64.cc',
             '../../src/mips64/lithium-codegen-mips64.cc',
             '../../src/mips64/lithium-codegen-mips64.h',
             '../../src/mips64/lithium-gap-resolver-mips64.cc',
@@ -967,7 +1227,16 @@
             '../../src/mips64/regexp-macro-assembler-mips64.cc',
             '../../src/mips64/regexp-macro-assembler-mips64.h',
             '../../src/mips64/simulator-mips64.cc',
-            '../../src/mips64/stub-cache-mips64.cc',
+            '../../src/mips64/simulator-mips64.h',
+            '../../src/compiler/mips64/code-generator-mips64.cc',
+            '../../src/compiler/mips64/instruction-codes-mips64.h',
+            '../../src/compiler/mips64/instruction-selector-mips64.cc',
+            '../../src/compiler/mips64/linkage-mips64.cc',
+            '../../src/ic/mips64/access-compiler-mips64.cc',
+            '../../src/ic/mips64/handler-compiler-mips64.cc',
+            '../../src/ic/mips64/ic-mips64.cc',
+            '../../src/ic/mips64/ic-compiler-mips64.cc',
+            '../../src/ic/mips64/stub-cache-mips64.cc',
           ],
         }],
         ['v8_target_arch=="x64" or v8_target_arch=="x32"', {
@@ -987,7 +1256,7 @@
             '../../src/x64/frames-x64.cc',
             '../../src/x64/frames-x64.h',
             '../../src/x64/full-codegen-x64.cc',
-            '../../src/x64/ic-x64.cc',
+            '../../src/x64/interface-descriptors-x64.cc',
             '../../src/x64/lithium-codegen-x64.cc',
             '../../src/x64/lithium-codegen-x64.h',
             '../../src/x64/lithium-gap-resolver-x64.cc',
@@ -998,30 +1267,74 @@
             '../../src/x64/macro-assembler-x64.h',
             '../../src/x64/regexp-macro-assembler-x64.cc',
             '../../src/x64/regexp-macro-assembler-x64.h',
-            '../../src/x64/stub-cache-x64.cc',
+            '../../src/ic/x64/access-compiler-x64.cc',
+            '../../src/ic/x64/handler-compiler-x64.cc',
+            '../../src/ic/x64/ic-x64.cc',
+            '../../src/ic/x64/ic-compiler-x64.cc',
+            '../../src/ic/x64/stub-cache-x64.cc',
+          ],
+        }],
+        ['v8_target_arch=="x64"', {
+          'sources': [
             '../../src/compiler/x64/code-generator-x64.cc',
             '../../src/compiler/x64/instruction-codes-x64.h',
             '../../src/compiler/x64/instruction-selector-x64.cc',
             '../../src/compiler/x64/linkage-x64.cc',
           ],
         }],
-        ['OS=="linux"', {
-            'link_settings': {
-              'conditions': [
-                ['v8_compress_startup_data=="bz2"', {
-                  'libraries': [
-                    '-lbz2',
-                  ]
-                }],
-              ],
-            },
-          }
-        ],
+        ['v8_target_arch=="ppc" or v8_target_arch=="ppc64"', {
+          'sources': [  ### gcmole(arch:ppc) ###
+            '../../src/ppc/assembler-ppc-inl.h',
+            '../../src/ppc/assembler-ppc.cc',
+            '../../src/ppc/assembler-ppc.h',
+            '../../src/ppc/builtins-ppc.cc',
+            '../../src/ppc/code-stubs-ppc.cc',
+            '../../src/ppc/code-stubs-ppc.h',
+            '../../src/ppc/codegen-ppc.cc',
+            '../../src/ppc/codegen-ppc.h',
+            '../../src/ppc/constants-ppc.h',
+            '../../src/ppc/constants-ppc.cc',
+            '../../src/ppc/cpu-ppc.cc',
+            '../../src/ppc/debug-ppc.cc',
+            '../../src/ppc/deoptimizer-ppc.cc',
+            '../../src/ppc/disasm-ppc.cc',
+            '../../src/ppc/frames-ppc.cc',
+            '../../src/ppc/frames-ppc.h',
+            '../../src/ppc/full-codegen-ppc.cc',
+            '../../src/ppc/interface-descriptors-ppc.cc',
+            '../../src/ppc/interface-descriptors-ppc.h',
+            '../../src/ppc/lithium-ppc.cc',
+            '../../src/ppc/lithium-ppc.h',
+            '../../src/ppc/lithium-codegen-ppc.cc',
+            '../../src/ppc/lithium-codegen-ppc.h',
+            '../../src/ppc/lithium-gap-resolver-ppc.cc',
+            '../../src/ppc/lithium-gap-resolver-ppc.h',
+            '../../src/ppc/macro-assembler-ppc.cc',
+            '../../src/ppc/macro-assembler-ppc.h',
+            '../../src/ppc/regexp-macro-assembler-ppc.cc',
+            '../../src/ppc/regexp-macro-assembler-ppc.h',
+            '../../src/ppc/simulator-ppc.cc',
+            '../../src/ppc/simulator-ppc.h',
+            '../../src/compiler/ppc/code-generator-ppc.cc',
+            '../../src/compiler/ppc/instruction-codes-ppc.h',
+            '../../src/compiler/ppc/instruction-selector-ppc.cc',
+            '../../src/compiler/ppc/linkage-ppc.cc',
+            '../../src/ic/ppc/access-compiler-ppc.cc',
+            '../../src/ic/ppc/handler-compiler-ppc.cc',
+            '../../src/ic/ppc/ic-ppc.cc',
+            '../../src/ic/ppc/ic-compiler-ppc.cc',
+            '../../src/ic/ppc/stub-cache-ppc.cc',
+          ],
+        }],
         ['OS=="win"', {
           'variables': {
             'gyp_generators': '<!(echo $GYP_GENERATORS)',
           },
           'msvs_disabled_warnings': [4351, 4355, 4800],
+          # When building Official, the .lib is too large and exceeds the 2G
+          # limit. This breaks it into multiple pieces to avoid the limit.
+          # See http://crbug.com/485155.
+          'msvs_shard': 4,
         }],
         ['component=="shared_library"', {
           'defines': [
@@ -1073,19 +1386,32 @@
         '../..',
       ],
       'sources': [
+        '../../src/base/adapters.h',
         '../../src/base/atomicops.h',
         '../../src/base/atomicops_internals_arm64_gcc.h',
         '../../src/base/atomicops_internals_arm_gcc.h',
         '../../src/base/atomicops_internals_atomicword_compat.h',
         '../../src/base/atomicops_internals_mac.h',
         '../../src/base/atomicops_internals_mips_gcc.h',
+        '../../src/base/atomicops_internals_mips64_gcc.h',
+        '../../src/base/atomicops_internals_portable.h',
+        '../../src/base/atomicops_internals_ppc_gcc.h',
         '../../src/base/atomicops_internals_tsan.h',
         '../../src/base/atomicops_internals_x86_gcc.cc',
         '../../src/base/atomicops_internals_x86_gcc.h',
         '../../src/base/atomicops_internals_x86_msvc.h',
+        '../../src/base/bits.cc',
+        '../../src/base/bits.h',
         '../../src/base/build_config.h',
+        '../../src/base/compiler-specific.h',
         '../../src/base/cpu.cc',
         '../../src/base/cpu.h',
+        '../../src/base/division-by-constant.cc',
+        '../../src/base/division-by-constant.h',
+        '../../src/base/flags.h',
+        '../../src/base/functional.cc',
+        '../../src/base/functional.h',
+        '../../src/base/iterator.h',
         '../../src/base/lazy-instance.h',
         '../../src/base/logging.cc',
         '../../src/base/logging.h',
@@ -1106,6 +1432,8 @@
         '../../src/base/safe_conversions_impl.h',
         '../../src/base/safe_math.h',
         '../../src/base/safe_math_impl.h',
+        '../../src/base/sys-info.cc',
+        '../../src/base/sys-info.h',
         '../../src/base/utils/random-number-generator.cc',
         '../../src/base/utils/random-number-generator.h',
       ],
@@ -1116,11 +1444,20 @@
           'toolsets': ['target'],
         }],
         ['OS=="linux"', {
-            'link_settings': {
-              'libraries': [
-                '-lrt'
-              ]
-            },
+            'conditions': [
+              ['nacl_target_arch=="none"', {
+                'link_settings': {
+                  'libraries': [
+                    '-ldl',
+                    '-lrt'
+                  ],
+                },
+              }, {
+                'defines': [
+                  'V8_LIBRT_NOT_AVAILABLE=1',
+                ],
+              }],
+            ],
             'sources': [
               '../../src/base/platform/platform-linux.cc',
               '../../src/base/platform/platform-posix.cc'
@@ -1131,6 +1468,20 @@
             'sources': [
               '../../src/base/platform/platform-posix.cc'
             ],
+            'link_settings': {
+              'target_conditions': [
+                ['_toolset=="host"', {
+                  # Only include libdl and librt on host builds because they
+                  # are included by default on Android target builds, and we
+                  # don't want to re-include them here since this will change
+                  # library order and break (see crbug.com/469973).
+                  'libraries': [
+                    '-ldl',
+                    '-lrt'
+                  ]
+                }]
+              ]
+            },
             'conditions': [
               ['host_os=="mac"', {
                 'target_conditions': [
@@ -1145,28 +1496,6 @@
                   }],
                 ],
               }, {
-                # TODO(bmeurer): What we really want here, is this:
-                #
-                # 'link_settings': {
-                #   'target_conditions': [
-                #     ['_toolset=="host"', {
-                #       'libraries': [
-                #         '-lrt'
-                #       ]
-                #     }]
-                #   ]
-                # },
-                #
-                # but we can't do this right now, as the AOSP does not support
-                # linking against the host librt, so we need to work around this
-                # for now, using the following hack (see platform/time.cc):
-                'target_conditions': [
-                  ['_toolset=="host"', {
-                    'defines': [
-                      'V8_LIBRT_NOT_AVAILABLE=1',
-                    ],
-                  }],
-                ],
                 'sources': [
                   '../../src/base/platform/platform-linux.cc'
                 ]
@@ -1245,10 +1574,16 @@
             ],
           }
         ],
+        ['OS=="aix"', {
+          'sources': [
+            '../../src/base/platform/platform-aix.cc',
+            '../../src/base/platform/platform-posix.cc'
+          ]},
+        ],
         ['OS=="solaris"', {
             'link_settings': {
               'libraries': [
-                '-lnsl',
+                '-lnsl -lrt',
             ]},
             'sources': [
               '../../src/base/platform/platform-solaris.cc',
@@ -1284,8 +1619,6 @@
                   'sources': [
                     '../../src/base/platform/platform-win32.cc',
                     '../../src/base/win32-headers.h',
-                    '../../src/base/win32-math.cc',
-                    '../../src/base/win32-math.h'
                   ],
                 }],
               ],
@@ -1296,8 +1629,6 @@
               'sources': [
                 '../../src/base/platform/platform-win32.cc',
                 '../../src/base/win32-headers.h',
-                '../../src/base/win32-math.cc',
-                '../../src/base/win32-math.h'
               ],
               'msvs_disabled_warnings': [4351, 4355, 4800],
               'link_settings':  {
@@ -1342,22 +1673,53 @@
       'type': 'none',
       'conditions': [
         [ 'v8_use_external_startup_data==1', {
-          'dependencies': ['js2c'],
+          'conditions': [
+            ['want_separate_host_toolset==1', {
+              'dependencies': ['js2c#host'],
+            }, {
+              'dependencies': ['js2c'],
+            }],
+          ],
           'actions': [{
             'action_name': 'concatenate_natives_blob',
             'inputs': [
               '../../tools/concatenate-files.py',
               '<(SHARED_INTERMEDIATE_DIR)/libraries.bin',
               '<(SHARED_INTERMEDIATE_DIR)/libraries-experimental.bin',
+              '<(SHARED_INTERMEDIATE_DIR)/libraries-extras.bin',
             ],
-            'outputs': [
-              '<(PRODUCT_DIR)/natives_blob.bin',
+            'conditions': [
+              ['want_separate_host_toolset==1', {
+                'target_conditions': [
+                  ['_toolset=="host"', {
+                    'outputs': [
+                      '<(PRODUCT_DIR)/natives_blob_host.bin',
+                    ],
+                    'action': [
+                      'python', '<@(_inputs)', '<(PRODUCT_DIR)/natives_blob_host.bin'
+                    ],
+                  }, {
+                    'outputs': [
+                      '<(PRODUCT_DIR)/natives_blob.bin',
+                    ],
+                    'action': [
+                      'python', '<@(_inputs)', '<(PRODUCT_DIR)/natives_blob.bin'
+                    ],
+                  }],
+                ],
+              }, {
+                'outputs': [
+                  '<(PRODUCT_DIR)/natives_blob.bin',
+                ],
+                'action': [
+                  'python', '<@(_inputs)', '<(PRODUCT_DIR)/natives_blob.bin'
+                ],
+              }],
             ],
-            'action': ['python', '<@(_inputs)', '<@(_outputs)'],
           }],
         }],
         ['want_separate_host_toolset==1', {
-          'toolsets': ['host'],
+          'toolsets': ['host', 'target'],
         }, {
           'toolsets': ['target'],
         }],
@@ -1386,42 +1748,57 @@
       ],
       'variables': {
         'library_files': [
+          '../../src/macros.py',
+          '../../src/messages.h',
           '../../src/runtime.js',
+          '../../src/prologue.js',
           '../../src/v8natives.js',
           '../../src/symbol.js',
           '../../src/array.js',
           '../../src/string.js',
           '../../src/uri.js',
-          '../../third_party/fdlibm/fdlibm.js',
           '../../src/math.js',
-          '../../src/messages.js',
-          '../../src/apinatives.js',
-          '../../src/debug-debugger.js',
-          '../../src/mirror-debugger.js',
-          '../../src/liveedit-debugger.js',
+          '../../src/third_party/fdlibm/fdlibm.js',
           '../../src/date.js',
-          '../../src/json.js',
           '../../src/regexp.js',
           '../../src/arraybuffer.js',
           '../../src/typedarray.js',
-          '../../src/weak_collection.js',
-          '../../src/promise.js',
+          '../../src/iterator-prototype.js',
+          '../../src/generator.js',
           '../../src/object-observe.js',
           '../../src/collection.js',
+          '../../src/weak-collection.js',
           '../../src/collection-iterator.js',
-          '../../src/macros.py',
+          '../../src/promise.js',
+          '../../src/messages.js',
+          '../../src/json.js',
           '../../src/array-iterator.js',
-          '../../src/string-iterator.js'
+          '../../src/string-iterator.js',
+          '../../src/debug-debugger.js',
+          '../../src/mirror-debugger.js',
+          '../../src/liveedit-debugger.js',
+          '../../src/templates.js',
+          '../../src/harmony-array.js',
+          '../../src/harmony-typedarray.js',
         ],
         'experimental_library_files': [
           '../../src/macros.py',
+          '../../src/messages.h',
           '../../src/proxy.js',
           '../../src/generator.js',
-          '../../src/harmony-string.js',
-          '../../src/harmony-array.js',
+          '../../src/harmony-atomics.js',
+          '../../src/harmony-array-includes.js',
+          '../../src/harmony-concat-spreadable.js',
+          '../../src/harmony-tostring.js',
+          '../../src/harmony-regexp.js',
+          '../../src/harmony-reflect.js',
+          '../../src/harmony-spread.js',
+          '../../src/harmony-object.js',
+          '../../src/harmony-sharedarraybuffer.js',
         ],
         'libraries_bin_file': '<(SHARED_INTERMEDIATE_DIR)/libraries.bin',
         'libraries_experimental_bin_file': '<(SHARED_INTERMEDIATE_DIR)/libraries-experimental.bin',
+        'libraries_extras_bin_file': '<(SHARED_INTERMEDIATE_DIR)/libraries-extras.bin',
       },
       'actions': [
         {
@@ -1429,7 +1806,7 @@
           'inputs': [
             '../../tools/js2c.py',
             '<@(library_files)',
-            '<@(i18n_library_files)',
+            '<@(i18n_library_files)'
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/libraries.cc',
@@ -1439,9 +1816,8 @@
             '../../tools/js2c.py',
             '<(SHARED_INTERMEDIATE_DIR)/libraries.cc',
             'CORE',
-            '<(v8_compress_startup_data)',
             '<@(library_files)',
-            '<@(i18n_library_files)',
+            '<@(i18n_library_files)'
           ],
           'conditions': [
             [ 'v8_use_external_startup_data==1', {
@@ -1466,7 +1842,6 @@
             '../../tools/js2c.py',
             '<(SHARED_INTERMEDIATE_DIR)/experimental-libraries.cc',
             'EXPERIMENTAL',
-            '<(v8_compress_startup_data)',
             '<@(experimental_library_files)'
           ],
           'conditions': [
@@ -1474,6 +1849,31 @@
               'outputs': ['<@(libraries_experimental_bin_file)'],
               'action': [
                 '--startup_blob', '<@(libraries_experimental_bin_file)'
+              ],
+            }],
+          ],
+        },
+        {
+          'action_name': 'js2c_extras',
+          'inputs': [
+            '../../tools/js2c.py',
+            '<@(v8_extra_library_files)',
+          ],
+          'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/extras-libraries.cc',
+          ],
+          'action': [
+            'python',
+            '../../tools/js2c.py',
+            '<(SHARED_INTERMEDIATE_DIR)/extras-libraries.cc',
+            'EXTRAS',
+            '<@(v8_extra_library_files)',
+          ],
+          'conditions': [
+            [ 'v8_use_external_startup_data==1', {
+              'outputs': ['<@(libraries_extras_bin_file)'],
+              'action': [
+                '--startup_blob', '<@(libraries_extras_bin_file)',
               ],
             }],
           ],
@@ -1516,18 +1916,19 @@
         '../..',
       ],
       'sources': [
-        '../../src/mksnapshot.cc',
+        '../../src/snapshot/mksnapshot.cc',
       ],
       'conditions': [
+        ['v8_enable_i18n_support==1', {
+          'dependencies': [
+            '<(icu_gyp_path):icui18n',
+            '<(icu_gyp_path):icuuc',
+          ]
+        }],
         ['want_separate_host_toolset==1', {
           'toolsets': ['host'],
         }, {
           'toolsets': ['target'],
-        }],
-        ['v8_compress_startup_data=="bz2"', {
-          'libraries': [
-            '-lbz2',
-          ]
         }],
       ],
     },

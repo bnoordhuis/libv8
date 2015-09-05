@@ -107,7 +107,7 @@ Instrument::Instrument(const char* datafile, uint64_t sample_period)
     }
   }
 
-  static const int num_counters = ARRAY_SIZE(kCounterList);
+  static const int num_counters = arraysize(kCounterList);
 
   // Dump an instrumentation description comment at the top of the file.
   fprintf(output_stream_, "# counters=%d\n", num_counters);
@@ -591,4 +591,5 @@ void Instrument::VisitUnimplemented(Instruction* instr) {
 }
 
 
-} }  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8

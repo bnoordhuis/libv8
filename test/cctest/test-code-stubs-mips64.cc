@@ -104,7 +104,7 @@ ConvertDToIFunc MakeConvertDToIFuncTrampoline(Isolate* isolate,
   for (--reg_num; reg_num >= 2; --reg_num) {
     Register reg = Register::from_code(reg_num);
     if (!reg.is(destination_reg)) {
-      __ lw(at, MemOperand(sp, 0));
+      __ ld(at, MemOperand(sp, 0));
       __ Assert(eq, kRegisterWasClobbered, reg, Operand(at));
       __ Daddu(sp, sp, Operand(kPointerSize));
     }
@@ -144,7 +144,8 @@ int32_t RunGeneratedCodeCallWrapper(ConvertDToIFunc func,
                                     double from) {
 #ifdef USE_SIMULATOR
   Simulator::current(Isolate::Current())->CallFP(FUNCTION_ADDR(func), from, 0.);
-  return Simulator::current(Isolate::Current())->get_register(v0.code());
+  return static_cast<int32_t>(
+      Simulator::current(Isolate::Current())->get_register(v0.code()));
 #else
   return (*func)(from);
 #endif

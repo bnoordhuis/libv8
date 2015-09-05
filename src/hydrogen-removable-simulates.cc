@@ -53,6 +53,13 @@ class State : public ZoneObject {
       FlushSimulates();
       return this;
     }
+    if (instr->IsCapturedObject()) {
+      // Do not merge simulates across captured objects - captured objects
+      // change environments during environment replay, and such changes
+      // would not be reflected in the simulate.
+      FlushSimulates();
+      return this;
+    }
     // Skip the non-simulates and the first simulate.
     if (!instr->IsSimulate()) return this;
     if (first_) {
@@ -177,4 +184,5 @@ void HMergeRemovableSimulatesPhase::Run() {
   engine.AnalyzeDominatedBlocks(graph()->blocks()->at(0), state);
 }
 
-} }  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8

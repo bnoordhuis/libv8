@@ -1369,11 +1369,12 @@ int Disassembler::SubstituteImmediateField(Instruction* instr,
   switch (format[1]) {
     case 'M': {  // IMoveImm or IMoveLSL.
       if (format[5] == 'I') {
-        uint64_t imm = instr->ImmMoveWide() << (16 * instr->ShiftMoveWide());
+        uint64_t imm = static_cast<uint64_t>(instr->ImmMoveWide())
+                       << (16 * instr->ShiftMoveWide());
         AppendToOutput("#0x%" PRIx64, imm);
       } else {
         DCHECK(format[5] == 'L');
-        AppendToOutput("#0x%" PRIx64, instr->ImmMoveWide());
+        AppendToOutput("#0x%" PRIx32, instr->ImmMoveWide());
         if (instr->ShiftMoveWide() > 0) {
           AppendToOutput(", lsl #%d", 16 * instr->ShiftMoveWide());
         }
@@ -1383,13 +1384,13 @@ int Disassembler::SubstituteImmediateField(Instruction* instr,
     case 'L': {
       switch (format[2]) {
         case 'L': {  // ILLiteral - Immediate Load Literal.
-          AppendToOutput("pc%+" PRId64,
-                         instr->ImmLLiteral() << kLoadLiteralScaleLog2);
+          AppendToOutput("pc%+" PRId32, instr->ImmLLiteral()
+                                            << kLoadLiteralScaleLog2);
           return 9;
         }
         case 'S': {  // ILS - Immediate Load/Store.
           if (instr->ImmLS() != 0) {
-            AppendToOutput(", #%" PRId64, instr->ImmLS());
+            AppendToOutput(", #%" PRId32, instr->ImmLS());
           }
           return 3;
         }
@@ -1397,14 +1398,14 @@ int Disassembler::SubstituteImmediateField(Instruction* instr,
           if (instr->ImmLSPair() != 0) {
             // format[3] is the scale value. Convert to a number.
             int scale = format[3] - 0x30;
-            AppendToOutput(", #%" PRId64, instr->ImmLSPair() * scale);
+            AppendToOutput(", #%" PRId32, instr->ImmLSPair() * scale);
           }
           return 4;
         }
         case 'U': {  // ILU - Immediate Load/Store Unsigned.
           if (instr->ImmLSUnsigned() != 0) {
-            AppendToOutput(", #%" PRIu64,
-                           instr->ImmLSUnsigned() << instr->SizeLS());
+            AppendToOutput(", #%" PRId32, instr->ImmLSUnsigned()
+                                              << instr->SizeLS());
           }
           return 3;
         }
@@ -1427,7 +1428,7 @@ int Disassembler::SubstituteImmediateField(Instruction* instr,
         AppendToOutput("#%d", 64 - instr->FPScale());
         return 8;
       } else {
-        AppendToOutput("#0x%" PRIx64 " (%.4f)", instr->ImmFP(),
+        AppendToOutput("#0x%" PRIx32 " (%.4f)", instr->ImmFP(),
                        format[3] == 'S' ? instr->ImmFP32() : instr->ImmFP64());
         return 9;
       }
@@ -1517,7 +1518,9 @@ int Disassembler::SubstituteLiteralField(Instruction* instr,
     case LDR_w_lit:
     case LDR_x_lit:
     case LDR_s_lit:
-    case LDR_d_lit: AppendToOutput("(addr %p)", instr->LiteralAddress()); break;
+    case LDR_d_lit:
+      AppendToOutput("(addr 0x%016" PRIxPTR ")", instr->LiteralAddress());
+      break;
     default: UNREACHABLE();
   }
 
@@ -1536,7 +1539,7 @@ int Disassembler::SubstituteShiftField(Instruction* instr, const char* format) {
     case 'L': {  // HLo.
       if (instr->ImmDPShift() != 0) {
         const char* shift_type[] = {"lsl", "lsr", "asr", "ror"};
-        AppendToOutput(", %s #%" PRId64, shift_type[instr->ShiftDP()],
+        AppendToOutput(", %s #%" PRId32, shift_type[instr->ShiftDP()],
                        instr->ImmDPShift());
       }
       return 3;
@@ -1693,7 +1696,7 @@ int Disassembler::SubstituteBarrierField(Instruction* instr,
   DCHECK(format[0] == 'M');
   USE(format);
 
-  static const char* options[4][4] = {
+  static const char* const options[4][4] = {
     { "sy (0b0000)", "oshld", "oshst", "osh" },
     { "sy (0b0100)", "nshld", "nshst", "nsh" },
     { "sy (0b1000)", "ishld", "ishst", "ish" },
@@ -1727,7 +1730,8 @@ void PrintDisassembler::ProcessOutput(Instruction* instr) {
           GetOutput());
 }
 
-} }  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8
 
 
 namespace disasm {

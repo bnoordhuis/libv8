@@ -10,9 +10,9 @@
 
 #include "src/compiler/common-operator.h"
 #include "src/compiler/graph-builder.h"
-#include "src/compiler/machine-node-factory.h"
+#include "src/compiler/linkage.h"
 #include "src/compiler/machine-operator.h"
-#include "src/compiler/simplified-node-factory.h"
+#include "src/compiler/pipeline.h"
 #include "src/compiler/simplified-operator.h"
 #include "test/cctest/compiler/call-tester.h"
 #include "test/cctest/compiler/simplified-graph-builder.h"
@@ -20,47 +20,6 @@
 namespace v8 {
 namespace internal {
 namespace compiler {
-
-// A class that just passes node creation on to the Graph.
-class DirectGraphBuilder : public GraphBuilder {
- public:
-  explicit DirectGraphBuilder(Graph* graph) : GraphBuilder(graph) {}
-  virtual ~DirectGraphBuilder() {}
-
- protected:
-  virtual Node* MakeNode(Operator* op, int value_input_count,
-                         Node** value_inputs) {
-    return graph()->NewNode(op, value_input_count, value_inputs);
-  }
-};
-
-
-class MachineCallHelper : public CallHelper {
- public:
-  MachineCallHelper(Zone* zone, MachineCallDescriptorBuilder* builder);
-
-  Node* Parameter(int offset);
-
-  void GenerateCode() { Generate(); }
-
- protected:
-  virtual byte* Generate();
-  virtual void VerifyParameters(int parameter_count, MachineType* parameters);
-  void InitParameters(GraphBuilder* builder, CommonOperatorBuilder* common);
-
- protected:
-  int parameter_count() const {
-    return call_descriptor_builder_->parameter_count();
-  }
-
- private:
-  MachineCallDescriptorBuilder* call_descriptor_builder_;
-  Node** parameters_;
-  // TODO(dcarney): shouldn't need graph stored.
-  Graph* graph_;
-  MaybeHandle<Code> code_;
-};
-
 
 class GraphAndBuilders {
  public:
@@ -71,7 +30,7 @@ class GraphAndBuilders {
         main_simplified_(zone) {}
 
  protected:
-  // Prefixed with main_ to avoid naiming conflicts.
+  // Prefixed with main_ to avoid naming conflicts.
   Graph* main_graph_;
   CommonOperatorBuilder main_common_;
   MachineOperatorBuilder main_machine_;
@@ -80,33 +39,63 @@ class GraphAndBuilders {
 
 
 template <typename ReturnType>
-class GraphBuilderTester
-    : public HandleAndZoneScope,
-      private GraphAndBuilders,
-      public MachineCallHelper,
-      public SimplifiedGraphBuilder,
-      public CallHelper2<ReturnType, GraphBuilderTester<ReturnType> > {
+class GraphBuilderTester : public HandleAndZoneScope,
+                           private GraphAndBuilders,
+                           public CallHelper<ReturnType>,
+                           public SimplifiedGraphBuilder {
  public:
-  explicit GraphBuilderTester(MachineType p0 = kMachineLast,
-                              MachineType p1 = kMachineLast,
-                              MachineType p2 = kMachineLast,
-                              MachineType p3 = kMachineLast,
-                              MachineType p4 = kMachineLast)
+  explicit GraphBuilderTester(MachineType p0 = kMachNone,
+                              MachineType p1 = kMachNone,
+                              MachineType p2 = kMachNone,
+                              MachineType p3 = kMachNone,
+                              MachineType p4 = kMachNone)
       : GraphAndBuilders(main_zone()),
-        MachineCallHelper(
-            main_zone(),
-            ToCallDescriptorBuilder(
-                main_zone(), ReturnValueTraits<ReturnType>::Representation(),
-                p0, p1, p2, p3, p4)),
-        SimplifiedGraphBuilder(main_graph_, &main_common_, &main_machine_,
-                               &main_simplified_) {
-    Begin(parameter_count());
-    InitParameters(this, &main_common_);
+        CallHelper<ReturnType>(
+            main_isolate(),
+            CSignature::New(main_zone(), MachineTypeForC<ReturnType>(), p0, p1,
+                            p2, p3, p4)),
+        SimplifiedGraphBuilder(main_isolate(), main_graph_, &main_common_,
+                               &main_machine_, &main_simplified_),
+        parameters_(main_zone()->template NewArray<Node*>(parameter_count())) {
+    Begin(static_cast<int>(parameter_count()));
+    InitParameters();
   }
   virtual ~GraphBuilderTester() {}
 
+  void GenerateCode() { Generate(); }
+  Node* Parameter(size_t index) {
+    DCHECK(index < parameter_count());
+    return parameters_[index];
+  }
+
   Factory* factory() const { return isolate()->factory(); }
+
+ protected:
+  virtual byte* Generate() {
+    if (!Pipeline::SupportedBackend()) return NULL;
+    if (code_.is_null()) {
+      Zone* zone = graph()->zone();
+      CallDescriptor* desc =
+          Linkage::GetSimplifiedCDescriptor(zone, this->csig_);
+      code_ = Pipeline::GenerateCodeForTesting(main_isolate(), desc, graph());
+    }
+    return code_.ToHandleChecked()->entry();
+  }
+
+  void InitParameters() {
+    int param_count = static_cast<int>(parameter_count());
+    for (int i = 0; i < param_count; ++i) {
+      parameters_[i] = this->NewNode(common()->Parameter(i), graph()->start());
+    }
+  }
+
+  size_t parameter_count() const { return this->csig_->parameter_count(); }
+
+ private:
+  Node** parameters_;
+  MaybeHandle<Code> code_;
 };
+
 }  // namespace compiler
 }  // namespace internal
 }  // namespace v8

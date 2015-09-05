@@ -10,7 +10,7 @@
 namespace v8 {
 namespace internal {
 
-class Execution V8_FINAL : public AllStatic {
+class Execution final : public AllStatic {
  public:
   // Call a function, the caller supplies a receiver and an array
   // of arguments. Arguments are Object* type. After function returns,
@@ -46,12 +46,12 @@ class Execution V8_FINAL : public AllStatic {
   // any thrown exceptions. The return value is either the result of
   // calling the function (if caught exception is false) or the exception
   // that occurred (if caught exception is true).
-  static MaybeHandle<Object> TryCall(
-      Handle<JSFunction> func,
-      Handle<Object> receiver,
-      int argc,
-      Handle<Object> argv[],
-      Handle<Object>* exception_out = NULL);
+  // In the exception case, exception_out holds the caught exceptions, unless
+  // it is a termination exception.
+  static MaybeHandle<Object> TryCall(Handle<JSFunction> func,
+                                     Handle<Object> receiver, int argc,
+                                     Handle<Object> argv[],
+                                     MaybeHandle<Object>* exception_out = NULL);
 
   // ECMA-262 9.3
   MUST_USE_RESULT static MaybeHandle<Object> ToNumber(
@@ -67,6 +67,11 @@ class Execution V8_FINAL : public AllStatic {
 
   // ECMA-262 9.6
   MUST_USE_RESULT static MaybeHandle<Object> ToUint32(
+      Isolate* isolate, Handle<Object> obj);
+
+
+  // ES6, draft 10-14-14, section 7.1.15
+  MUST_USE_RESULT static MaybeHandle<Object> ToLength(
       Isolate* isolate, Handle<Object> obj);
 
   // ECMA-262 9.8
@@ -89,16 +94,7 @@ class Execution V8_FINAL : public AllStatic {
   MUST_USE_RESULT static MaybeHandle<JSRegExp> NewJSRegExp(
       Handle<String> pattern, Handle<String> flags);
 
-  // Used to implement [] notation on strings (calls JS code)
-  static Handle<Object> CharAt(Handle<String> str, uint32_t index);
-
   static Handle<Object> GetFunctionFor();
-  MUST_USE_RESULT static MaybeHandle<JSFunction> InstantiateFunction(
-      Handle<FunctionTemplateInfo> data);
-  MUST_USE_RESULT static MaybeHandle<JSObject> InstantiateObject(
-      Handle<ObjectTemplateInfo> data);
-  MUST_USE_RESULT static MaybeHandle<Object> ConfigureInstance(
-      Isolate* isolate,  Handle<Object> instance, Handle<Object> data);
   static Handle<String> GetStackTraceLine(Handle<Object> recv,
                                           Handle<JSFunction> fun,
                                           Handle<Object> pos,
@@ -128,7 +124,7 @@ class PostponeInterruptsScope;
 // StackGuard contains the handling of the limits that are used to limit the
 // number of nested invocations of JavaScript and the stack size used in each
 // invocation.
-class StackGuard V8_FINAL {
+class StackGuard final {
  public:
   // Pass the address beyond which the stack should not grow.  The stack
   // is assumed to grow downwards.
@@ -172,17 +168,13 @@ class StackGuard V8_FINAL {
   #undef V
   };
 
+  uintptr_t climit() { return thread_local_.climit(); }
+  uintptr_t jslimit() { return thread_local_.jslimit(); }
   // This provides an asynchronous read of the stack limits for the current
   // thread.  There are no locks protecting this, but it is assumed that you
   // have the global V8 lock if you are using multiple V8 threads.
-  uintptr_t climit() {
-    return thread_local_.climit_;
-  }
   uintptr_t real_climit() {
     return thread_local_.real_climit_;
-  }
-  uintptr_t jslimit() {
-    return thread_local_.jslimit_;
   }
   uintptr_t real_jslimit() {
     return thread_local_.real_jslimit_;
@@ -197,6 +189,10 @@ class StackGuard V8_FINAL {
   // If the stack guard is triggered, but it is not an actual
   // stack overflow, then handle the interruption accordingly.
   Object* HandleInterrupts();
+
+  bool InterruptRequested() { return GetCurrentStackPosition() < climit(); }
+
+  void CheckAndHandleGCInterrupt();
 
  private:
   StackGuard();
@@ -233,7 +229,7 @@ class StackGuard V8_FINAL {
   void PushPostponeInterruptsScope(PostponeInterruptsScope* scope);
   void PopPostponeInterruptsScope();
 
-  class ThreadLocal V8_FINAL {
+  class ThreadLocal final {
    public:
     ThreadLocal() { Clear(); }
     // You should hold the ExecutionAccess lock when you call Initialize or
@@ -253,9 +249,27 @@ class StackGuard V8_FINAL {
     // fail. Both the generated code and the runtime system check against the
     // one without the real_ prefix.
     uintptr_t real_jslimit_;  // Actual JavaScript stack limit set for the VM.
-    uintptr_t jslimit_;
     uintptr_t real_climit_;  // Actual C++ stack limit set for the VM.
-    uintptr_t climit_;
+
+    // jslimit_ and climit_ can be read without any lock.
+    // Writing requires the ExecutionAccess lock.
+    base::AtomicWord jslimit_;
+    base::AtomicWord climit_;
+
+    uintptr_t jslimit() {
+      return bit_cast<uintptr_t>(base::NoBarrier_Load(&jslimit_));
+    }
+    void set_jslimit(uintptr_t limit) {
+      return base::NoBarrier_Store(&jslimit_,
+                                   static_cast<base::AtomicWord>(limit));
+    }
+    uintptr_t climit() {
+      return bit_cast<uintptr_t>(base::NoBarrier_Load(&climit_));
+    }
+    void set_climit(uintptr_t limit) {
+      return base::NoBarrier_Store(&climit_,
+                                   static_cast<base::AtomicWord>(limit));
+    }
 
     PostponeInterruptsScope* postpone_interrupts_;
     int interrupt_flags_;

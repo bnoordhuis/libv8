@@ -32,14 +32,15 @@ void HDeadCodeEliminationPhase::MarkLive(
 
 
 void HDeadCodeEliminationPhase::PrintLive(HValue* ref, HValue* instr) {
+  AllowHandleDereference allow_deref;
   OFStream os(stdout);
   os << "[MarkLive ";
   if (ref != NULL) {
     os << *ref;
   } else {
-    os << "root ";
+    os << "root";
   }
-  os << " -> " << *instr << "]" << endl;
+  os << " -> " << *instr << "]" << std::endl;
 }
 
 
@@ -101,4 +102,5 @@ void HDeadCodeEliminationPhase::RemoveDeadInstructions() {
   }
 }
 
-} }  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8

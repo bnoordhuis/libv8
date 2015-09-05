@@ -26,6 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Flags: --expose-debug-as debug
+
 // Make sure that the retreival of local variables are performed correctly even
 // when an adapter frame is present.
 

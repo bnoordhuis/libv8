@@ -8,6 +8,7 @@
 #include <set>
 
 #include "src/allocation.h"
+#include "src/bailout-reason.h"
 #include "src/hydrogen.h"
 #include "src/safepoint-table.h"
 #include "src/zone-allocator.h"
@@ -251,10 +252,21 @@ class LUnallocated : public LOperand {
     DCHECK(basic_policy() == EXTENDED_POLICY);
     return LifetimeField::decode(value_) == USED_AT_START;
   }
+
+  static bool TooManyParameters(int num_parameters) {
+    const int parameter_limit = -LUnallocated::kMinFixedSlotIndex;
+    return num_parameters + 1 > parameter_limit;
+  }
+
+  static bool TooManyParametersOrStackSlots(int num_parameters,
+                                            int num_stack_slots) {
+    const int locals_limit = LUnallocated::kMaxFixedSlotIndex;
+    return num_parameters + 1 + num_stack_slots > locals_limit;
+  }
 };
 
 
-class LMoveOperands V8_FINAL BASE_EMBEDDED {
+class LMoveOperands final BASE_EMBEDDED {
  public:
   LMoveOperands(LOperand* source, LOperand* destination)
       : source_(source), destination_(destination) {
@@ -301,8 +313,8 @@ class LMoveOperands V8_FINAL BASE_EMBEDDED {
 };
 
 
-template<LOperand::Kind kOperandKind, int kNumCachedOperands>
-class LSubKindOperand V8_FINAL : public LOperand {
+template <LOperand::Kind kOperandKind, int kNumCachedOperands>
+class LSubKindOperand final : public LOperand {
  public:
   static LSubKindOperand* Create(int index, Zone* zone) {
     DCHECK(index >= 0);
@@ -332,7 +344,7 @@ LITHIUM_OPERAND_LIST(LITHIUM_TYPEDEF_SUBKIND_OPERAND_CLASS)
 #undef LITHIUM_TYPEDEF_SUBKIND_OPERAND_CLASS
 
 
-class LParallelMove V8_FINAL : public ZoneObject {
+class LParallelMove final : public ZoneObject {
  public:
   explicit LParallelMove(Zone* zone) : move_operands_(4, zone) { }
 
@@ -351,7 +363,7 @@ class LParallelMove V8_FINAL : public ZoneObject {
 };
 
 
-class LPointerMap V8_FINAL : public ZoneObject {
+class LPointerMap final : public ZoneObject {
  public:
   explicit LPointerMap(Zone* zone)
       : pointer_operands_(8, zone),
@@ -384,7 +396,7 @@ class LPointerMap V8_FINAL : public ZoneObject {
 };
 
 
-class LEnvironment V8_FINAL : public ZoneObject {
+class LEnvironment final : public ZoneObject {
  public:
   LEnvironment(Handle<JSFunction> closure,
                FrameType frame_type,
@@ -534,7 +546,7 @@ class LEnvironment V8_FINAL : public ZoneObject {
 
 
 // Iterates over the non-null, non-constant operands in an environment.
-class ShallowIterator V8_FINAL BASE_EMBEDDED {
+class ShallowIterator final BASE_EMBEDDED {
  public:
   explicit ShallowIterator(LEnvironment* env)
       : env_(env),
@@ -578,7 +590,7 @@ class ShallowIterator V8_FINAL BASE_EMBEDDED {
 
 
 // Iterator for non-null, non-constant operands incl. outer environments.
-class DeepIterator V8_FINAL BASE_EMBEDDED {
+class DeepIterator final BASE_EMBEDDED {
  public:
   explicit DeepIterator(LEnvironment* env)
       : current_iterator_(env) {
@@ -641,26 +653,26 @@ class LChunk : public ZoneObject {
   int LookupDestination(int block_id) const;
   Label* GetAssemblyLabel(int block_id) const;
 
-  const ZoneList<Handle<JSFunction> >* inlined_closures() const {
-    return &inlined_closures_;
+  const ZoneList<Handle<SharedFunctionInfo>>& inlined_functions() const {
+    return inlined_functions_;
   }
 
-  void AddInlinedClosure(Handle<JSFunction> closure) {
-    inlined_closures_.Add(closure, zone());
+  void AddInlinedFunction(Handle<SharedFunctionInfo> closure) {
+    inlined_functions_.Add(closure, zone());
   }
 
   void AddDeprecationDependency(Handle<Map> map) {
     DCHECK(!map->is_deprecated());
     if (!map->CanBeDeprecated()) return;
     DCHECK(!info_->IsStub());
-    deprecation_dependencies_.insert(map);
+    deprecation_dependencies_.Add(map, zone());
   }
 
   void AddStabilityDependency(Handle<Map> map) {
     DCHECK(map->is_stable());
     if (!map->CanTransition()) return;
     DCHECK(!info_->IsStub());
-    stability_dependencies_.insert(map);
+    stability_dependencies_.Add(map, zone());
   }
 
   Zone* zone() const { return info_->zone(); }
@@ -678,10 +690,7 @@ class LChunk : public ZoneObject {
   int spill_slot_count_;
 
  private:
-  typedef std::less<Handle<Map> > MapLess;
-  typedef zone_allocator<Handle<Map> > MapAllocator;
-  typedef std::set<Handle<Map>, MapLess, MapAllocator> MapSet;
-
+  void RegisterWeakObjectsInOptimizedCode(Handle<Code> code) const;
   void CommitDependencies(Handle<Code> code) const;
 
   CompilationInfo* info_;
@@ -689,21 +698,42 @@ class LChunk : public ZoneObject {
   BitVector* allocated_double_registers_;
   ZoneList<LInstruction*> instructions_;
   ZoneList<LPointerMap*> pointer_maps_;
-  ZoneList<Handle<JSFunction> > inlined_closures_;
-  MapSet deprecation_dependencies_;
-  MapSet stability_dependencies_;
+  ZoneList<Handle<SharedFunctionInfo>> inlined_functions_;
+  ZoneList<Handle<Map>> deprecation_dependencies_;
+  ZoneList<Handle<Map>> stability_dependencies_;
 };
 
 
 class LChunkBuilderBase BASE_EMBEDDED {
  public:
-  explicit LChunkBuilderBase(Zone* zone)
+  explicit LChunkBuilderBase(CompilationInfo* info, HGraph* graph)
       : argument_count_(0),
-        zone_(zone) { }
+        chunk_(NULL),
+        info_(info),
+        graph_(graph),
+        status_(UNUSED),
+        zone_(graph->zone()) {}
 
   virtual ~LChunkBuilderBase() { }
 
+  void Abort(BailoutReason reason);
+  void Retry(BailoutReason reason);
+
  protected:
+  enum Status { UNUSED, BUILDING, DONE, ABORTED };
+
+  LPlatformChunk* chunk() const { return chunk_; }
+  CompilationInfo* info() const { return info_; }
+  HGraph* graph() const { return graph_; }
+  int argument_count() const { return argument_count_; }
+  Isolate* isolate() const { return graph_->isolate(); }
+  Heap* heap() const { return isolate()->heap(); }
+
+  bool is_unused() const { return status_ == UNUSED; }
+  bool is_building() const { return status_ == BUILDING; }
+  bool is_done() const { return status_ == DONE; }
+  bool is_aborted() const { return status_ == ABORTED; }
+
   // An input operand in register, stack slot or a constant operand.
   // Will not be moved to a register even if one is freely available.
   virtual MUST_USE_RESULT LOperand* UseAny(HValue* value) = 0;
@@ -718,6 +748,10 @@ class LChunkBuilderBase BASE_EMBEDDED {
   Zone* zone() const { return zone_; }
 
   int argument_count_;
+  LPlatformChunk* chunk_;
+  CompilationInfo* info_;
+  HGraph* const graph_;
+  Status status_;
 
  private:
   Zone* zone_;

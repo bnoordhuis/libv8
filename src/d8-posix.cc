@@ -7,7 +7,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -16,6 +15,9 @@
 
 #include "src/d8.h"
 
+#if !V8_OS_NACL
+#include <sys/select.h>
+#endif
 
 namespace v8 {
 
@@ -87,8 +89,9 @@ static bool WaitOnFD(int fd,
   if (total_timeout != -1) {
     struct timeval time_now;
     gettimeofday(&time_now, NULL);
-    int seconds = time_now.tv_sec - start_time.tv_sec;
-    gone = seconds * 1000 + (time_now.tv_usec - start_time.tv_usec) / 1000;
+    time_t seconds = time_now.tv_sec - start_time.tv_sec;
+    gone = static_cast<int>(seconds * 1000 +
+                            (time_now.tv_usec - start_time.tv_usec) / 1000);
     if (gone >= total_timeout) return false;
   }
   FD_ZERO(&readfds);
@@ -102,11 +105,16 @@ static bool WaitOnFD(int fd,
   }
   timeout.tv_usec = (read_timeout % 1000) * 1000;
   timeout.tv_sec = read_timeout / 1000;
+#if V8_OS_NACL
+  // PNaCL has no support for select.
+  int number_of_fds_ready = -1;
+#else
   int number_of_fds_ready = select(fd + 1,
                                    &readfds,
                                    &writefds,
                                    &exceptfds,
                                    read_timeout != -1 ? &timeout : NULL);
+#endif
   return number_of_fds_ready == 1;
 }
 
@@ -118,12 +126,12 @@ static bool TimeIsOut(const struct timeval& start_time, const int& total_time) {
   struct timeval time_now;
   gettimeofday(&time_now, NULL);
   // Careful about overflow.
-  int seconds = time_now.tv_sec - start_time.tv_sec;
+  int seconds = static_cast<int>(time_now.tv_sec - start_time.tv_sec);
   if (seconds > 100) {
     if (seconds * 1000 > total_time) return true;
     return false;
   }
-  int useconds = time_now.tv_usec - start_time.tv_usec;
+  int useconds = static_cast<int>(time_now.tv_usec - start_time.tv_usec);
   if (seconds * 1000000 + useconds > total_time * 1000) {
     return true;
   }
@@ -257,7 +265,7 @@ static void ExecSubprocess(int* exec_error_fds,
   // Only get here if the exec failed.  Write errno to the parent to tell
   // them it went wrong.  If it went well the pipe is closed.
   int err = errno;
-  int bytes_written;
+  ssize_t bytes_written;
   do {
     bytes_written = write(exec_error_fds[kWriteFD], &err, sizeof(err));
   } while (bytes_written == -1 && errno == EINTR);
@@ -268,7 +276,7 @@ static void ExecSubprocess(int* exec_error_fds,
 // Runs in the parent process.  Checks that the child was able to exec (closing
 // the file desriptor), or reports an error if it failed.
 static bool ChildLaunchedOK(Isolate* isolate, int* exec_error_fds) {
-  int bytes_read;
+  ssize_t bytes_read;
   int err;
   do {
     bytes_read = read(exec_error_fds[kReadFD], &err, sizeof(err));
@@ -301,9 +309,8 @@ static Handle<Value> GetStdout(Isolate* isolate,
 
   int bytes_read;
   do {
-    bytes_read = read(child_fd,
-                      buffer + fullness,
-                      kStdoutReadBufferSize - fullness);
+    bytes_read = static_cast<int>(
+        read(child_fd, buffer + fullness, kStdoutReadBufferSize - fullness));
     if (bytes_read == -1) {
       if (errno == EAGAIN) {
         if (!WaitOnFD(child_fd,
@@ -547,8 +554,12 @@ void Shell::SetUMask(const v8::FunctionCallbackInfo<v8::Value>& args) {
     return;
   }
   if (args[0]->IsNumber()) {
-    mode_t mask = args[0]->Int32Value();
-    int previous = umask(mask);
+#if V8_OS_NACL
+    // PNaCL has no support for umask.
+    int previous = 0;
+#else
+    int previous = umask(args[0]->Int32Value());
+#endif
     args.GetReturnValue().Set(previous);
     return;
   } else {

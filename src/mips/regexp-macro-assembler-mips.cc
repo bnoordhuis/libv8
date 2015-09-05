@@ -95,12 +95,11 @@ namespace internal {
 
 #define __ ACCESS_MASM(masm_)
 
-RegExpMacroAssemblerMIPS::RegExpMacroAssemblerMIPS(
-    Mode mode,
-    int registers_to_save,
-    Zone* zone)
-    : NativeRegExpMacroAssembler(zone),
-      masm_(new MacroAssembler(zone->isolate(), NULL, kRegExpCodeSize)),
+RegExpMacroAssemblerMIPS::RegExpMacroAssemblerMIPS(Isolate* isolate, Zone* zone,
+                                                   Mode mode,
+                                                   int registers_to_save)
+    : NativeRegExpMacroAssembler(isolate, zone),
+      masm_(new MacroAssembler(isolate, NULL, kRegExpCodeSize)),
       mode_(mode),
       num_registers_(registers_to_save),
       num_saved_registers_(registers_to_save),
@@ -241,7 +240,7 @@ void RegExpMacroAssemblerMIPS::CheckNotBackReferenceIgnoreCase(
   // Check that there are enough characters left in the input.
   BranchOrBacktrack(on_no_match, gt, t5, Operand(zero_reg));
 
-  if (mode_ == ASCII) {
+  if (mode_ == LATIN1) {
     Label success;
     Label fail;
     Label loop_check;
@@ -365,7 +364,7 @@ void RegExpMacroAssemblerMIPS::CheckNotBackReference(
 
   Label loop;
   __ bind(&loop);
-  if (mode_ == ASCII) {
+  if (mode_ == LATIN1) {
     __ lbu(a3, MemOperand(a0, 0));
     __ addiu(a0, a0, char_size());
     __ lbu(t0, MemOperand(a2, 0));
@@ -446,7 +445,7 @@ void RegExpMacroAssemblerMIPS::CheckBitInTable(
     Handle<ByteArray> table,
     Label* on_bit_set) {
   __ li(a0, Operand(table));
-  if (mode_ != ASCII || kTableMask != String::kMaxOneByteCharCode) {
+  if (mode_ != LATIN1 || kTableMask != String::kMaxOneByteCharCode) {
     __ And(a1, current_character(), Operand(kTableSize - 1));
     __ Addu(a0, a0, a1);
   } else {
@@ -465,7 +464,7 @@ bool RegExpMacroAssemblerMIPS::CheckSpecialCharacterClass(uc16 type,
   switch (type) {
   case 's':
     // Match space-characters.
-    if (mode_ == ASCII) {
+    if (mode_ == LATIN1) {
       // One byte space characters are '\t'..'\r', ' ' and \u00a0.
       Label success;
       __ Branch(&success, eq, current_character(), Operand(' '));
@@ -482,12 +481,12 @@ bool RegExpMacroAssemblerMIPS::CheckSpecialCharacterClass(uc16 type,
     // The emitted code for generic character classes is good enough.
     return false;
   case 'd':
-    // Match ASCII digits ('0'..'9').
+    // Match Latin1 digits ('0'..'9').
     __ Subu(a0, current_character(), Operand('0'));
     BranchOrBacktrack(on_no_match, hi, a0, Operand('9' - '0'));
     return true;
   case 'D':
-    // Match non ASCII-digits.
+    // Match non Latin1-digits.
     __ Subu(a0, current_character(), Operand('0'));
     BranchOrBacktrack(on_no_match, ls, a0, Operand('9' - '0'));
     return true;
@@ -511,7 +510,7 @@ bool RegExpMacroAssemblerMIPS::CheckSpecialCharacterClass(uc16 type,
     __ Xor(a0, current_character(), Operand(0x01));
     // See if current character is '\n'^1 or '\r'^1, i.e., 0x0b or 0x0c.
     __ Subu(a0, a0, Operand(0x0b));
-    if (mode_ == ASCII) {
+    if (mode_ == LATIN1) {
       BranchOrBacktrack(on_no_match, hi, a0, Operand(0x0c - 0x0b));
     } else {
       Label done;
@@ -526,8 +525,8 @@ bool RegExpMacroAssemblerMIPS::CheckSpecialCharacterClass(uc16 type,
     return true;
   }
   case 'w': {
-    if (mode_ != ASCII) {
-      // Table is 128 entries, so all ASCII characters can be tested.
+    if (mode_ != LATIN1) {
+      // Table is 256 entries, so all Latin1 characters can be tested.
       BranchOrBacktrack(on_no_match, hi, current_character(), Operand('z'));
     }
     ExternalReference map = ExternalReference::re_word_character_map();
@@ -539,8 +538,8 @@ bool RegExpMacroAssemblerMIPS::CheckSpecialCharacterClass(uc16 type,
   }
   case 'W': {
     Label done;
-    if (mode_ != ASCII) {
-      // Table is 128 entries, so all ASCII characters can be tested.
+    if (mode_ != LATIN1) {
+      // Table is 256 entries, so all Latin1 characters can be tested.
       __ Branch(&done, hi, current_character(), Operand('z'));
     }
     ExternalReference map = ExternalReference::re_word_character_map();
@@ -548,7 +547,7 @@ bool RegExpMacroAssemblerMIPS::CheckSpecialCharacterClass(uc16 type,
     __ Addu(a0, a0, current_character());
     __ lbu(a0, MemOperand(a0, 0));
     BranchOrBacktrack(on_no_match, ne, a0, Operand(zero_reg));
-    if (mode_ != ASCII) {
+    if (mode_ != LATIN1) {
       __ bind(&done);
     }
     return true;
@@ -1046,7 +1045,7 @@ void RegExpMacroAssemblerMIPS::CallCheckStackGuardState(Register scratch) {
   // Align the stack pointer and save the original sp value on the stack.
   __ mov(scratch, sp);
   __ Subu(sp, sp, Operand(kPointerSize));
-  DCHECK(IsPowerOf2(stack_alignment));
+  DCHECK(base::bits::IsPowerOfTwo32(stack_alignment));
   __ And(sp, sp, Operand(-stack_alignment));
   __ sw(scratch, MemOperand(sp));
 
@@ -1101,101 +1100,22 @@ static T& frame_entry(Address re_frame, int frame_offset) {
 }
 
 
+template <typename T>
+static T* frame_entry_address(Address re_frame, int frame_offset) {
+  return reinterpret_cast<T*>(re_frame + frame_offset);
+}
+
+
 int RegExpMacroAssemblerMIPS::CheckStackGuardState(Address* return_address,
                                                    Code* re_code,
                                                    Address re_frame) {
-  Isolate* isolate = frame_entry<Isolate*>(re_frame, kIsolate);
-  StackLimitCheck check(isolate);
-  if (check.JsHasOverflowed()) {
-    isolate->StackOverflow();
-    return EXCEPTION;
-  }
-
-  // If not real stack overflow the stack guard was used to interrupt
-  // execution for another purpose.
-
-  // If this is a direct call from JavaScript retry the RegExp forcing the call
-  // through the runtime system. Currently the direct call cannot handle a GC.
-  if (frame_entry<int>(re_frame, kDirectCall) == 1) {
-    return RETRY;
-  }
-
-  // Prepare for possible GC.
-  HandleScope handles(isolate);
-  Handle<Code> code_handle(re_code);
-
-  Handle<String> subject(frame_entry<String*>(re_frame, kInputString));
-  // Current string.
-  bool is_ascii = subject->IsOneByteRepresentationUnderneath();
-
-  DCHECK(re_code->instruction_start() <= *return_address);
-  DCHECK(*return_address <=
-      re_code->instruction_start() + re_code->instruction_size());
-
-  Object* result = isolate->stack_guard()->HandleInterrupts();
-
-  if (*code_handle != re_code) {  // Return address no longer valid.
-    int delta = code_handle->address() - re_code->address();
-    // Overwrite the return address on the stack.
-    *return_address += delta;
-  }
-
-  if (result->IsException()) {
-    return EXCEPTION;
-  }
-
-  Handle<String> subject_tmp = subject;
-  int slice_offset = 0;
-
-  // Extract the underlying string and the slice offset.
-  if (StringShape(*subject_tmp).IsCons()) {
-    subject_tmp = Handle<String>(ConsString::cast(*subject_tmp)->first());
-  } else if (StringShape(*subject_tmp).IsSliced()) {
-    SlicedString* slice = SlicedString::cast(*subject_tmp);
-    subject_tmp = Handle<String>(slice->parent());
-    slice_offset = slice->offset();
-  }
-
-  // String might have changed.
-  if (subject_tmp->IsOneByteRepresentation() != is_ascii) {
-    // If we changed between an ASCII and an UC16 string, the specialized
-    // code cannot be used, and we need to restart regexp matching from
-    // scratch (including, potentially, compiling a new version of the code).
-    return RETRY;
-  }
-
-  // Otherwise, the content of the string might have moved. It must still
-  // be a sequential or external string with the same content.
-  // Update the start and end pointers in the stack frame to the current
-  // location (whether it has actually moved or not).
-  DCHECK(StringShape(*subject_tmp).IsSequential() ||
-      StringShape(*subject_tmp).IsExternal());
-
-  // The original start address of the characters to match.
-  const byte* start_address = frame_entry<const byte*>(re_frame, kInputStart);
-
-  // Find the current start address of the same character at the current string
-  // position.
-  int start_index = frame_entry<int>(re_frame, kStartIndex);
-  const byte* new_address = StringCharacterPosition(*subject_tmp,
-                                                    start_index + slice_offset);
-
-  if (start_address != new_address) {
-    // If there is a difference, update the object pointer and start and end
-    // addresses in the RegExp stack frame to match the new value.
-    const byte* end_address = frame_entry<const byte* >(re_frame, kInputEnd);
-    int byte_length = static_cast<int>(end_address - start_address);
-    frame_entry<const String*>(re_frame, kInputString) = *subject;
-    frame_entry<const byte*>(re_frame, kInputStart) = new_address;
-    frame_entry<const byte*>(re_frame, kInputEnd) = new_address + byte_length;
-  } else if (frame_entry<const String*>(re_frame, kInputString) != *subject) {
-    // Subject string might have been a ConsString that underwent
-    // short-circuiting during GC. That will not change start_address but
-    // will change pointer inside the subject handle.
-    frame_entry<const String*>(re_frame, kInputString) = *subject;
-  }
-
-  return 0;
+  return NativeRegExpMacroAssembler::CheckStackGuardState(
+      frame_entry<Isolate*>(re_frame, kIsolate),
+      frame_entry<int>(re_frame, kStartIndex),
+      frame_entry<int>(re_frame, kDirectCall) == 1, return_address, re_code,
+      frame_entry_address<String*>(re_frame, kInputString),
+      frame_entry_address<const byte*>(re_frame, kInputStart),
+      frame_entry_address<const byte*>(re_frame, kInputEnd));
 }
 
 
@@ -1308,7 +1228,7 @@ void RegExpMacroAssemblerMIPS::LoadCurrentCharacterUnchecked(int cp_offset,
   // must only be used to load a single character at a time.
   DCHECK(characters == 1);
   __ Addu(t5, end_of_input_address(), Operand(offset));
-  if (mode_ == ASCII) {
+  if (mode_ == LATIN1) {
     __ lbu(current_character(), MemOperand(t5, 0));
   } else {
     DCHECK(mode_ == UC16);
@@ -1321,6 +1241,7 @@ void RegExpMacroAssemblerMIPS::LoadCurrentCharacterUnchecked(int cp_offset,
 
 #endif  // V8_INTERPRETED_REGEXP
 
-}}  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8
 
 #endif  // V8_TARGET_ARCH_MIPS

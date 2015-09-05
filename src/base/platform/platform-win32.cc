@@ -15,27 +15,16 @@
 #endif  // MINGW_HAS_SECURE_API
 #endif  // __MINGW32__
 
-#ifdef _MSC_VER
 #include <limits>
-#endif
 
 #include "src/base/win32-headers.h"
 
+#include "src/base/bits.h"
 #include "src/base/lazy-instance.h"
 #include "src/base/macros.h"
 #include "src/base/platform/platform.h"
 #include "src/base/platform/time.h"
 #include "src/base/utils/random-number-generator.h"
-
-#ifdef _MSC_VER
-
-// Case-insensitive bounded string comparisons. Use stricmp() on Win32. Usually
-// defined in strings.h.
-int strncasecmp(const char* s1, const char* s2, int n) {
-  return _strnicmp(s1, s2, n);
-}
-
-#endif  // _MSC_VER
 
 
 // Extra functions for MinGW. Most of these are the _s functions which are in
@@ -112,11 +101,6 @@ namespace {
 bool g_hard_abort = false;
 
 }  // namespace
-
-intptr_t OS::MaxVirtualMemory() {
-  return 0;
-}
-
 
 class TimezoneCache {
  public:
@@ -371,8 +355,8 @@ int64_t Win32Time::LocalOffset(TimezoneCache* cache) {
   cache->InitializeIfNeeded();
 
   Win32Time rounded_to_second(*this);
-  rounded_to_second.t() = rounded_to_second.t() / 1000 / kTimeScaler *
-      1000 * kTimeScaler;
+  rounded_to_second.t() =
+      rounded_to_second.t() / 1000 / kTimeScaler * 1000 * kTimeScaler;
   // Convert to local time using POSIX localtime function.
   // Windows XP Service Pack 3 made SystemTimeToTzSpecificLocalTime()
   // very slow.  Other browsers use localtime().
@@ -591,6 +575,11 @@ bool OS::Remove(const char* path) {
 }
 
 
+bool OS::isDirectorySeparator(const char ch) {
+  return ch == '/' || ch == '\\';
+}
+
+
 FILE* OS::OpenTemporaryFile() {
   // tmpfile_s tries to use the root dir, don't use it.
   char tempPathBuffer[MAX_PATH];
@@ -705,7 +694,7 @@ static size_t GetPageSize() {
   if (page_size == 0) {
     SYSTEM_INFO info;
     GetSystemInfo(&info);
-    page_size = RoundUpToPowerOf2(info.dwPageSize);
+    page_size = base::bits::RoundUpToPowerOfTwo32(info.dwPageSize);
   }
   return page_size;
 }
@@ -744,15 +733,17 @@ void* OS::GetRandomMmapAddr() {
   // Note: This does not guarantee RWX regions will be within the
   // range kAllocationRandomAddressMin to kAllocationRandomAddressMax
 #ifdef V8_HOST_ARCH_64_BIT
-  static const intptr_t kAllocationRandomAddressMin = 0x0000000080000000;
-  static const intptr_t kAllocationRandomAddressMax = 0x000003FFFFFF0000;
+  static const uintptr_t kAllocationRandomAddressMin = 0x0000000080000000;
+  static const uintptr_t kAllocationRandomAddressMax = 0x000003FFFFFF0000;
 #else
-  static const intptr_t kAllocationRandomAddressMin = 0x04000000;
-  static const intptr_t kAllocationRandomAddressMax = 0x3FFF0000;
+  static const uintptr_t kAllocationRandomAddressMin = 0x04000000;
+  static const uintptr_t kAllocationRandomAddressMax = 0x3FFF0000;
 #endif
-  uintptr_t address =
-      (platform_random_number_generator.Pointer()->NextInt() << kPageSizeBits) |
-      kAllocationRandomAddressMin;
+  uintptr_t address;
+  platform_random_number_generator.Pointer()->NextBytes(&address,
+                                                        sizeof(address));
+  address <<= kPageSizeBits;
+  address += kAllocationRandomAddressMin;
   address &= kAllocationRandomAddressMax;
   return reinterpret_cast<void *>(address);
 }
@@ -790,7 +781,7 @@ void* OS::Allocate(const size_t requested,
 
   if (mbase == NULL) return NULL;
 
-  DCHECK(IsAligned(reinterpret_cast<size_t>(mbase), OS::AllocateAlignment()));
+  DCHECK((reinterpret_cast<uintptr_t>(mbase) % OS::AllocateAlignment()) == 0);
 
   *allocated = msize;
   return mbase;
@@ -821,8 +812,8 @@ void OS::Guard(void* address, const size_t size) {
 }
 
 
-void OS::Sleep(int milliseconds) {
-  ::Sleep(milliseconds);
+void OS::Sleep(TimeDelta interval) {
+  ::Sleep(static_cast<DWORD>(interval.InMilliseconds()));
 }
 
 
@@ -836,7 +827,7 @@ void OS::Abort() {
 
 
 void OS::DebugBreak() {
-#ifdef _MSC_VER
+#if V8_CC_MSVC
   // To avoid Visual Studio runtime support the following code can be used
   // instead
   // __asm { int 3 }
@@ -847,38 +838,38 @@ void OS::DebugBreak() {
 }
 
 
-class Win32MemoryMappedFile : public OS::MemoryMappedFile {
+class Win32MemoryMappedFile final : public OS::MemoryMappedFile {
  public:
-  Win32MemoryMappedFile(HANDLE file,
-                        HANDLE file_mapping,
-                        void* memory,
-                        int size)
+  Win32MemoryMappedFile(HANDLE file, HANDLE file_mapping, void* memory,
+                        size_t size)
       : file_(file),
         file_mapping_(file_mapping),
         memory_(memory),
-        size_(size) { }
-  virtual ~Win32MemoryMappedFile();
-  virtual void* memory() { return memory_; }
-  virtual int size() { return size_; }
+        size_(size) {}
+  ~Win32MemoryMappedFile() final;
+  void* memory() const final { return memory_; }
+  size_t size() const final { return size_; }
+
  private:
-  HANDLE file_;
-  HANDLE file_mapping_;
-  void* memory_;
-  int size_;
+  HANDLE const file_;
+  HANDLE const file_mapping_;
+  void* const memory_;
+  size_t const size_;
 };
 
 
+// static
 OS::MemoryMappedFile* OS::MemoryMappedFile::open(const char* name) {
   // Open a physical file
   HANDLE file = CreateFileA(name, GENERIC_READ | GENERIC_WRITE,
       FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
   if (file == INVALID_HANDLE_VALUE) return NULL;
 
-  int size = static_cast<int>(GetFileSize(file, NULL));
+  DWORD size = GetFileSize(file, NULL);
 
   // Create a file mapping for the physical file
-  HANDLE file_mapping = CreateFileMapping(file, NULL,
-      PAGE_READWRITE, 0, static_cast<DWORD>(size), NULL);
+  HANDLE file_mapping =
+      CreateFileMapping(file, NULL, PAGE_READWRITE, 0, size, NULL);
   if (file_mapping == NULL) return NULL;
 
   // Map a view of the file into memory
@@ -887,15 +878,17 @@ OS::MemoryMappedFile* OS::MemoryMappedFile::open(const char* name) {
 }
 
 
-OS::MemoryMappedFile* OS::MemoryMappedFile::create(const char* name, int size,
-    void* initial) {
+// static
+OS::MemoryMappedFile* OS::MemoryMappedFile::create(const char* name,
+                                                   size_t size, void* initial) {
   // Open a physical file
   HANDLE file = CreateFileA(name, GENERIC_READ | GENERIC_WRITE,
-      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, 0, NULL);
+                            FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                            OPEN_ALWAYS, 0, NULL);
   if (file == NULL) return NULL;
   // Create a file mapping for the physical file
-  HANDLE file_mapping = CreateFileMapping(file, NULL,
-      PAGE_READWRITE, 0, static_cast<DWORD>(size), NULL);
+  HANDLE file_mapping = CreateFileMapping(file, NULL, PAGE_READWRITE, 0,
+                                          static_cast<DWORD>(size), NULL);
   if (file_mapping == NULL) return NULL;
   // Map a view of the file into memory
   void* memory = MapViewOfFile(file_mapping, FILE_MAP_ALL_ACCESS, 0, 0, size);
@@ -905,8 +898,7 @@ OS::MemoryMappedFile* OS::MemoryMappedFile::create(const char* name, int size,
 
 
 Win32MemoryMappedFile::~Win32MemoryMappedFile() {
-  if (memory_ != NULL)
-    UnmapViewOfFile(memory_);
+  if (memory_) UnmapViewOfFile(memory_);
   CloseHandle(file_mapping_);
   CloseHandle(file_);
 }
@@ -1168,18 +1160,6 @@ void OS::SignalCodeMovingGC() {
 }
 
 
-uint64_t OS::TotalPhysicalMemory() {
-  MEMORYSTATUSEX memory_info;
-  memory_info.dwLength = sizeof(memory_info);
-  if (!GlobalMemoryStatusEx(&memory_info)) {
-    UNREACHABLE();
-    return 0;
-  }
-
-  return static_cast<uint64_t>(memory_info.ullTotalPhys);
-}
-
-
 #else  // __MINGW32__
 std::vector<OS::SharedLibraryAddress> OS::GetSharedLibraryAddresses() {
   return std::vector<OS::SharedLibraryAddress>();
@@ -1188,22 +1168,6 @@ std::vector<OS::SharedLibraryAddress> OS::GetSharedLibraryAddresses() {
 
 void OS::SignalCodeMovingGC() { }
 #endif  // __MINGW32__
-
-
-int OS::NumberOfProcessorsOnline() {
-  SYSTEM_INFO info;
-  GetSystemInfo(&info);
-  return info.dwNumberOfProcessors;
-}
-
-
-double OS::nan_value() {
-#ifdef _MSC_VER
-  return std::numeric_limits<double>::quiet_NaN();
-#else  // _MSC_VER
-  return NAN;
-#endif  // _MSC_VER
-}
 
 
 int OS::ActivationFrameAlignment() {
@@ -1228,7 +1192,7 @@ VirtualMemory::VirtualMemory(size_t size)
 
 VirtualMemory::VirtualMemory(size_t size, size_t alignment)
     : address_(NULL), size_(0) {
-  DCHECK(IsAligned(alignment, static_cast<intptr_t>(OS::AllocateAlignment())));
+  DCHECK((alignment % OS::AllocateAlignment()) == 0);
   size_t request_size = RoundUp(size + alignment,
                                 static_cast<intptr_t>(OS::AllocateAlignment()));
   void* address = ReserveRegion(request_size);
@@ -1420,10 +1384,5 @@ void Thread::SetThreadLocal(LocalStorageKey key, void* value) {
   DCHECK(result);
 }
 
-
-
-void Thread::YieldCPU() {
-  Sleep(0);
-}
-
-} }  // namespace v8::base
+}  // namespace base
+}  // namespace v8
