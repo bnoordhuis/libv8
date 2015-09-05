@@ -4,7 +4,7 @@ Author: Jérémy Lal <kapouer@melix.org>
 Last-Update: 2011-10-22
 --- a/Makefile
 +++ b/Makefile
-@@ -405,7 +405,7 @@
+@@ -434,7 +434,7 @@
  	$(eval V8_TARGET_ARCH:=$(subst .,,$(suffix $(basename $@))))
  	PYTHONPATH="$(shell pwd)/tools/generate_shim_headers:$(shell pwd)/build:$(PYTHONPATH):$(shell pwd)/build/gyp/pylib:$(PYTHONPATH)" \
  	GYP_GENERATORS=make \
@@ -13,7 +13,7 @@ Last-Update: 2011-10-22
  	              -Ibuild/standalone.gypi --depth=. \
  	              -Dv8_target_arch=$(V8_TARGET_ARCH) \
  	              $(if $(findstring $(CXX_TARGET_ARCH),$(V8_TARGET_ARCH)), \
-@@ -416,7 +416,7 @@
+@@ -445,7 +445,7 @@
  $(OUTDIR)/Makefile.native: $(GYPFILES) $(ENVFILE)
  	PYTHONPATH="$(shell pwd)/tools/generate_shim_headers:$(shell pwd)/build:$(PYTHONPATH):$(shell pwd)/build/gyp/pylib:$(PYTHONPATH)" \
  	GYP_GENERATORS=make \
@@ -21,4 +21,4 @@ Last-Update: 2011-10-22
 +	gyp --generator-output="$(OUTDIR)" build/all.gyp \
  	              -Ibuild/standalone.gypi --depth=. -S.native $(GYPFLAGS)
  
- must-set-ANDROID_NDK_ROOT_OR_TOOLCHAIN:
+ # Note that NACL_SDK_ROOT must be set to point to an appropriate

@@ -8,7 +8,7 @@ Bug-Debian: http://bugs.debian.org/670836
 Last-Update: 2013-05-02
 --- a/tools/gyp/v8.gyp
 +++ b/tools/gyp/v8.gyp
-@@ -1215,7 +1215,7 @@
+@@ -1544,7 +1544,7 @@
          ['OS=="freebsd"', {
              'link_settings': {
                'libraries': [
@@ -30,10 +30,10 @@ Last-Update: 2013-05-02
  from os.path import join
 --- a/tools/testrunner/local/pool.py
 +++ b/tools/testrunner/local/pool.py
-@@ -3,7 +3,7 @@
- # Use of this source code is governed by a BSD-style license that can be
+@@ -4,7 +4,7 @@
  # found in the LICENSE file.
  
+ from Queue import Empty
 -from multiprocessing import Event, Process, Queue
 +from multiprocessing.dummy import Event, Process, Queue
  

@@ -5,7 +5,7 @@ Author: Jérémy Lal <kapouer@melix.org>
 Last-Update: 2011-10-25
 --- a/tools/gyp/v8.gyp
 +++ b/tools/gyp/v8.gyp
-@@ -166,7 +166,7 @@
+@@ -196,7 +196,7 @@
            'variables': {
              'mksnapshot_flags': [
                '--log-snapshot-positions',
@@ -14,12 +14,12 @@ Last-Update: 2011-10-25
              ],
              'conditions': [
                ['v8_random_seed!=0', {
-@@ -267,7 +267,7 @@
-           'variables': {
-             'mksnapshot_flags': [
-               '--log-snapshot-positions',
--              '--logfile', '<(INTERMEDIATE_DIR)/snapshot.log',
-+              '--logfile', '-',
-             ],
-             'conditions': [
-               ['v8_random_seed!=0', {
+@@ -296,7 +296,7 @@
+               'variables': {
+                 'mksnapshot_flags': [
+                   '--log-snapshot-positions',
+-                  '--logfile', '<(INTERMEDIATE_DIR)/snapshot.log',
++                  '--logfile', '-',
+                 ],
+                 'conditions': [
+                   ['v8_random_seed!=0', {
