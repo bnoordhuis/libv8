@@ -1,6 +1,14 @@
 libv8-4.5 (4.5.103.30~dfsg-1) UNRELEASED; urgency=medium
 
   * Imported Upstream version 4.5.103.30~dfsg
+  * Update patch, now disable all cc unittests (missing gmock)
+  * libv8-dev install only headers, not OWNERS
+  * Update copyright, added Apache-2.0 license for some files
+  * Import strict overflow patch from 3.14 branch
+  * Patch to avoid build using libc++abi files
+  * Do not build using clang, it seems to require remote files
+  * Do not error on unused-variable
+  * Add libv8-4.5.abi for acc
 
  -- Jérémy Lal <kapouer@melix.org>  Sat, 05 Sep 2015 14:40:57 +0200
 
