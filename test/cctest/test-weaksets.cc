@@ -30,11 +30,9 @@
 #include "src/v8.h"
 
 #include "src/global-handles.h"
-#include "src/snapshot.h"
 #include "test/cctest/cctest.h"
 
 using namespace v8::internal;
-
 
 static Isolate* GetIsolateFrom(LocalContext* context) {
   return reinterpret_cast<Isolate*>((*context)->GetIsolate());
@@ -53,16 +51,6 @@ static Handle<JSWeakSet> AllocateJSWeakSet(Isolate* isolate) {
     weakset->set_table(*table);
   }
   return weakset;
-}
-
-static void PutIntoWeakSet(Handle<JSWeakSet> weakset,
-                           Handle<JSObject> key,
-                           Handle<Object> value) {
-  Handle<ObjectHashTable> table = ObjectHashTable::Put(
-      Handle<ObjectHashTable>(ObjectHashTable::cast(weakset->table())),
-      Handle<JSObject>(JSObject::cast(*key)),
-      value);
-  weakset->set_table(*table);
 }
 
 static int NumberOfWeakCalls = 0;
@@ -100,9 +88,9 @@ TEST(WeakSet_Weakness) {
   // Put entry into weak set.
   {
     HandleScope scope(isolate);
-    PutIntoWeakSet(weakset,
-                   Handle<JSObject>(JSObject::cast(*key)),
-                   Handle<Smi>(Smi::FromInt(23), isolate));
+    Handle<Smi> smi(Smi::FromInt(23), isolate);
+    int32_t hash = Object::GetOrCreateHash(isolate, key)->value();
+    Runtime::WeakCollectionSet(weakset, key, smi, hash);
   }
   CHECK_EQ(1, ObjectHashTable::cast(weakset->table())->NumberOfElements());
 
@@ -156,7 +144,9 @@ TEST(WeakSet_Shrinking) {
     Handle<Map> map = factory->NewMap(JS_OBJECT_TYPE, JSObject::kHeaderSize);
     for (int i = 0; i < 32; i++) {
       Handle<JSObject> object = factory->NewJSObjectFromMap(map);
-      PutIntoWeakSet(weakset, object, Handle<Smi>(Smi::FromInt(i), isolate));
+      Handle<Smi> smi(Smi::FromInt(i), isolate);
+      int32_t hash = Object::GetOrCreateHash(isolate, object)->value();
+      Runtime::WeakCollectionSet(weakset, object, smi, hash);
     }
   }
 
@@ -193,8 +183,9 @@ TEST(WeakSet_Regress2060a) {
   Handle<JSWeakSet> weakset = AllocateJSWeakSet(isolate);
 
   // Start second old-space page so that values land on evacuation candidate.
-  Page* first_page = heap->old_pointer_space()->anchor()->next_page();
-  factory->NewFixedArray(900 * KB / kPointerSize, TENURED);
+  Page* first_page = heap->old_space()->anchor()->next_page();
+  int dummy_array_size = Page::kMaxRegularHeapObjectSize - 92 * KB;
+  factory->NewFixedArray(dummy_array_size / kPointerSize, TENURED);
 
   // Fill up weak set with values on an evacuation candidate.
   {
@@ -203,13 +194,14 @@ TEST(WeakSet_Regress2060a) {
       Handle<JSObject> object = factory->NewJSObject(function, TENURED);
       CHECK(!heap->InNewSpace(object->address()));
       CHECK(!first_page->Contains(object->address()));
-      PutIntoWeakSet(weakset, key, object);
+      int32_t hash = Object::GetOrCreateHash(isolate, key)->value();
+      Runtime::WeakCollectionSet(weakset, key, object, hash);
     }
   }
 
   // Force compacting garbage collection.
   CHECK(FLAG_always_compact);
-  heap->CollectAllGarbage(Heap::kNoGCFlags);
+  heap->CollectAllGarbage();
 }
 
 
@@ -231,8 +223,9 @@ TEST(WeakSet_Regress2060b) {
       factory->function_string());
 
   // Start second old-space page so that keys land on evacuation candidate.
-  Page* first_page = heap->old_pointer_space()->anchor()->next_page();
-  factory->NewFixedArray(900 * KB / kPointerSize, TENURED);
+  Page* first_page = heap->old_space()->anchor()->next_page();
+  int dummy_array_size = Page::kMaxRegularHeapObjectSize - 92 * KB;
+  factory->NewFixedArray(dummy_array_size / kPointerSize, TENURED);
 
   // Fill up weak set with keys on an evacuation candidate.
   Handle<JSObject> keys[32];
@@ -243,15 +236,15 @@ TEST(WeakSet_Regress2060b) {
   }
   Handle<JSWeakSet> weakset = AllocateJSWeakSet(isolate);
   for (int i = 0; i < 32; i++) {
-    PutIntoWeakSet(weakset,
-                   keys[i],
-                   Handle<Smi>(Smi::FromInt(i), isolate));
+    Handle<Smi> smi(Smi::FromInt(i), isolate);
+    int32_t hash = Object::GetOrCreateHash(isolate, keys[i])->value();
+    Runtime::WeakCollectionSet(weakset, keys[i], smi, hash);
   }
 
   // Force compacting garbage collection. The subsequent collections are used
   // to verify that key references were actually updated.
   CHECK(FLAG_always_compact);
-  heap->CollectAllGarbage(Heap::kNoGCFlags);
-  heap->CollectAllGarbage(Heap::kNoGCFlags);
-  heap->CollectAllGarbage(Heap::kNoGCFlags);
+  heap->CollectAllGarbage();
+  heap->CollectAllGarbage();
+  heap->CollectAllGarbage();
 }

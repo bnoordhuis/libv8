@@ -4,7 +4,6 @@
 
 #include <cmath>
 
-#include "include/v8stdint.h"
 #include "src/base/logging.h"
 #include "src/utils.h"
 
@@ -633,4 +632,5 @@ static void FixupMultiply10(int estimated_power, bool is_even,
   }
 }
 
-} }  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8

@@ -83,10 +83,11 @@ using namespace v8::internal;
     abort();                                                                   \
   }
 
-#define CLEANUP()                                                              \
-  delete disasm;                                                               \
-  delete decoder;                                                              \
-  delete assm
+#define CLEANUP() \
+  delete disasm;  \
+  delete decoder; \
+  delete assm;    \
+  free(buf)
 
 
 static bool vm_initialized = false;
@@ -1408,6 +1409,10 @@ TEST_(fp_dp1) {
   COMPARE(frintn(s31, s30), "frintn s31, s30");
   COMPARE(frintn(d12, d13), "frintn d12, d13");
   COMPARE(frintn(d31, d30), "frintn d31, d30");
+  COMPARE(frintp(s10, s11), "frintp s10, s11");
+  COMPARE(frintp(s31, s30), "frintp s31, s30");
+  COMPARE(frintp(d12, d13), "frintp d12, d13");
+  COMPARE(frintp(d31, d30), "frintp d31, d30");
   COMPARE(frintz(s10, s11), "frintz s10, s11");
   COMPARE(frintz(s31, s30), "frintz s31, s30");
   COMPARE(frintz(d12, d13), "frintz d12, d13");

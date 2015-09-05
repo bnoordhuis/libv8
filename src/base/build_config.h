@@ -21,24 +21,24 @@
 // V8_HOST_ARCH_IA32 on both 32- and 64-bit x86.
 #define V8_HOST_ARCH_IA32 1
 #define V8_HOST_ARCH_32_BIT 1
-#define V8_HOST_CAN_READ_UNALIGNED 1
 #else
 #define V8_HOST_ARCH_X64 1
-#if defined(__x86_64__) && !defined(__LP64__)
+#if defined(__x86_64__) && __SIZEOF_POINTER__ == 4  // Check for x32.
 #define V8_HOST_ARCH_32_BIT 1
 #else
 #define V8_HOST_ARCH_64_BIT 1
 #endif
-#define V8_HOST_CAN_READ_UNALIGNED 1
 #endif  // __native_client__
+#elif defined(__pnacl__)
+// PNaCl is also ILP-32.
+#define V8_HOST_ARCH_IA32 1
+#define V8_HOST_ARCH_32_BIT 1
 #elif defined(_M_IX86) || defined(__i386__)
 #define V8_HOST_ARCH_IA32 1
 #define V8_HOST_ARCH_32_BIT 1
-#define V8_HOST_CAN_READ_UNALIGNED 1
 #elif defined(__AARCH64EL__)
 #define V8_HOST_ARCH_ARM64 1
 #define V8_HOST_ARCH_64_BIT 1
-#define V8_HOST_CAN_READ_UNALIGNED 1
 #elif defined(__ARMEL__)
 #define V8_HOST_ARCH_ARM 1
 #define V8_HOST_ARCH_32_BIT 1
@@ -48,6 +48,13 @@
 #elif defined(__MIPSEB__) || defined(__MIPSEL__)
 #define V8_HOST_ARCH_MIPS 1
 #define V8_HOST_ARCH_32_BIT 1
+#elif defined(__PPC__) || defined(_ARCH_PPC)
+#define V8_HOST_ARCH_PPC 1
+#if defined(__PPC64__) || defined(_ARCH_PPC64)
+#define V8_HOST_ARCH_64_BIT 1
+#else
+#define V8_HOST_ARCH_32_BIT 1
+#endif
 #else
 #error "Host architecture was not detected as supported by v8"
 #endif
@@ -65,9 +72,9 @@
 // Target architecture detection. This may be set externally. If not, detect
 // in the same way as the host architecture, that is, target the native
 // environment as presented by the compiler.
-#if !V8_TARGET_ARCH_X64 && !V8_TARGET_ARCH_IA32 && !V8_TARGET_ARCH_X87 && \
+#if !V8_TARGET_ARCH_X64 && !V8_TARGET_ARCH_IA32 && !V8_TARGET_ARCH_X87 &&   \
     !V8_TARGET_ARCH_ARM && !V8_TARGET_ARCH_ARM64 && !V8_TARGET_ARCH_MIPS && \
-    !V8_TARGET_ARCH_MIPS64
+    !V8_TARGET_ARCH_MIPS64 && !V8_TARGET_ARCH_PPC
 #if defined(_M_X64) || defined(__x86_64__)
 #define V8_TARGET_ARCH_X64 1
 #elif defined(_M_IX86) || defined(__i386__)
@@ -90,7 +97,7 @@
 #define V8_TARGET_ARCH_32_BIT 1
 #elif V8_TARGET_ARCH_X64
 #if !V8_TARGET_ARCH_32_BIT && !V8_TARGET_ARCH_64_BIT
-#if defined(__x86_64__) && !defined(__LP64__)
+#if defined(__x86_64__) && __SIZEOF_POINTER__ == 4  // Check for x32.
 #define V8_TARGET_ARCH_32_BIT 1
 #else
 #define V8_TARGET_ARCH_64_BIT 1
@@ -104,6 +111,12 @@
 #define V8_TARGET_ARCH_32_BIT 1
 #elif V8_TARGET_ARCH_MIPS64
 #define V8_TARGET_ARCH_64_BIT 1
+#elif V8_TARGET_ARCH_PPC
+#if V8_TARGET_ARCH_PPC64
+#define V8_TARGET_ARCH_64_BIT 1
+#else
+#define V8_TARGET_ARCH_32_BIT 1
+#endif
 #elif V8_TARGET_ARCH_X87
 #define V8_TARGET_ARCH_32_BIT 1
 #else
@@ -154,12 +167,12 @@
 #define V8_TARGET_LITTLE_ENDIAN 1
 #elif V8_TARGET_ARCH_X87
 #define V8_TARGET_LITTLE_ENDIAN 1
+#elif V8_TARGET_ARCH_PPC_LE
+#define V8_TARGET_LITTLE_ENDIAN 1
+#elif V8_TARGET_ARCH_PPC_BE
+#define V8_TARGET_BIG_ENDIAN 1
 #else
 #error Unknown target architecture endianness
-#endif
-
-#if V8_OS_MACOSX || defined(__FreeBSD__) || defined(__OpenBSD__)
-#define USING_BSD_ABI
 #endif
 
 // Number of bits to represent the page size for paged spaces. The value of 20

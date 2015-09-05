@@ -7,11 +7,14 @@
 
 #include "src/v8.h"
 
+#include "src/bailout-reason.h"
 #include "src/compiler.h"
+#include "src/deoptimizer.h"
 
 namespace v8 {
 namespace internal {
 
+class LEnvironment;
 class LInstruction;
 class LPlatformChunk;
 
@@ -33,6 +36,9 @@ class LCodeGenBase BASE_EMBEDDED {
   HGraph* graph() const;
 
   void FPRINTF_CHECKING Comment(const char* format, ...);
+  void DeoptComment(const Deoptimizer::DeoptInfo& deopt_info);
+  static Deoptimizer::DeoptInfo MakeDeoptInfo(
+      LInstruction* instr, Deoptimizer::DeoptReason deopt_reason);
 
   bool GenerateBody();
   virtual void GenerateBodyInstructionPre(LInstruction* instr) {}
@@ -44,6 +50,10 @@ class LCodeGenBase BASE_EMBEDDED {
   int GetNextEmittedBlock() const;
 
   void RegisterWeakObjectsInOptimizedCode(Handle<Code> code);
+
+  void WriteTranslationFrame(LEnvironment* environment,
+                             Translation* translation);
+  int DefineDeoptimizationLiteral(Handle<Object> literal);
 
   // Check that an environment assigned via AssignEnvironment is actually being
   // used. Redundant assignments keep things alive longer than necessary, and
@@ -66,6 +76,7 @@ class LCodeGenBase BASE_EMBEDDED {
   int current_block_;
   int current_instruction_;
   const ZoneList<LInstruction*>* instructions_;
+  ZoneList<Handle<Object> > deoptimization_literals_;
   int last_lazy_deopt_pc_;
 
   bool is_unused() const { return status_ == UNUSED; }
@@ -74,6 +85,7 @@ class LCodeGenBase BASE_EMBEDDED {
   bool is_aborted() const { return status_ == ABORTED; }
 
   void Abort(BailoutReason reason);
+  void Retry(BailoutReason reason);
 
   // Methods for code dependencies.
   void AddDeprecationDependency(Handle<Map> map);

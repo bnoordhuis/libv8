@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "src/v8.h"
-
 #include "src/assembler.h"
 #include "src/code-stubs.h"
 #include "src/compiler/linkage.h"
@@ -14,7 +12,7 @@ namespace v8 {
 namespace internal {
 namespace compiler {
 
-struct LinkageHelperTraits {
+struct Arm64LinkageHelperTraits {
   static Register ReturnValueReg() { return x0; }
   static Register ReturnValue2Reg() { return x1; }
   static Register JSCallFunctionReg() { return x1; }
@@ -22,47 +20,57 @@ struct LinkageHelperTraits {
   static Register RuntimeCallFunctionReg() { return x1; }
   static Register RuntimeCallArgCountReg() { return x0; }
   static RegList CCalleeSaveRegisters() {
-    // TODO(dcarney): correct callee saved registers.
-    return 0;
+    return (1 << x19.code()) | (1 << x20.code()) | (1 << x21.code()) |
+           (1 << x22.code()) | (1 << x23.code()) | (1 << x24.code()) |
+           (1 << x25.code()) | (1 << x26.code()) | (1 << x27.code()) |
+           (1 << x28.code()) | (1 << x29.code()) | (1 << x30.code());
+  }
+  static RegList CCalleeSaveFPRegisters() {
+    return (1 << d8.code()) | (1 << d9.code()) | (1 << d10.code()) |
+           (1 << d11.code()) | (1 << d12.code()) | (1 << d13.code()) |
+           (1 << d14.code()) | (1 << d15.code());
   }
   static Register CRegisterParameter(int i) {
     static Register register_parameters[] = {x0, x1, x2, x3, x4, x5, x6, x7};
     return register_parameters[i];
   }
   static int CRegisterParametersLength() { return 8; }
+  static int CStackBackingStoreLength() { return 0; }
 };
 
 
-CallDescriptor* Linkage::GetJSCallDescriptor(int parameter_count, Zone* zone) {
-  return LinkageHelper::GetJSCallDescriptor<LinkageHelperTraits>(
-      zone, parameter_count);
+typedef LinkageHelper<Arm64LinkageHelperTraits> LH;
+
+CallDescriptor* Linkage::GetJSCallDescriptor(Zone* zone, bool is_osr,
+                                             int parameter_count,
+                                             CallDescriptor::Flags flags) {
+  return LH::GetJSCallDescriptor(zone, is_osr, parameter_count, flags);
 }
 
 
 CallDescriptor* Linkage::GetRuntimeCallDescriptor(
-    Runtime::FunctionId function, int parameter_count,
-    Operator::Property properties,
-    CallDescriptor::DeoptimizationSupport can_deoptimize, Zone* zone) {
-  return LinkageHelper::GetRuntimeCallDescriptor<LinkageHelperTraits>(
-      zone, function, parameter_count, properties, can_deoptimize);
+    Zone* zone, Runtime::FunctionId function, int parameter_count,
+    Operator::Properties properties) {
+  return LH::GetRuntimeCallDescriptor(zone, function, parameter_count,
+                                      properties);
 }
 
 
 CallDescriptor* Linkage::GetStubCallDescriptor(
-    CodeStubInterfaceDescriptor* descriptor, int stack_parameter_count,
-    CallDescriptor::DeoptimizationSupport can_deoptimize, Zone* zone) {
-  return LinkageHelper::GetStubCallDescriptor<LinkageHelperTraits>(
-      zone, descriptor, stack_parameter_count, can_deoptimize);
+    Isolate* isolate, Zone* zone, const CallInterfaceDescriptor& descriptor,
+    int stack_parameter_count, CallDescriptor::Flags flags,
+    Operator::Properties properties, MachineType return_type) {
+  return LH::GetStubCallDescriptor(isolate, zone, descriptor,
+                                   stack_parameter_count, flags, properties,
+                                   return_type);
 }
 
 
-CallDescriptor* Linkage::GetSimplifiedCDescriptor(
-    Zone* zone, int num_params, MachineType return_type,
-    const MachineType* param_types) {
-  return LinkageHelper::GetSimplifiedCDescriptor<LinkageHelperTraits>(
-      zone, num_params, return_type, param_types);
+CallDescriptor* Linkage::GetSimplifiedCDescriptor(Zone* zone,
+                                                  const MachineSignature* sig) {
+  return LH::GetSimplifiedCDescriptor(zone, sig);
 }
 
-}
-}
-}  // namespace v8::internal::compiler
+}  // namespace compiler
+}  // namespace internal
+}  // namespace v8

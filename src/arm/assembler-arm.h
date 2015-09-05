@@ -45,7 +45,7 @@
 
 #include "src/arm/constants-arm.h"
 #include "src/assembler.h"
-#include "src/serialize.h"
+#include "src/compiler.h"
 
 namespace v8 {
 namespace internal {
@@ -94,7 +94,7 @@ const int kRegister_pc_Code = 15;
 struct Register {
   static const int kNumRegisters = 16;
   static const int kMaxNumAllocatableRegisters =
-      FLAG_enable_ool_constant_pool ? 8 : 9;
+      FLAG_enable_embedded_constant_pool ? 8 : 9;
   static const int kSizeInBytes = 4;
 
   inline static int NumAllocatableRegisters();
@@ -122,7 +122,7 @@ struct Register {
       "r7",
       "r8",
     };
-    if (FLAG_enable_ool_constant_pool && (index >= 7)) {
+    if (FLAG_enable_embedded_constant_pool && (index >= 7)) {
       return names[index + 1];
     }
     return names[index];
@@ -162,9 +162,9 @@ const Register r3  = { kRegister_r3_Code };
 const Register r4  = { kRegister_r4_Code };
 const Register r5  = { kRegister_r5_Code };
 const Register r6  = { kRegister_r6_Code };
-// Used as constant pool pointer register if FLAG_enable_ool_constant_pool.
-const Register r7  = { kRegister_r7_Code };
 // Used as context register.
+const Register r7 = {kRegister_r7_Code};
+// Used as constant pool pointer register if FLAG_enable_embedded_constant_pool.
 const Register r8  = { kRegister_r8_Code };
 // Used as lithium codegen scratch register.
 const Register r9  = { kRegister_r9_Code };
@@ -217,6 +217,11 @@ struct DwVfpRegister {
   inline static int NumRegisters();
   inline static int NumReservedRegisters();
   inline static int NumAllocatableRegisters();
+
+  // TODO(turbofan): This is a temporary work-around required because our
+  // register allocator does not yet support the aliasing of single/double
+  // registers on ARM.
+  inline static int NumAllocatableAliasedRegisters();
 
   inline static int ToAllocationIndex(DwVfpRegister reg);
   static const char* AllocationIndexToString(int index);
@@ -646,52 +651,6 @@ class NeonListOperand BASE_EMBEDDED {
 };
 
 
-// Class used to build a constant pool.
-class ConstantPoolBuilder BASE_EMBEDDED {
- public:
-  ConstantPoolBuilder();
-  ConstantPoolArray::LayoutSection AddEntry(Assembler* assm,
-                                            const RelocInfo& rinfo);
-  void Relocate(int pc_delta);
-  bool IsEmpty();
-  Handle<ConstantPoolArray> New(Isolate* isolate);
-  void Populate(Assembler* assm, ConstantPoolArray* constant_pool);
-
-  inline ConstantPoolArray::LayoutSection current_section() const {
-    return current_section_;
-  }
-
-  inline ConstantPoolArray::NumberOfEntries* number_of_entries(
-      ConstantPoolArray::LayoutSection section) {
-    return &number_of_entries_[section];
-  }
-
-  inline ConstantPoolArray::NumberOfEntries* small_entries() {
-    return number_of_entries(ConstantPoolArray::SMALL_SECTION);
-  }
-
-  inline ConstantPoolArray::NumberOfEntries* extended_entries() {
-    return number_of_entries(ConstantPoolArray::EXTENDED_SECTION);
-  }
-
- private:
-  struct ConstantPoolEntry {
-    ConstantPoolEntry(RelocInfo rinfo, ConstantPoolArray::LayoutSection section,
-                      int merged_index)
-        : rinfo_(rinfo), section_(section), merged_index_(merged_index) {}
-
-    RelocInfo rinfo_;
-    ConstantPoolArray::LayoutSection section_;
-    int merged_index_;
-  };
-
-  ConstantPoolArray::Type GetConstantPoolType(RelocInfo::Mode rmode);
-
-  std::vector<ConstantPoolEntry> entries_;
-  ConstantPoolArray::LayoutSection current_section_;
-  ConstantPoolArray::NumberOfEntries number_of_entries_[2];
-};
-
 struct VmovIndex {
   unsigned char index;
 };
@@ -741,7 +700,7 @@ class Assembler : public AssemblerBase {
   // Returns the branch offset to the given label from the current code position
   // Links the label to the current position if it is still unbound
   // Manages the jump elimination optimization if the second parameter is true.
-  int branch_offset(Label* L, bool jump_elimination_allowed);
+  int branch_offset(Label* L);
 
   // Returns true if the given pc address is the start of a constant pool load
   // instruction sequence.
@@ -749,19 +708,16 @@ class Assembler : public AssemblerBase {
 
   // Return the address in the constant pool of the code target address used by
   // the branch/call instruction at pc, or the object in a mov.
-  INLINE(static Address constant_pool_entry_address(
-    Address pc, ConstantPoolArray* constant_pool));
+  INLINE(static Address constant_pool_entry_address(Address pc,
+                                                    Address constant_pool));
 
   // Read/Modify the code target address in the branch/call instruction at pc.
-  INLINE(static Address target_address_at(Address pc,
-                                          ConstantPoolArray* constant_pool));
-  INLINE(static void set_target_address_at(Address pc,
-                                           ConstantPoolArray* constant_pool,
-                                           Address target,
-                                           ICacheFlushMode icache_flush_mode =
-                                               FLUSH_ICACHE_IF_NEEDED));
+  INLINE(static Address target_address_at(Address pc, Address constant_pool));
+  INLINE(static void set_target_address_at(
+      Address pc, Address constant_pool, Address target,
+      ICacheFlushMode icache_flush_mode = FLUSH_ICACHE_IF_NEEDED));
   INLINE(static Address target_address_at(Address pc, Code* code)) {
-    ConstantPoolArray* constant_pool = code ? code->constant_pool() : NULL;
+    Address constant_pool = code ? code->constant_pool() : NULL;
     return target_address_at(pc, constant_pool);
   }
   INLINE(static void set_target_address_at(Address pc,
@@ -769,7 +725,7 @@ class Assembler : public AssemblerBase {
                                            Address target,
                                            ICacheFlushMode icache_flush_mode =
                                                FLUSH_ICACHE_IF_NEEDED)) {
-    ConstantPoolArray* constant_pool = code ? code->constant_pool() : NULL;
+    Address constant_pool = code ? code->constant_pool() : NULL;
     set_target_address_at(pc, constant_pool, target, icache_flush_mode);
   }
 
@@ -788,6 +744,11 @@ class Assembler : public AssemblerBase {
   // This is for calls and branches within generated code.
   inline static void deserialization_set_special_target_at(
       Address constant_pool_entry, Code* code, Address target);
+
+  // This sets the internal reference at the pc.
+  inline static void deserialization_set_target_internal_reference_at(
+      Address pc, Address target,
+      RelocInfo::Mode mode = RelocInfo::INTERNAL_REFERENCE);
 
   // Here we are patching the address in the constant pool, not the actual call
   // instruction.  The address in the constant pool is the same size as a
@@ -818,6 +779,8 @@ class Assembler : public AssemblerBase {
   static const int kPcLoadDelta = 8;
 
   static const int kJSReturnSequenceInstructions = 4;
+  static const int kJSReturnSequenceLength =
+      kJSReturnSequenceInstructions * kInstrSize;
   static const int kDebugBreakSlotInstructions = 3;
   static const int kDebugBreakSlotLength =
       kDebugBreakSlotInstructions * kInstrSize;
@@ -829,6 +792,9 @@ class Assembler : public AssemblerBase {
   // possible to align the pc offset to a multiple
   // of m. m must be a power of 2 (>= 4).
   void Align(int m);
+  // Insert the smallest number of zero bytes possible to align the pc offset
+  // to a mulitple of m. m must be a power of 2 (>= 2).
+  void DataAlign(int m);
   // Aligns code to something that's optimal for a jump target for the platform.
   void CodeTargetAlign();
 
@@ -840,13 +806,11 @@ class Assembler : public AssemblerBase {
   void bx(Register target, Condition cond = al);  // v5 and above, plus v4t
 
   // Convenience branch instructions using labels
-  void b(Label* L, Condition cond = al)  {
-    b(branch_offset(L, cond == al), cond);
-  }
-  void b(Condition cond, Label* L)  { b(branch_offset(L, cond == al), cond); }
-  void bl(Label* L, Condition cond = al)  { bl(branch_offset(L, false), cond); }
-  void bl(Condition cond, Label* L)  { bl(branch_offset(L, false), cond); }
-  void blx(Label* L)  { blx(branch_offset(L, false)); }  // v5 and above
+  void b(Label* L, Condition cond = al);
+  void b(Condition cond, Label* L) { b(L, cond); }
+  void bl(Label* L, Condition cond = al);
+  void bl(Condition cond, Label* L) { bl(L, cond); }
+  void blx(Label* L);  // v5 and above
 
   // Data-processing instructions
 
@@ -970,6 +934,11 @@ class Assembler : public AssemblerBase {
   void mul(Register dst, Register src1, Register src2,
            SBit s = LeaveCC, Condition cond = al);
 
+  void smmla(Register dst, Register src1, Register src2, Register srcA,
+             Condition cond = al);
+
+  void smmul(Register dst, Register src1, Register src2, Condition cond = al);
+
   void smlal(Register dstL, Register dstH, Register src1, Register src2,
              SBit s = LeaveCC, Condition cond = al);
 
@@ -1024,12 +993,20 @@ class Assembler : public AssemblerBase {
   void pkhtb(Register dst, Register src1, const Operand& src2,
              Condition cond = al);
 
-  void uxtb(Register dst, const Operand& src, Condition cond = al);
-
-  void uxtab(Register dst, Register src1, const Operand& src2,
+  void sxtb(Register dst, Register src, int rotate = 0, Condition cond = al);
+  void sxtab(Register dst, Register src1, Register src2, int rotate = 0,
+             Condition cond = al);
+  void sxth(Register dst, Register src, int rotate = 0, Condition cond = al);
+  void sxtah(Register dst, Register src1, Register src2, int rotate = 0,
              Condition cond = al);
 
-  void uxtb16(Register dst, const Operand& src, Condition cond = al);
+  void uxtb(Register dst, Register src, int rotate = 0, Condition cond = al);
+  void uxtab(Register dst, Register src1, Register src2, int rotate = 0,
+             Condition cond = al);
+  void uxtb16(Register dst, Register src, int rotate = 0, Condition cond = al);
+  void uxth(Register dst, Register src, int rotate = 0, Condition cond = al);
+  void uxtah(Register dst, Register src1, Register src2, int rotate = 0,
+             Condition cond = al);
 
   // Status register access instructions
 
@@ -1162,6 +1139,7 @@ class Assembler : public AssemblerBase {
             SwVfpRegister last,
             Condition cond = al);
 
+  void vmov(const SwVfpRegister dst, float imm);
   void vmov(const DwVfpRegister dst,
             double imm,
             const Register scratch = no_reg);
@@ -1225,49 +1203,78 @@ class Assembler : public AssemblerBase {
                     int fraction_bits,
                     const Condition cond = al);
 
+  void vmrs(const Register dst, const Condition cond = al);
+  void vmsr(const Register dst, const Condition cond = al);
+
   void vneg(const DwVfpRegister dst,
             const DwVfpRegister src,
             const Condition cond = al);
+  void vneg(const SwVfpRegister dst, const SwVfpRegister src,
+            const Condition cond = al);
   void vabs(const DwVfpRegister dst,
             const DwVfpRegister src,
+            const Condition cond = al);
+  void vabs(const SwVfpRegister dst, const SwVfpRegister src,
             const Condition cond = al);
   void vadd(const DwVfpRegister dst,
             const DwVfpRegister src1,
             const DwVfpRegister src2,
             const Condition cond = al);
+  void vadd(const SwVfpRegister dst, const SwVfpRegister src1,
+            const SwVfpRegister src2, const Condition cond = al);
   void vsub(const DwVfpRegister dst,
             const DwVfpRegister src1,
             const DwVfpRegister src2,
             const Condition cond = al);
+  void vsub(const SwVfpRegister dst, const SwVfpRegister src1,
+            const SwVfpRegister src2, const Condition cond = al);
   void vmul(const DwVfpRegister dst,
             const DwVfpRegister src1,
             const DwVfpRegister src2,
             const Condition cond = al);
+  void vmul(const SwVfpRegister dst, const SwVfpRegister src1,
+            const SwVfpRegister src2, const Condition cond = al);
   void vmla(const DwVfpRegister dst,
             const DwVfpRegister src1,
             const DwVfpRegister src2,
             const Condition cond = al);
+  void vmla(const SwVfpRegister dst, const SwVfpRegister src1,
+            const SwVfpRegister src2, const Condition cond = al);
   void vmls(const DwVfpRegister dst,
             const DwVfpRegister src1,
             const DwVfpRegister src2,
             const Condition cond = al);
+  void vmls(const SwVfpRegister dst, const SwVfpRegister src1,
+            const SwVfpRegister src2, const Condition cond = al);
   void vdiv(const DwVfpRegister dst,
             const DwVfpRegister src1,
             const DwVfpRegister src2,
             const Condition cond = al);
+  void vdiv(const SwVfpRegister dst, const SwVfpRegister src1,
+            const SwVfpRegister src2, const Condition cond = al);
   void vcmp(const DwVfpRegister src1,
             const DwVfpRegister src2,
+            const Condition cond = al);
+  void vcmp(const SwVfpRegister src1, const SwVfpRegister src2,
             const Condition cond = al);
   void vcmp(const DwVfpRegister src1,
             const double src2,
             const Condition cond = al);
-  void vmrs(const Register dst,
-            const Condition cond = al);
-  void vmsr(const Register dst,
+  void vcmp(const SwVfpRegister src1, const float src2,
             const Condition cond = al);
   void vsqrt(const DwVfpRegister dst,
              const DwVfpRegister src,
              const Condition cond = al);
+  void vsqrt(const SwVfpRegister dst, const SwVfpRegister src,
+             const Condition cond = al);
+
+  // ARMv8 rounding instructions.
+  void vrinta(const DwVfpRegister dst, const DwVfpRegister src);
+  void vrintn(const DwVfpRegister dst, const DwVfpRegister src);
+  void vrintm(const DwVfpRegister dst, const DwVfpRegister src);
+  void vrintp(const DwVfpRegister dst, const DwVfpRegister src);
+  void vrintz(const DwVfpRegister dst, const DwVfpRegister src,
+              const Condition cond = al);
 
   // Support for NEON.
   // All these APIs support D0 to D31 and Q0 to Q15.
@@ -1371,6 +1378,10 @@ class Assembler : public AssemblerBase {
   // Use --code-comments to enable.
   void RecordComment(const char* msg);
 
+  // Record a deoptimization reason that can be used by a log or cpu profiler.
+  // Use --trace-deopt to enable.
+  void RecordDeoptReason(const int reason, const SourcePosition position);
+
   // Record the emission of a constant pool.
   //
   // The emission of constant pool depends on the size of the code generated and
@@ -1391,11 +1402,13 @@ class Assembler : public AssemblerBase {
   void RecordConstPool(int size);
 
   // Writes a single byte or word of data in the code stream.  Used
-  // for inline tables, e.g., jump-tables. The constant pool should be
-  // emitted before any use of db and dd to ensure that constant pools
+  // for inline tables, e.g., jump-tables. CheckConstantPool() should be
+  // called before any use of db/dd/dq/dp to ensure that constant pools
   // are not emitted as part of the tables generated.
   void db(uint8_t data);
   void dd(uint32_t data);
+  void dq(uint64_t data);
+  void dp(uintptr_t data) { dd(data); }
 
   // Emits the address of the code stub's first instruction.
   void emit_code_stub_address(Code* stub);
@@ -1449,12 +1462,16 @@ class Assembler : public AssemblerBase {
   static Register GetCmpImmediateRegister(Instr instr);
   static int GetCmpImmediateRawImmediate(Instr instr);
   static bool IsNop(Instr instr, int type = NON_MARKING_NOP);
+  static bool IsMovImmed(Instr instr);
+  static bool IsOrrImmed(Instr instr);
   static bool IsMovT(Instr instr);
   static Instr GetMovTPattern();
   static bool IsMovW(Instr instr);
   static Instr GetMovWPattern();
   static Instr EncodeMovwImmediate(uint32_t immediate);
   static Instr PatchMovwImmediate(Instr instruction, uint32_t immediate);
+  static int DecodeShiftImm(Instr instr);
+  static Instr PatchShiftImm(Instr instr, int immed);
 
   // Constants in pools are accessed via pc relative addressing, which can
   // reach +/-4KB for integer PC-relative loads and +/-1KB for floating-point
@@ -1463,8 +1480,8 @@ class Assembler : public AssemblerBase {
   static const int kMaxDistToIntPool = 4*KB;
   static const int kMaxDistToFPPool = 1*KB;
   // All relocations could be integer, it therefore acts as the limit.
-  static const int kMaxNumPending32RelocInfo = kMaxDistToIntPool/kInstrSize;
-  static const int kMaxNumPending64RelocInfo = kMaxDistToFPPool/kInstrSize;
+  static const int kMaxNumPending32Constants = kMaxDistToIntPool / kInstrSize;
+  static const int kMaxNumPending64Constants = kMaxDistToFPPool / kInstrSize;
 
   // Postpone the generation of the constant pool for the specified number of
   // instructions.
@@ -1473,19 +1490,25 @@ class Assembler : public AssemblerBase {
   // Check if is time to emit a constant pool.
   void CheckConstPool(bool force_emit, bool require_jump);
 
-  // Allocate a constant pool of the correct size for the generated code.
-  Handle<ConstantPoolArray> NewConstantPool(Isolate* isolate);
-
-  // Generate the constant pool for the generated code.
-  void PopulateConstantPool(ConstantPoolArray* constant_pool);
-
-  bool is_constant_pool_available() const { return constant_pool_available_; }
-
-  bool use_extended_constant_pool() const {
-    return constant_pool_builder_.current_section() ==
-           ConstantPoolArray::EXTENDED_SECTION;
+  void MaybeCheckConstPool() {
+    if (pc_offset() >= next_buffer_check_) {
+      CheckConstPool(false, true);
+    }
   }
 
+  int EmitEmbeddedConstantPool() {
+    DCHECK(FLAG_enable_embedded_constant_pool);
+    return constant_pool_builder_.Emit(this);
+  }
+
+  bool ConstantPoolAccessIsInOverflow() const {
+    return constant_pool_builder_.NextAccess(ConstantPoolEntry::INTPTR) ==
+           ConstantPoolEntry::OVERFLOWED;
+  }
+
+  void PatchConstantPoolAccessInstruction(int pc_offset, int offset,
+                                          ConstantPoolEntry::Access access,
+                                          ConstantPoolEntry::Type type);
 
  protected:
   // Relocation for a type-recording IC has the AST id added to it.  This
@@ -1520,10 +1543,10 @@ class Assembler : public AssemblerBase {
       // Max pool start (if we need a jump and an alignment).
       int start = pc_offset() + kInstrSize + 2 * kPointerSize;
       // Check the constant pool hasn't been blocked for too long.
-      DCHECK((num_pending_32_bit_reloc_info_ == 0) ||
-             (start + num_pending_64_bit_reloc_info_ * kDoubleSize <
+      DCHECK((num_pending_32_bit_constants_ == 0) ||
+             (start + num_pending_64_bit_constants_ * kDoubleSize <
               (first_const_pool_32_use_ + kMaxDistToIntPool)));
-      DCHECK((num_pending_64_bit_reloc_info_ == 0) ||
+      DCHECK((num_pending_64_bit_constants_ == 0) ||
              (start < (first_const_pool_64_use_ + kMaxDistToFPPool)));
 #endif
       // Two cases:
@@ -1538,10 +1561,6 @@ class Assembler : public AssemblerBase {
   bool is_const_pool_blocked() const {
     return (const_pool_blocked_nesting_ > 0) ||
            (pc_offset() < no_const_pool_before_);
-  }
-
-  void set_constant_pool_available(bool available) {
-    constant_pool_available_ = available;
   }
 
  private:
@@ -1586,29 +1605,25 @@ class Assembler : public AssemblerBase {
   static const int kMaxRelocSize = RelocInfoWriter::kMaxSize;
   RelocInfoWriter reloc_info_writer;
 
-  // Relocation info records are also used during code generation as temporary
+  // ConstantPoolEntry records are used during code generation as temporary
   // containers for constants and code target addresses until they are emitted
-  // to the constant pool. These pending relocation info records are temporarily
-  // stored in a separate buffer until a constant pool is emitted.
+  // to the constant pool. These records are temporarily stored in a separate
+  // buffer until a constant pool is emitted.
   // If every instruction in a long sequence is accessing the pool, we need one
   // pending relocation entry per instruction.
 
-  // The buffers of pending relocation info.
-  RelocInfo pending_32_bit_reloc_info_[kMaxNumPending32RelocInfo];
-  RelocInfo pending_64_bit_reloc_info_[kMaxNumPending64RelocInfo];
-  // Number of pending reloc info entries in the 32 bits buffer.
-  int num_pending_32_bit_reloc_info_;
-  // Number of pending reloc info entries in the 64 bits buffer.
-  int num_pending_64_bit_reloc_info_;
+  // The buffers of pending constant pool entries.
+  ConstantPoolEntry pending_32_bit_constants_[kMaxNumPending32Constants];
+  ConstantPoolEntry pending_64_bit_constants_[kMaxNumPending64Constants];
+  // Number of pending constant pool entries in the 32 bits buffer.
+  int num_pending_32_bit_constants_;
+  // Number of pending constant pool entries in the 64 bits buffer.
+  int num_pending_64_bit_constants_;
 
   ConstantPoolBuilder constant_pool_builder_;
 
   // The bound position, before this we cannot do instruction elimination.
   int last_bound_pos_;
-
-  // Indicates whether the constant pool can be accessed, which is only possible
-  // if the pp register points to the current code object's constant pool.
-  bool constant_pool_available_;
 
   // Code emission
   inline void CheckBuffer();
@@ -1632,22 +1647,16 @@ class Assembler : public AssemblerBase {
   void bind_to(Label* L, int pos);
   void next(Label* L);
 
-  enum UseConstantPoolMode {
-    USE_CONSTANT_POOL,
-    DONT_USE_CONSTANT_POOL
-  };
-
   // Record reloc info for current pc_
   void RecordRelocInfo(RelocInfo::Mode rmode, intptr_t data = 0);
-  void RecordRelocInfo(const RelocInfo& rinfo);
-  ConstantPoolArray::LayoutSection ConstantPoolAddEntry(const RelocInfo& rinfo);
+  ConstantPoolEntry::Access ConstantPoolAddEntry(int position,
+                                                 RelocInfo::Mode rmode,
+                                                 intptr_t value);
+  ConstantPoolEntry::Access ConstantPoolAddEntry(int position, double value);
 
   friend class RelocInfo;
   friend class CodePatcher;
   friend class BlockConstPoolScope;
-  friend class FrameAndConstantPoolScope;
-  friend class ConstantPoolUnavailableScope;
-
   PositionsRecorder positions_recorder_;
   friend class PositionsRecorder;
   friend class EnsureSpace;

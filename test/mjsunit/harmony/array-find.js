@@ -201,7 +201,7 @@ assertEquals(22, a.find(function(val) { return 22 === val; }), undefined);
 
 
 //
-// Test predicate is only called for existing elements
+// Test predicate is called for holes
 //
 (function() {
   var a = new Array(30);
@@ -211,7 +211,27 @@ assertEquals(22, a.find(function(val) { return 22 === val; }), undefined);
 
   var count = 0;
   a.find(function() { count++; return false; });
-  assertEquals(3, count);
+  assertEquals(30, count);
+})();
+
+
+(function() {
+  var a = [0, 1, , 3];
+  var count = 0;
+  var found = a.find(function(val) { return val === undefined; });
+  assertEquals(undefined, found);
+})();
+
+
+(function() {
+  var a = [0, 1, , 3];
+  a.__proto__ = {
+    __proto__: Array.prototype,
+    2: 42,
+  };
+  var count = 0;
+  var found = a.find(function(val) { return val === 42; });
+  assertEquals(42, found);
 })();
 
 
@@ -237,6 +257,24 @@ assertEquals(22, a.find(function(val) { return 22 === val; }), undefined);
     return this.elementAt(key) === val;
   }, thisArg);
   assertEquals("b", found);
+
+  // Create a new object in each function call when receiver is a
+  // primitive value. See ECMA-262, Annex C.
+  a = [];
+  [1, 2].find(function() { a.push(this) }, "");
+  assertTrue(a[0] !== a[1]);
+
+  // Do not create a new object otherwise.
+  a = [];
+  [1, 2].find(function() { a.push(this) }, {});
+  assertEquals(a[0], a[1]);
+
+  // In strict mode primitive values should not be coerced to an object.
+  a = [];
+  [1, 2].find(function() { 'use strict'; a.push(this); }, "");
+  assertEquals("", a[0]);
+  assertEquals(a[0], a[1]);
+
 })();
 
 // Test exceptions

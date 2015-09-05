@@ -30,8 +30,6 @@
 
 #include "src/v8.h"
 
-#include "src/isolate-inl.h"
-
 #ifndef TEST
 #define TEST(Name)                                                             \
   static void Test##Name();                                                    \
@@ -50,6 +48,13 @@
 #define DEPENDENT_TEST(Name, Dep)                                              \
   static void Test##Name();                                                    \
   CcTest register_test_##Name(Test##Name, __FILE__, #Name, #Dep, true, true);  \
+  static void Test##Name()
+#endif
+
+#ifndef UNINITIALIZED_DEPENDENT_TEST
+#define UNINITIALIZED_DEPENDENT_TEST(Name, Dep)                                \
+  static void Test##Name();                                                    \
+  CcTest register_test_##Name(Test##Name, __FILE__, #Name, #Dep, true, false); \
   static void Test##Name()
 #endif
 
@@ -88,10 +93,12 @@ class TestHeap : public i::Heap {
   using i::Heap::AllocateByteArray;
   using i::Heap::AllocateFixedArray;
   using i::Heap::AllocateHeapNumber;
+  using i::Heap::AllocateFloat32x4;
   using i::Heap::AllocateJSObject;
   using i::Heap::AllocateJSObjectFromMap;
   using i::Heap::AllocateMap;
   using i::Heap::CopyCode;
+  using i::Heap::kInitialNumberStringCacheSize;
 };
 
 
@@ -110,7 +117,7 @@ class CcTest {
 
   static v8::Isolate* isolate() {
     CHECK(isolate_ != NULL);
-    isolate_used_ = true;
+    v8::base::NoBarrier_Store(&isolate_used_, 1);
     return isolate_;
   }
 
@@ -139,10 +146,19 @@ class CcTest {
     return isolate()->GetCurrentContext()->Global();
   }
 
+  static v8::ArrayBuffer::Allocator* array_buffer_allocator() {
+    return allocator_;
+  }
+
+  static void set_array_buffer_allocator(
+      v8::ArrayBuffer::Allocator* allocator) {
+    allocator_ = allocator;
+  }
+
   // TODO(dcarney): Remove.
   // This must be called first in a test.
   static void InitializeVM() {
-    CHECK(!isolate_used_);
+    CHECK(!v8::base::NoBarrier_Load(&isolate_used_));
     CHECK(!initialize_called_);
     initialize_called_ = true;
     v8::HandleScope handle_scope(CcTest::isolate());
@@ -172,9 +188,10 @@ class CcTest {
   bool initialize_;
   CcTest* prev_;
   static CcTest* last_;
+  static v8::ArrayBuffer::Allocator* allocator_;
   static v8::Isolate* isolate_;
   static bool initialize_called_;
-  static bool isolate_used_;
+  static v8::base::Atomic32 isolate_used_;
 };
 
 // Switches between all the Api tests using the threading support.
@@ -339,6 +356,11 @@ static inline v8::Local<v8::String> v8_str(const char* x) {
 }
 
 
+static inline v8::Local<v8::Symbol> v8_symbol(const char* name) {
+  return v8::Symbol::New(v8::Isolate::GetCurrent(), v8_str(name));
+}
+
+
 static inline v8::Local<v8::Script> v8_compile(const char* x) {
   return v8::Script::Compile(v8_str(x));
 }
@@ -373,6 +395,21 @@ static inline v8::Local<v8::Script> CompileWithOrigin(const char* source,
 // Helper functions that compile and run the source.
 static inline v8::Local<v8::Value> CompileRun(const char* source) {
   return v8::Script::Compile(v8_str(source))->Run();
+}
+
+
+// Helper functions that compile and run the source.
+static inline v8::MaybeLocal<v8::Value> CompileRun(
+    v8::Local<v8::Context> context, const char* source) {
+  return v8::Script::Compile(v8_str(source))->Run(context);
+}
+
+
+// Compiles source as an ES6 module.
+static inline v8::Local<v8::Value> CompileRunModule(const char* source) {
+  v8::ScriptCompiler::Source script_source(v8_str(source));
+  return v8::ScriptCompiler::CompileModule(v8::Isolate::GetCurrent(),
+                                           &script_source)->Run();
 }
 
 
@@ -432,7 +469,7 @@ static inline void ExpectString(const char* code, const char* expected) {
   v8::Local<v8::Value> result = CompileRun(code);
   CHECK(result->IsString());
   v8::String::Utf8Value utf8(result);
-  CHECK_EQ(expected, *utf8);
+  CHECK_EQ(0, strcmp(expected, *utf8));
 }
 
 
@@ -474,15 +511,43 @@ static inline void ExpectUndefined(const char* code) {
 
 
 // Helper function that simulates a full new-space in the heap.
-static inline void SimulateFullSpace(v8::internal::NewSpace* space) {
-  int new_linear_size = static_cast<int>(
-      *space->allocation_limit_address() - *space->allocation_top_address());
+static inline bool FillUpOnePage(v8::internal::NewSpace* space) {
+  v8::internal::AllocationResult allocation = space->AllocateRawUnaligned(
+      v8::internal::Page::kMaxRegularHeapObjectSize);
+  if (allocation.IsRetry()) return false;
+  v8::internal::HeapObject* free_space = NULL;
+  CHECK(allocation.To(&free_space));
+  space->heap()->CreateFillerObjectAt(
+      free_space->address(), v8::internal::Page::kMaxRegularHeapObjectSize);
+  return true;
+}
+
+
+// Helper function that simulates a fill new-space in the heap.
+static inline void AllocateAllButNBytes(v8::internal::NewSpace* space,
+                                        int extra_bytes) {
+  int space_remaining = static_cast<int>(*space->allocation_limit_address() -
+                                         *space->allocation_top_address());
+  CHECK(space_remaining >= extra_bytes);
+  int new_linear_size = space_remaining - extra_bytes;
   if (new_linear_size == 0) return;
   v8::internal::AllocationResult allocation =
-      space->AllocateRaw(new_linear_size);
-  v8::internal::FreeListNode* node =
-      v8::internal::FreeListNode::cast(allocation.ToObjectChecked());
-  node->set_size(space->heap(), new_linear_size);
+      space->AllocateRawUnaligned(new_linear_size);
+  v8::internal::HeapObject* free_space = NULL;
+  CHECK(allocation.To(&free_space));
+  space->heap()->CreateFillerObjectAt(free_space->address(), new_linear_size);
+}
+
+
+static inline void FillCurrentPage(v8::internal::NewSpace* space) {
+  AllocateAllButNBytes(space, 0);
+}
+
+
+static inline void SimulateFullSpace(v8::internal::NewSpace* space) {
+  FillCurrentPage(space);
+  while (FillUpOnePage(space)) {
+  }
 }
 
 
@@ -504,14 +569,29 @@ static inline void SimulateIncrementalMarking(i::Heap* heap) {
   }
   CHECK(marking->IsMarking() || marking->IsStopped());
   if (marking->IsStopped()) {
-    marking->Start();
+    marking->Start(i::Heap::kNoGCFlags);
   }
   CHECK(marking->IsMarking());
   while (!marking->IsComplete()) {
     marking->Step(i::MB, i::IncrementalMarking::NO_GC_VIA_STACK_GUARD);
+    if (marking->IsReadyToOverApproximateWeakClosure()) {
+      marking->MarkObjectGroups();
+    }
   }
   CHECK(marking->IsComplete());
 }
+
+
+static void DummyDebugEventListener(
+    const v8::Debug::EventDetails& event_details) {}
+
+
+static inline void EnableDebugger() {
+  v8::Debug::SetDebugEventListener(&DummyDebugEventListener);
+}
+
+
+static inline void DisableDebugger() { v8::Debug::SetDebugEventListener(NULL); }
 
 
 // Helper class for new allocations tracking and checking.
@@ -521,7 +601,7 @@ class HeapObjectsTracker {
  public:
   HeapObjectsTracker() {
     heap_profiler_ = i::Isolate::Current()->heap_profiler();
-    CHECK_NE(NULL, heap_profiler_);
+    CHECK_NOT_NULL(heap_profiler_);
     heap_profiler_->StartHeapObjectsTracking(true);
   }
 
@@ -553,7 +633,7 @@ class InitializedHandleScope {
 
 class HandleAndZoneScope : public InitializedHandleScope {
  public:
-  HandleAndZoneScope() : main_zone_(main_isolate()) {}
+  HandleAndZoneScope() {}
 
   // Prefixing the below with main_ reduces a lot of naming clashes.
   i::Zone* main_zone() { return &main_zone_; }

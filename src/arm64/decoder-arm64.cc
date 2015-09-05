@@ -17,13 +17,13 @@ namespace internal {
 
 void DispatchingDecoderVisitor::AppendVisitor(DecoderVisitor* new_visitor) {
   visitors_.remove(new_visitor);
-  visitors_.push_front(new_visitor);
+  visitors_.push_back(new_visitor);
 }
 
 
 void DispatchingDecoderVisitor::PrependVisitor(DecoderVisitor* new_visitor) {
   visitors_.remove(new_visitor);
-  visitors_.push_back(new_visitor);
+  visitors_.push_front(new_visitor);
 }
 
 
@@ -81,6 +81,7 @@ VISITOR_LIST(DEFINE_VISITOR_CALLERS)
 #undef DEFINE_VISITOR_CALLERS
 
 
-} }  // namespace v8::internal
+}  // namespace internal
+}  // namespace v8
 
 #endif  // V8_TARGET_ARCH_ARM64
