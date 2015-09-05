@@ -113,8 +113,11 @@ endif
 
 # hardening gyp
 CXXFLAGS+=$(CPPFLAGS)
-export LDFLAGS
 
+# let cctest build
+CXXFLAGS += -Wno-unused-variable
+
+export LDFLAGS
 export CXXFLAGS
 export GYPFLAGS
 
