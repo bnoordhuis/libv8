@@ -17,10 +17,23 @@ Files: src/arm/assembler-arm*
  src/ia32/assembler-ia32*
  src/mips/assembler-mips*
  src/mips64/assembler-mips64*
+ src/ppc/assembler-ppc*
  src/x64/assembler-x64.h
  src/x87/assembler-x87*
 Copyright: 1994-2006,2011, Sun Microsystems Inc.
 License: BSD-3-clause~SUN
+
+Files: test/mjsunit/asm/embenchen/box2d.js
+ test/mjsunit/asm/embenchen/copy.js
+ test/mjsunit/asm/embenchen/corrections.js
+ test/mjsunit/asm/embenchen/fannkuch.js
+ test/mjsunit/asm/embenchen/fasta.js
+ test/mjsunit/asm/embenchen/memops.js
+ test/mjsunit/asm/embenchen/primes.js
+ test/mjsunit/asm/embenchen/zlib.js
+Copyright: FIXME
+License: FIXME
+Comment: asked upstream https://github.com/kripken/embenchen/issues/1
 
 Files: test/mjsunit/third_party/*
 Copyright: 2006,2009, Apple Computer, Inc.
@@ -49,7 +62,7 @@ License: ISC-short-disclaim
 
 Files: test/webkit/fast/js/kde/md5-2.js
  test/mjsunit/md5.js
-Copyright: 1999-2002, Paul Johnston
+Copyright: 1999-2002, Paul Johnston, also contributed by Greg Holt
 License: BSD-2-clause
 
 Files: test/webkit/fast/js/string-split-conformance.js
@@ -84,6 +97,16 @@ Files: benchmarks/crypto.js
 Copyright: 2003-2005, Tom Wu
 License: MIT~Wu
 
+Files: test/mjsunit/asm/embenchen/lua_binarytrees.js
+ test/mjsunit/asm/poppler/poppler.js
+Copyright: 2003-2005, Tom Wu
+License: MIT/X11
+
+Files: test/mjsunit/asm/embenchen/lua_binarytrees.js
+ test/mjsunit/asm/poppler/poppler.js
+Copyright: 2009, The Closure Library Authors.
+License: Apache-2.0
+
 Files: benchmarks/navier-stokes.js
 Copyright: 2009, Oliver Hunt <http://nerget.com>
 License: MIT
@@ -100,8 +123,8 @@ Files: build/android.gypi
 Copyright: 2012, The Chromium Authors
 License: BSD-3-clause~Google
 
-Files: third_party/fdlibm/*
-Copyright: 1993 by Sun Microsystems, Inc. All rights reserved.
+Files: src/third_party/fdlibm/*
+Copyright: 1993-2004 by Sun Microsystems, Inc. All rights reserved.
 License: ISC-no-disclaim
  Developed at SunSoft, a Sun Microsystems, Inc. business.
  Permission to use, copy, modify, and distribute this
@@ -122,6 +145,25 @@ License: public-domain
 Files: debian/*
 Copyright: 2008-2009, Fabien Tassin <fta@sofaraway.org>
 License: BSD-3-clause
+
+License: Apache-2.0
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+ .
+      http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the full text of the Apache Software License version 2 can
+ be found in the file `/usr/share/common-licenses/Apache-2.0'.
 
 License: BSD-3-clause
  Redistribution and use in source and binary forms, with or without
