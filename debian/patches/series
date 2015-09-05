@@ -5,3 +5,5 @@
 disable_unittests_missing_gmock.patch
 icu_chromium_gyp_files.patch
 strict_overflow.patch
+nolibcplusplusabi.patch
+
