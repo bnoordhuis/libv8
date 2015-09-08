@@ -4,12 +4,9 @@ Upstream-Contact: the V8 Project Authors <v8-dev@googlegroups.com>
 Source: http://code.google.com/p/v8
  https://github.com/v8/v8
  Repackaged to exclude a file compiled using emscripten, which is not
- available in debian, making its inclusion non-DFSG,
- and also embenchen tests, which have no explicit license/copyright,
- see https://github.com/kripken/embenchen/issues/1
+ available in debian, making its inclusion non-DFSG.
 Files-Excluded:
  tools/profviz/gnuplot-4.6.3-emscripten.js
- test/mjsunit/asm/embenchen/*
 
 Files: *
 Copyright: 2006-2014 the V8 project authors
@@ -25,6 +22,18 @@ Files: src/arm/assembler-arm*
  src/x87/assembler-x87*
 Copyright: 1994-2006,2011, Sun Microsystems Inc.
 License: BSD-3-clause~Sun
+
+Files: test/mjsunit/asm/embenchen/box2d.js
+ test/mjsunit/asm/embenchen/copy.js
+ test/mjsunit/asm/embenchen/corrections.js
+ test/mjsunit/asm/embenchen/fannkuch.js
+ test/mjsunit/asm/embenchen/fasta.js
+ test/mjsunit/asm/embenchen/memops.js
+ test/mjsunit/asm/embenchen/primes.js
+ test/mjsunit/asm/embenchen/zlib.js
+Copyright: FIXME
+License: FIXME
+Comment: asked upstream https://github.com/kripken/embenchen/issues/1
 
 Files: test/mjsunit/third_party/*
 Copyright: 2006,2009, Apple Computer, Inc.
