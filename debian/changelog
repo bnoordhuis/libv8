@@ -4,7 +4,7 @@ libv8-4.5 (4.5.103.31~dfsg-1) experimental; urgency=medium
   * Update patch, now disable all cc unittests (missing gmock)
   * libv8-dev install only headers, not OWNERS
   * Update copyright, added Apache-2.0 license for some files
-  * DFSG-Exclude embenchen test files - they have no license
+  * Update copyright, license embenchen under Expat
   * Import strict overflow patch from 3.14 branch
   * Patch to avoid build using libc++abi files
   * Do not build using clang, it seems to require remote files
