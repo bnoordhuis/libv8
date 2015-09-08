@@ -60,7 +60,8 @@ Files: test/webkit/fast/js/string-split-conformance.js
 Copyright: Steven Levithan
 License: MIT
 
-Files: src/base/safe_*.h src/base/adapters.h
+Files: src/base/safe_*.h
+ src/base/adapters.h
  BUILD.gn
  debian/patches/icu_chromium_gyp_files.patch
  third_party/binutils/download.py
