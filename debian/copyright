@@ -60,9 +60,10 @@ Files: test/webkit/fast/js/string-split-conformance.js
 Copyright: Steven Levithan
 License: MIT
 
-Files: src/base/safe_*.h
+Files: src/base/safe_*.h src/base/adapters.h
  BUILD.gn
  debian/patches/icu_chromium_gyp_files.patch
+ third_party/binutils/download.py
 Copyright: 2012-2014, The Chromium Authors.
 License: BSD-3-clause~Google
 
