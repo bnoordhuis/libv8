@@ -31,9 +31,9 @@ Files: test/mjsunit/asm/embenchen/box2d.js
  test/mjsunit/asm/embenchen/memops.js
  test/mjsunit/asm/embenchen/primes.js
  test/mjsunit/asm/embenchen/zlib.js
-Copyright: FIXME
-License: FIXME
-Comment: asked upstream https://github.com/kripken/embenchen/issues/1
+Copyright: 2010-2014 Emscripten authors, see Emscripten AUTHORS file
+License: Expat
+Comment: https://github.com/kripken/embenchen/blob/master/LICENSE
 
 Files: test/mjsunit/third_party/*
 Copyright: 2006,2009, Apple Computer, Inc.
