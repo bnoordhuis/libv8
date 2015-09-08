@@ -24,7 +24,7 @@ Files: src/arm/assembler-arm*
  src/x64/assembler-x64.h
  src/x87/assembler-x87*
 Copyright: 1994-2006,2011, Sun Microsystems Inc.
-License: BSD-3-clause~SUN
+License: BSD-3-clause~Sun
 
 Files: test/mjsunit/third_party/*
 Copyright: 2006,2009, Apple Computer, Inc.
@@ -202,7 +202,7 @@ License: BSD-3-clause~Google
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-License: BSD-3-clause~SUN
+License: BSD-3-clause~Sun
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are
  met:
