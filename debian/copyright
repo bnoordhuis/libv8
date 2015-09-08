@@ -67,7 +67,7 @@ License: BSD-2-clause
 
 Files: test/webkit/fast/js/string-split-conformance.js
 Copyright: Steven Levithan
-License: MIT
+License: Expat
 
 Files: src/base/safe_*.h
  src/base/adapters.h
@@ -99,7 +99,7 @@ Files: benchmarks/crypto.js
  test/mjsunit/asm/embenchen/lua_binarytrees.js
  test/mjsunit/asm/poppler/poppler.js
 Copyright: 2003-2005, Tom Wu
-License: MIT~Wu
+License: Expat~Wu
 
 Files: test/mjsunit/asm/embenchen/lua_binarytrees.js
  test/mjsunit/asm/poppler/poppler.js
@@ -108,7 +108,7 @@ License: Apache-2.0
 
 Files: benchmarks/navier-stokes.js
 Copyright: 2009, Oliver Hunt <http://nerget.com>
-License: MIT
+License: Expat
 
 Files: benchmarks/raytrace.js
 Copyright: 2005-2007, Sam Stephenson
@@ -301,7 +301,7 @@ License: BSD-4-clause
  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 
-License: MIT
+License: Expat
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
  files (the "Software"), to deal in the Software without
@@ -323,7 +323,7 @@ License: MIT
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
 
-License: MIT~Wu
+License: Expat~Wu
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the
  "Software"), to deal in the Software without restriction, including
