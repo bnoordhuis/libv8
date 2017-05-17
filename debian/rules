@@ -57,7 +57,7 @@ v8os := $(or $(v8os),$(if $(filter linux,$(DEB_HOST_ARCH_OS)),linux))
 v8os := $(or $(v8os),$(if $(filter kfreebsd,$(DEB_HOST_ARCH_OS)),freebsd))
 v8os := $(or $(v8os),$(DEB_HOST_ARCH_OS))
 
-GYPFLAGS += -Dhost_arch=$(v8arch) -DOS=$(v8os) -Duse_system_icu=1 -Dclang=0 -Dhost_clang=0
+GYPFLAGS += --no-parallel -Dhost_arch=$(v8arch) -DOS=$(v8os) -Duse_system_icu=1 -Dclang=0 -Dhost_clang=0
 
 # the default test timeout in seconds
 timeOut = 180
