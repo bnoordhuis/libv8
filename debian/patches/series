@@ -7,3 +7,4 @@ icu_chromium_gyp_files.patch
 strict_overflow.patch
 nolibcplusplusabi.patch
 
+0015_gcc_6_compat.patch

@@ -1,0 +1,194 @@
+--- a/src/compiler/code-generator.cc
++++ b/src/compiler/code-generator.cc
+@@ -524,7 +524,8 @@
+                                             translation, frame_state_offset,
+                                             OutputFrameStateCombine::Ignore());
+   }
+-  frame_state_offset += descriptor->outer_state()->GetTotalSize();
++  frame_state_offset +=
++      FrameStateDescriptor::GetTotalSize(descriptor->outer_state());
+ 
+   Handle<SharedFunctionInfo> shared_info;
+   if (!descriptor->shared_info().ToHandle(&shared_info)) {
+@@ -562,8 +563,10 @@
+   frame_state_offset++;
+ 
+   Translation translation(
+-      &translations_, static_cast<int>(descriptor->GetFrameCount()),
+-      static_cast<int>(descriptor->GetJSFrameCount()), zone());
++      &translations_,
++      static_cast<int>(FrameStateDescriptor::GetFrameCount(descriptor)),
++      static_cast<int>(FrameStateDescriptor::GetJSFrameCount(descriptor)),
++      zone());
+   BuildTranslationForFrameStateDescriptor(descriptor, instr, &translation,
+                                           frame_state_offset, state_combine);
+ 
+--- a/src/compiler/instruction-selector-impl.h
++++ b/src/compiler/instruction-selector-impl.h
+@@ -374,7 +374,7 @@
+   size_t frame_state_value_count() const {
+     return (frame_state_descriptor == NULL)
+                ? 0
+-               : (frame_state_descriptor->GetTotalSize() +
++               : (FrameStateDescriptor::GetTotalSize(frame_state_descriptor) +
+                   1);  // Include deopt id.
+   }
+ };
+--- a/src/compiler/instruction-selector.cc
++++ b/src/compiler/instruction-selector.cc
+@@ -1007,7 +1007,8 @@
+   OperandGenerator g(this);
+ 
+   FrameStateDescriptor* desc = GetFrameStateDescriptor(value);
+-  size_t arg_count = desc->GetTotalSize() + 1;  // Include deopt id.
++  size_t arg_count =
++      FrameStateDescriptor::GetTotalSize(desc) + 1;  // Include deopt id.
+ 
+   InstructionOperandVector args(instruction_zone());
+   args.reserve(arg_count);
+--- a/src/compiler/instruction.cc
++++ b/src/compiler/instruction.cc
+@@ -697,9 +697,9 @@
+ }
+ 
+ 
+-size_t FrameStateDescriptor::GetTotalSize() const {
++size_t FrameStateDescriptor::GetTotalSize(const FrameStateDescriptor* desc) {
+   size_t total_size = 0;
+-  for (const FrameStateDescriptor* iter = this; iter != NULL;
++  for (const FrameStateDescriptor* iter = desc; iter != NULL;
+        iter = iter->outer_state_) {
+     total_size += iter->GetSize();
+   }
+@@ -707,9 +707,9 @@
+ }
+ 
+ 
+-size_t FrameStateDescriptor::GetFrameCount() const {
++size_t FrameStateDescriptor::GetFrameCount(const FrameStateDescriptor* desc) {
+   size_t count = 0;
+-  for (const FrameStateDescriptor* iter = this; iter != NULL;
++  for (const FrameStateDescriptor* iter = desc; iter != NULL;
+        iter = iter->outer_state_) {
+     ++count;
+   }
+@@ -717,9 +717,9 @@
+ }
+ 
+ 
+-size_t FrameStateDescriptor::GetJSFrameCount() const {
++size_t FrameStateDescriptor::GetJSFrameCount(const FrameStateDescriptor* desc) {
+   size_t count = 0;
+-  for (const FrameStateDescriptor* iter = this; iter != NULL;
++  for (const FrameStateDescriptor* iter = desc; iter != NULL;
+        iter = iter->outer_state_) {
+     if (iter->type_ == FrameStateType::kJavaScriptFunction) {
+       ++count;
+--- a/src/compiler/instruction.h
++++ b/src/compiler/instruction.h
+@@ -869,6 +869,10 @@
+                        MaybeHandle<SharedFunctionInfo> shared_info,
+                        FrameStateDescriptor* outer_state = nullptr);
+ 
++  static size_t GetTotalSize(const FrameStateDescriptor* desc);
++  static size_t GetFrameCount(const FrameStateDescriptor* desc);
++  static size_t GetJSFrameCount(const FrameStateDescriptor* desc);
++
+   FrameStateType type() const { return type_; }
+   BailoutId bailout_id() const { return bailout_id_; }
+   OutputFrameStateCombine state_combine() const { return frame_state_combine_; }
+@@ -883,9 +887,6 @@
+ 
+   size_t GetSize(OutputFrameStateCombine combine =
+                      OutputFrameStateCombine::Ignore()) const;
+-  size_t GetTotalSize() const;
+-  size_t GetFrameCount() const;
+-  size_t GetJSFrameCount() const;
+ 
+   MachineType GetType(size_t index) const;
+   void SetType(size_t index, MachineType type);
+--- a/src/heap/incremental-marking.cc
++++ b/src/heap/incremental-marking.cc
+@@ -364,7 +364,7 @@
+   DeactivateIncrementalWriteBarrierForSpace(heap_->new_space());
+ 
+   LargePage* lop = heap_->lo_space()->first_page();
+-  while (lop->is_valid()) {
++  while (LargePage::IsValid(lop)) {
+     SetOldSpacePageFlags(lop, false, false);
+     lop = lop->next_page();
+   }
+@@ -396,7 +396,7 @@
+   ActivateIncrementalWriteBarrier(heap_->new_space());
+ 
+   LargePage* lop = heap_->lo_space()->first_page();
+-  while (lop->is_valid()) {
++  while (LargePage::IsValid(lop)) {
+     SetOldSpacePageFlags(lop, true, is_compacting_);
+     lop = lop->next_page();
+   }
+--- a/src/heap/spaces-inl.h
++++ b/src/heap/spaces-inl.h
+@@ -155,7 +155,7 @@
+ 
+ bool PagedSpace::Contains(Address addr) {
+   Page* p = Page::FromAddress(addr);
+-  if (!p->is_valid()) return false;
++  if (!Page::IsValid(p)) return false;
+   return p->owner() == this;
+ }
+ 
+--- a/src/heap/spaces.cc
++++ b/src/heap/spaces.cc
+@@ -2953,7 +2953,7 @@
+   if (e != NULL) {
+     DCHECK(e->value != NULL);
+     LargePage* page = reinterpret_cast<LargePage*>(e->value);
+-    DCHECK(page->is_valid());
++    DCHECK(LargePage::IsValid(page));
+     if (page->Contains(a)) {
+       return page;
+     }
+--- a/src/heap/spaces.h
++++ b/src/heap/spaces.h
+@@ -278,9 +278,9 @@
+   // Only works for addresses in pointer spaces, not data or code spaces.
+   static inline MemoryChunk* FromAnyPointerAddress(Heap* heap, Address addr);
+ 
+-  Address address() { return reinterpret_cast<Address>(this); }
++  static bool IsValid(MemoryChunk* chunk) { return chunk != nullptr; }
+ 
+-  bool is_valid() { return address() != NULL; }
++  Address address() { return reinterpret_cast<Address>(this); }
+ 
+   MemoryChunk* next_chunk() const {
+     return reinterpret_cast<MemoryChunk*>(base::Acquire_Load(&next_chunk_));
+--- a/test/cctest/test-spaces.cc
++++ b/test/cctest/test-spaces.cc
+@@ -314,7 +314,7 @@
+       faked_space.AreaSize(), &faked_space, NOT_EXECUTABLE);
+ 
+   first_page->InsertAfter(faked_space.anchor()->prev_page());
+-  CHECK(first_page->is_valid());
++  CHECK(Page::IsValid(first_page));
+   CHECK(first_page->next_page() == faked_space.anchor());
+   total_pages++;
+ 
+@@ -325,7 +325,7 @@
+   // Again, we should get n or n - 1 pages.
+   Page* other = memory_allocator->AllocatePage(
+       faked_space.AreaSize(), &faked_space, NOT_EXECUTABLE);
+-  CHECK(other->is_valid());
++  CHECK(Page::IsValid(other));
+   total_pages++;
+   other->InsertAfter(first_page);
+   int page_count = 0;
+@@ -336,7 +336,7 @@
+   CHECK(total_pages == page_count);
+ 
+   Page* second_page = first_page->next_page();
+-  CHECK(second_page->is_valid());
++  CHECK(Page::IsValid(second_page));
+   memory_allocator->Free(first_page);
+   memory_allocator->Free(second_page);
+   memory_allocator->TearDown();
